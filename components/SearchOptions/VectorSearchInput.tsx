@@ -491,9 +491,9 @@ export default function VectorSearchInput({
                 <div className="h-full flex items-stretch ml-2">
                     <MiniVectorHeatmap
                         vector={
-                            lastTextEmbedding && lastTextEmbedding.length > 0
-                                ? lastTextEmbedding
-                                : currentVector
+                            currentVector && currentVector.length > 0
+                                ? currentVector
+                                : (lastTextEmbedding || null)
                         }
                         isGeneratingEmbedding={isGeneratingEmbedding}
                     />
