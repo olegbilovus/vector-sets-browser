@@ -1,11 +1,11 @@
 import { vectorSets } from "@/app/api/vector-sets"
 import EditEmbeddingConfigModal from "@/components/EmbeddingConfig/EditEmbeddingConfigDialog"
-import { 
-    BinaryEmbeddingIcon, 
-    getEmbeddingIcon, 
-    ImageEmbeddingIcon, 
-    MultiModalEmbeddingIcon, 
-    TextEmbeddingIcon 
+import {
+    BinaryEmbeddingIcon,
+    getEmbeddingIcon,
+    ImageEmbeddingIcon,
+    MultiModalEmbeddingIcon,
+    TextEmbeddingIcon,
 } from "@/components/EmbeddingConfig/EmbeddingIcons"
 import {
     EmbeddingConfig,
@@ -39,7 +39,13 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { AlertTriangle, BrainCircuit, Cpu, Image, LetterText } from "lucide-react"
+import {
+    AlertTriangle,
+    BrainCircuit,
+    Cpu,
+    Image,
+    LetterText,
+} from "lucide-react"
 import { useEffect, useState } from "react"
 
 interface VectorSettingsProps {
@@ -49,33 +55,64 @@ interface VectorSettingsProps {
 }
 
 // Add this new component for the embedding process visualization
-function EmbeddingProcessVisualization({ dataFormat }: { dataFormat: EmbeddingDataFormat }) {
+function EmbeddingProcessVisualization({
+    dataFormat,
+    config,
+    dimensions,
+}: {
+    dataFormat: EmbeddingDataFormat
+    config: EmbeddingConfig
+    dimensions: number
+}) {
+    const getInputTypeLabel = (format: EmbeddingDataFormat) => {
+        switch (format) {
+            case "text":
+                return "Input Data: Text"
+            case "image":
+                return "Input Data: Image"
+            case "text-and-image":
+                return "Multi-modal Input"
+            default:
+                return "Input"
+        }
+    }
+
+    const getModelDisplayName = (config: EmbeddingConfig) => {
+        const providerInfo = getProviderInfo(config.provider)
+        const modelName = getModelName(config)
+        return `${modelName}`
+    }
+
     return (
-        <div className="flex items-center justify-center mt-4 mb-2 py-3 bg-slate-50 rounded-md">
+        <div className="flex items-center justify-center mt-4 mb-2 p-8 bg-slate-50 rounded-md">
             <div className="flex items-center space-x-2">
                 {/* Input side */}
                 <div className="flex flex-col items-center">
                     {dataFormat === "text" && (
-                        <div className="p-2 bg-white rounded-md border border-slate-200 w-16 h-16 flex items-center justify-center">
-                            <LetterText className="h-8 w-8 text-blue-500" />
+                        <div className="p-2 bg-white rounded-md border border-slate-200 w-24 h-24 flex items-center justify-center">
+                            <LetterText className="h-10 w-10 text-blue-500" />
                         </div>
                     )}
                     {dataFormat === "image" && (
-                        <div className="p-2 bg-white rounded-md border border-slate-200 w-16 h-16 flex items-center justify-center">
-                            <Image className="h-8 w-8 text-purple-500" />
+                        <div className="p-2 bg-white rounded-md border border-slate-200 w-24 h-24 flex items-center justify-center">
+                            <Image className="h-10 w-10 text-purple-500" />
                         </div>
                     )}
                     {dataFormat === "text-and-image" && (
-                        <div className="p-2 bg-white rounded-md border border-slate-200 w-16 h-16 flex flex-col items-center justify-center">
-                            <LetterText className="h-5 w-5 text-blue-500" />
+                        <div className="p-2 bg-white rounded-md border border-slate-200 w-24 h-24 flex flex-col items-center justify-center">
+                            <LetterText className="h-6 w-6 text-blue-500" />
                             <div className="text-xs font-semibold">+</div>
-                            <Image className="h-5 w-5 text-purple-500" />
+                            <Image className="h-6 w-6 text-purple-500" />
                         </div>
                     )}
-                    <div className="text-xs font-medium mt-1 text-slate-600">Input</div>
+                    <div className="text-xs font-medium mt-1 text-slate-600 text-center max-w-20 whitespace-nowrap">
+                        Input Data:
+                        <div className="font-bold">{getInputTypeLabel(dataFormat).replace('Input Data: ', '')}</div>
+                        <div></div>
+                    </div>
                 </div>
 
-                {/* Arrow */}
+                {/* Animated Arrow */}
                 <div className="flex flex-col items-center">
                     <svg width="40" height="24" viewBox="0 0 40 24" className="text-slate-400">
                         <path 
@@ -85,20 +122,24 @@ function EmbeddingProcessVisualization({ dataFormat }: { dataFormat: EmbeddingDa
                             strokeLinecap="round" 
                             strokeLinejoin="round" 
                             fill="none" 
+                            className="animate-pulse"
                         />
                     </svg>
-                    <div className="text-xs font-medium mt-1 text-slate-600">Embedding</div>
                 </div>
 
                 {/* Model */}
                 <div className="flex flex-col items-center">
-                    <div className="p-2 bg-white rounded-md border border-slate-200 w-16 h-16 flex items-center justify-center">
-                        <BrainCircuit className="h-8 w-8 text-indigo-500" />
+                    <div className="p-2 bg-white rounded-md border border-slate-200 w-24 h-24 flex items-center justify-center">
+                        <BrainCircuit className="h-10 w-10 text-indigo-500" />
                     </div>
-                    <div className="text-xs font-medium mt-1 text-slate-600">Model</div>
+                    <div className="text-xs font-medium mt-1 text-slate-600 text-center max-w-24 whitespace-nowrap">
+                        Embedding Model:
+                        <div className="font-bold">{getModelDisplayName(config)}</div>
+                        <div></div>
+                    </div>
                 </div>
 
-                {/* Arrow */}
+                {/* Animated Arrow */}
                 <div className="flex flex-col items-center">
                     <svg width="40" height="24" viewBox="0 0 40 24" className="text-slate-400">
                         <path 
@@ -108,22 +149,26 @@ function EmbeddingProcessVisualization({ dataFormat }: { dataFormat: EmbeddingDa
                             strokeLinecap="round" 
                             strokeLinejoin="round" 
                             fill="none" 
+                            className="animate-pulse"
+                            style={{
+                                animationDelay: '0.5s'
+                            }}
                         />
                     </svg>
-                    <div className="text-xs font-medium mt-1 text-slate-600">Output</div>
                 </div>
 
                 {/* Output side (vector) */}
                 <div className="flex flex-col items-center">
-                    <div className="p-2 bg-white rounded-md border border-slate-200 w-16 h-16 flex items-center justify-center">
-                        <div className="text-xs font-mono text-slate-800 flex flex-col items-center">
-                            <span>[0.23,</span>
-                            <span>0.85,</span>
-                            <span>-0.12,</span>
-                            <span>...]</span>
+                    <div className="p-2 bg-white rounded-md border border-slate-200 w-24 h-24 flex items-center justify-center">
+                        <div className="text-[8px] font-mono text-slate-800 flex flex-col items-center">
+                            <span>[0.23, 0.85, -0.12, 0.67, -0.34, 0.91. -0.14, 0.98, -0.34, ...]</span>
                         </div>
                     </div>
-                    <div className="text-xs font-medium mt-1 text-slate-600">Vector</div>
+                    <div className="text-xs font-medium mt-1 text-slate-600 text-center whitespace-nowrap">
+                        Output Data:
+                        <div className="font-bold">Vector ({dimensions} dim)</div>
+                        <div></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,18 +180,30 @@ function DataTypeBadges({ config }: { config: EmbeddingConfig }) {
     const supportsText = isTextEmbedding(config)
     const supportsImage = isImageEmbedding(config)
     const isMultiModal = isMultiModalEmbedding(config)
-    
+
     return (
         <div className="flex items-center gap-2 my-2">
             <div className="text-sm text-slate-600 mr-1">Supports:</div>
             {supportsText && (
-                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${isMultiModal ? 'bg-indigo-100 text-indigo-800' : 'bg-blue-100 text-blue-800'}`}>
+                <div
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        isMultiModal
+                            ? "bg-indigo-100 text-indigo-800"
+                            : "bg-blue-100 text-blue-800"
+                    }`}
+                >
                     <LetterText className="h-3 w-3" />
                     <span>Text</span>
                 </div>
             )}
             {supportsImage && (
-                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${isMultiModal ? 'bg-indigo-100 text-indigo-800' : 'bg-purple-100 text-purple-800'}`}>
+                <div
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        isMultiModal
+                            ? "bg-indigo-100 text-indigo-800"
+                            : "bg-purple-100 text-purple-800"
+                    }`}
+                >
                     <Image className="h-3 w-3" />
                     <span>Image</span>
                 </div>
@@ -305,11 +362,12 @@ export default function VectorSettings({
                 }
 
                 if (countResponse.result && countResponse.result > 1) {
-                    
                     // Since we have real data (50 vectors), we should show the warning dialog
                     // The user needs to decide if they want to change the embedding model
                     // which could affect compatibility with existing vectors
-                    console.log("[VectorSettings] Multiple real vectors detected, showing warning dialog...")
+                    console.log(
+                        "[VectorSettings] Multiple real vectors detected, showing warning dialog..."
+                    )
                     setPendingEmbeddingConfig(newConfig)
                     setIsWarningDialogOpen(true)
                     setIsEditConfigModalOpen(false)
@@ -324,7 +382,9 @@ export default function VectorSettings({
             }
 
             // If no warning needed, proceed with the update
-            console.log("[VectorSettings] No embedding model change detected, calling saveEmbeddingConfig...")
+            console.log(
+                "[VectorSettings] No embedding model change detected, calling saveEmbeddingConfig..."
+            )
             await saveEmbeddingConfig(newConfig)
         } catch (error) {
             console.error("[VectorSettings] Error saving config:", error)
@@ -338,7 +398,6 @@ export default function VectorSettings({
             created: metadata?.created || new Date().toISOString(),
             lastUpdated: new Date().toISOString(),
         }
-
 
         try {
             await vectorSets.setMetadata({
@@ -358,11 +417,15 @@ export default function VectorSettings({
             if (actualVectorDim !== null) {
                 const expectedDimensions = getExpectedDimensions(newConfig)
                 setDimensionMismatch(
-                    expectedDimensions > 0 && actualVectorDim !== expectedDimensions
+                    expectedDimensions > 0 &&
+                        actualVectorDim !== expectedDimensions
                 )
             }
         } catch (error) {
-            console.error("[VectorSettings] Error in saveEmbeddingConfig:", error)
+            console.error(
+                "[VectorSettings] Error in saveEmbeddingConfig:",
+                error
+            )
             throw error
         }
     }
@@ -458,9 +521,12 @@ export default function VectorSettings({
                         )}
 
                     {/* Embedding content */}
-                    {metadata?.embedding && metadata.embedding.provider !== "none" ? (
-                        <div 
-                            key={`${metadata.embedding.provider}-${getModelName(metadata.embedding)}-${metadata.lastUpdated}`}
+                    {metadata?.embedding &&
+                    metadata.embedding.provider !== "none" ? (
+                        <div
+                            key={`${metadata.embedding.provider}-${getModelName(
+                                metadata.embedding
+                            )}-${metadata.lastUpdated}`}
                             className="flex flex-col p-4 bg-white rounded-md border border-slate-200"
                         >
                             {/* Top part with model info */}
@@ -469,65 +535,98 @@ export default function VectorSettings({
                                 <div className="grow">
                                     <div className="flex items-center mb-2">
                                         <div className="p-2 bg-slate-100 rounded-md mr-3 flex items-center justify-center">
-                                            {getEmbeddingDataFormat(metadata.embedding) === "text" && (
+                                            {getEmbeddingDataFormat(
+                                                metadata.embedding
+                                            ) === "text" && (
                                                 <TextEmbeddingIcon />
                                             )}
-                                            {getEmbeddingDataFormat(metadata.embedding) === "image" && (
+                                            {getEmbeddingDataFormat(
+                                                metadata.embedding
+                                            ) === "image" && (
                                                 <ImageEmbeddingIcon />
                                             )}
-                                            {getEmbeddingDataFormat(metadata.embedding) === "text-and-image" && (
+                                            {getEmbeddingDataFormat(
+                                                metadata.embedding
+                                            ) === "text-and-image" && (
                                                 <MultiModalEmbeddingIcon />
                                             )}
                                         </div>
                                         <div>
                                             <div className="text-sm font-semibold text-slate-500">
-                                                {getProviderInfo(metadata.embedding.provider).displayName}
+                                                {
+                                                    getProviderInfo(
+                                                        metadata.embedding
+                                                            .provider
+                                                    ).displayName
+                                                }
                                             </div>
                                             <div className="text-lg font-bold">
-                                                {getModelName(metadata.embedding)}
+                                                {getModelName(
+                                                    metadata.embedding
+                                                )}
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     {/* Data type badges */}
-                                    <DataTypeBadges config={metadata.embedding} />
-                                    
+                                    <DataTypeBadges
+                                        config={metadata.embedding}
+                                    />
+
                                     {/* Dimensions info */}
                                     {actualVectorDim !== null && (
                                         <div className="flex items-center mt-2">
                                             <div className="flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-800 rounded-md text-xs font-mono">
                                                 <Cpu className="h-3 w-3" />
                                                 <span>
-                                                    {getExpectedDimensions(metadata.embedding)}-d
+                                                    {getExpectedDimensions(
+                                                        metadata.embedding
+                                                    )}
+                                                    -d
                                                     {dimensionMismatch &&
-                                                        actualVectorDim !== null &&
+                                                        actualVectorDim !==
+                                                            null &&
                                                         ` (VectorSet: ${actualVectorDim}-d)`}
                                                 </span>
                                             </div>
                                         </div>
                                     )}
                                 </div>
-                                
+
                                 {/* Configure button */}
                                 <Button
                                     variant="outline"
-                                    onClick={() => setIsEditConfigModalOpen(true)}
+                                    onClick={() =>
+                                        setIsEditConfigModalOpen(true)
+                                    }
                                 >
                                     Configure
                                 </Button>
                             </div>
-                            
+
                             {/* Embedding process visualization */}
-                            <EmbeddingProcessVisualization 
-                                dataFormat={getEmbeddingDataFormat(metadata.embedding)} 
+                            <EmbeddingProcessVisualization
+                                dataFormat={getEmbeddingDataFormat(
+                                    metadata.embedding
+                                )}
+                                config={metadata.embedding}
+                                dimensions={getExpectedDimensions(
+                                    metadata.embedding
+                                )}
                             />
-                            
+
                             {/* Additional info based on model */}
                             {metadata.embedding.provider === "clip" && (
                                 <div className="text-xs text-slate-600 mt-2 p-2 bg-slate-50 rounded">
-                                    <p className="font-medium">Multi-modal embedding:</p>
-                                    <p>This model creates embeddings where text and images share the same vector space, 
-                                    enabling similarity search across different data types.</p>
+                                    <p className="font-medium">
+                                        Multi-modal embedding:
+                                    </p>
+                                    <p>
+                                        This model creates embeddings where text
+                                        and images share the same vector space,
+                                        enabling similarity search across
+                                        different data types.
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -553,11 +652,12 @@ export default function VectorSettings({
                                             No Embedding Configuration
                                         </p>
                                         <p className="text-yellow-700">
-                                            This vector set was created outside of
-                                            the browser and doesn{`'`}t have an
-                                            embedding configuration. Enable
-                                            embedding above to use VSIM search and
-                                            VADD operations in the web interface.
+                                            This vector set was created outside
+                                            of the browser and doesn{`'`}t have
+                                            an embedding configuration. Enable
+                                            embedding above to use VSIM search
+                                            and VADD operations in the web
+                                            interface.
                                         </p>
                                     </div>
                                 )}
@@ -570,35 +670,52 @@ export default function VectorSettings({
             <EditEmbeddingConfigModal
                 isOpen={isEditConfigModalOpen}
                 onClose={() => setIsEditConfigModalOpen(false)}
-                config={metadata?.embedding as EmbeddingConfig || DEFAULT_EMBEDDING_CONFIG}
+                config={
+                    (metadata?.embedding as EmbeddingConfig) ||
+                    DEFAULT_EMBEDDING_CONFIG
+                }
                 onSave={handleEditConfig}
             />
 
             {/* Warning Dialog for Embedding Model Change */}
-            <Dialog open={isWarningDialogOpen} onOpenChange={setIsWarningDialogOpen}>
+            <Dialog
+                open={isWarningDialogOpen}
+                onOpenChange={setIsWarningDialogOpen}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Change Embedding Model?</DialogTitle>
                         <DialogDescription>
-                            You are about to change the embedding model for this vector set. 
-                            This vector set contains {metadata && 'recordCount' in metadata ? metadata.recordCount : 'multiple'} vectors.
-                            Changing the embedding model may affect compatibility with existing vectors.
+                            You are about to change the embedding model for this
+                            vector set. This vector set contains{" "}
+                            {metadata && "recordCount" in metadata
+                                ? String(metadata.recordCount)
+                                : "multiple"}{" "}
+                            vectors. Changing the embedding model may affect
+                            compatibility with existing vectors.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
                             <p className="text-sm text-yellow-800">
-                                <strong>Warning:</strong> The new embedding model may produce vectors with different dimensions 
-                                or characteristics than the existing vectors. This could affect search results and similarity calculations.
+                                <strong>Warning:</strong> The new embedding
+                                model may produce vectors with different
+                                dimensions or characteristics than the existing
+                                vectors. This could affect search results and
+                                similarity calculations.
                             </p>
                         </div>
                         {pendingEmbeddingConfig && (
                             <div className="space-y-2">
                                 <p className="text-sm">
-                                    <strong>Current:</strong> {metadata?.embedding ? getModelName(metadata.embedding) : 'None'}
+                                    <strong>Current:</strong>{" "}
+                                    {metadata?.embedding
+                                        ? getModelName(metadata.embedding)
+                                        : "None"}
                                 </p>
                                 <p className="text-sm">
-                                    <strong>New:</strong> {getModelName(pendingEmbeddingConfig)}
+                                    <strong>New:</strong>{" "}
+                                    {getModelName(pendingEmbeddingConfig)}
                                 </p>
                             </div>
                         )}
@@ -624,24 +741,34 @@ export default function VectorSettings({
             </Dialog>
 
             {/* Success Dialog */}
-            <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+            <Dialog
+                open={isSuccessDialogOpen}
+                onOpenChange={setIsSuccessDialogOpen}
+            >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Embedding Model Changed Successfully</DialogTitle>
+                        <DialogTitle>
+                            Embedding Model Changed Successfully
+                        </DialogTitle>
                         <DialogDescription>
-                            The embedding model has been updated and the placeholder vector has been recreated with the new dimensions.
+                            The embedding model has been updated and the
+                            placeholder vector has been recreated with the new
+                            dimensions.
                         </DialogDescription>
                     </DialogHeader>
                     {successInfo && (
                         <div className="space-y-2">
                             <p className="text-sm">
-                                <strong>Changed from:</strong> {successInfo.oldModel}
+                                <strong>Changed from:</strong>{" "}
+                                {successInfo.oldModel}
                             </p>
                             <p className="text-sm">
-                                <strong>Changed to:</strong> {successInfo.newModel}
+                                <strong>Changed to:</strong>{" "}
+                                {successInfo.newModel}
                             </p>
                             <p className="text-sm">
-                                <strong>New dimensions:</strong> {successInfo.dimensions}
+                                <strong>New dimensions:</strong>{" "}
+                                {successInfo.dimensions}
                             </p>
                         </div>
                     )}
