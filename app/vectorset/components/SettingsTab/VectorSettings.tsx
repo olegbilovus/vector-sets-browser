@@ -600,7 +600,7 @@ export default function VectorSettings({
                                         setIsEditConfigModalOpen(true)
                                     }
                                 >
-                                    Configure
+                                    Change Model
                                 </Button>
                             </div>
 
