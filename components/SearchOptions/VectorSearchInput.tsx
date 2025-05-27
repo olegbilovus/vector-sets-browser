@@ -3,7 +3,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { clientEmbeddingService } from "@/lib/embeddings/client/embeddingService"
 import {
     getModelName,
-    isTextEmbedding
+    isTextEmbedding,
+    isImageEmbedding,
+    isMultiModalEmbedding
 } from "@/lib/embeddings/types/embeddingModels"
 import { type VectorSetMetadata } from "@/lib/types/vectors"
 import { ImageIcon, Shuffle, X } from "lucide-react"
@@ -225,8 +227,10 @@ export default function VectorSearchInput({
         return "Enter text or vector (0.1, 0.2, ...)"
     }, [])
 
-    // Determine if we should show the image uploader - always show for Vector searches
-    const showImageUploader = searchType === "Vector" || searchType === "Multi-vector"
+    // Determine if we should show the image uploader - only show if the embedding model supports images
+    const showImageUploader = (searchType === "Vector" || searchType === "Multi-vector") && 
+        metadata?.embedding && 
+        (isImageEmbedding(metadata.embedding) || isMultiModalEmbedding(metadata.embedding))
 
     // Always show text input
     const showTextInput = true
