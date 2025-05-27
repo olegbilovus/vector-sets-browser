@@ -17,12 +17,18 @@ interface DropzoneResultsTableProps extends CompactResultsTableProps {
     handleAddVector: (element: string, embedding: number[]) => Promise<void>
     vectorSetName: string
     metadata?: VectorSetMetadata | null
+    showEmbeddings?: boolean
+    embeddingsCache?: Record<string, number[] | null>
+    isLoadingEmbeddings?: boolean
 }
 
 const DropzoneResultsTable = React.memo(function DropzoneResultsTable({
     handleAddVector,
     vectorSetName,
     metadata,
+    showEmbeddings,
+    embeddingsCache,
+    isLoadingEmbeddings,
     ...compactResultsTableProps
 }: DropzoneResultsTableProps) {
     const [isDragging, setIsDragging] = useState(false)
@@ -88,7 +94,13 @@ const DropzoneResultsTable = React.memo(function DropzoneResultsTable({
             data-dropzone-id="results-table-dropzone"
         >
             <div className="flex flex-col">
-                <CompactResultsTable {...compactResultsTableProps} metadata={metadata} />
+                <CompactResultsTable 
+                    {...compactResultsTableProps} 
+                    metadata={metadata}
+                    showEmbeddings={showEmbeddings}
+                    embeddingsCache={embeddingsCache}
+                    isLoadingEmbeddings={isLoadingEmbeddings}
+                />
                 <DropzoneFooter 
                     isDragging={isDragging} 
                     isProcessing={isProcessing} 

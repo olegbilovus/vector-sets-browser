@@ -8,12 +8,14 @@ interface MiniVectorHeatmapProps {
     vector: number[] | null
     disabled?: boolean
     isGeneratingEmbedding?: boolean
+    size?: number // Size in pixels, defaults to 80
 }
 
 export default function MiniVectorHeatmap({ 
     vector, 
     disabled = false, 
-    isGeneratingEmbedding = false 
+    isGeneratingEmbedding = false,
+    size = 80
 }: MiniVectorHeatmapProps) {
     const [showHeatmap, setShowHeatmap] = useState(false)
     const [isResolving, setIsResolving] = useState(false)
@@ -37,6 +39,9 @@ export default function MiniVectorHeatmap({
         }
     }, [hasValidVector, isGeneratingEmbedding])
     
+    // Calculate Tailwind classes based on size
+    const sizeClass = size <= 40 ? 'w-10 h-10' : size <= 60 ? 'w-15 h-15' : 'w-20 h-20'
+    
     // Skip rendering if disabled
     if (disabled) {
         return null
@@ -46,7 +51,7 @@ export default function MiniVectorHeatmap({
     if (isGeneratingEmbedding || (hasValidVector && !isResolving)) {
         return (
             <div 
-                className="mini-vector-heatmap flex w-20 h-20 items-center justify-center rounded bg-gray-50 relative overflow-hidden"
+                className={`mini-vector-heatmap flex ${sizeClass} items-center justify-center rounded bg-gray-50 relative overflow-hidden`}
                 title="Generating embedding..."
             >
                 {/* Blurred placeholder - generate a simple noise pattern */}
@@ -84,7 +89,7 @@ export default function MiniVectorHeatmap({
     return (
         <>
             <div 
-                className="mini-vector-heatmap cursor-pointer flex w-20 h-20 items-center justify-center rounded bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
+                className={`mini-vector-heatmap cursor-pointer flex ${sizeClass} items-center justify-center rounded bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden`}
                 onClick={() => setShowHeatmap(true)}
                 title="View vector visualization"
             >
@@ -99,10 +104,11 @@ export default function MiniVectorHeatmap({
                     <VectorVisualizationRenderer 
                         vector={vector}
                         showStats={false}
-                        size={80}
+                        size={size}
                         colorScheme={settings.colorScheme}
                         scalingMode={settings.scalingMode}
                         visualizationType={settings.visualizationType}
+                        noPadding={true}
                     />
                 </div>
             </div>

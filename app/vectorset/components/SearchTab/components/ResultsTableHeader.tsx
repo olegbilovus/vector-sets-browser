@@ -46,6 +46,7 @@ interface ResultsTableHeaderProps {
     handleSelectAll: () => void
     handleDeselectAll: () => void
     filteredAndSortedResults: VectorTuple[]
+    showEmbeddings?: boolean
 }
 
 const ResultsTableHeader = React.memo(function ResultsTableHeader({
@@ -58,7 +59,8 @@ const ResultsTableHeader = React.memo(function ResultsTableHeader({
     selectedElements,
     handleSelectAll,
     handleDeselectAll,
-    filteredAndSortedResults
+    filteredAndSortedResults,
+    showEmbeddings
 }: ResultsTableHeaderProps) {
     const isAllSelected = selectedElements.size === filteredAndSortedResults.length &&
         filteredAndSortedResults.length > 0
@@ -143,6 +145,14 @@ const ResultsTableHeader = React.memo(function ResultsTableHeader({
                             </TableHead>
                         )
                     })}
+                
+                {/* Add embeddings column header when embeddings are enabled */}
+                {showEmbeddings && (
+                    <TableHead className="w-24 text-center">
+                        <span className="font-medium">Embedding</span>
+                    </TableHead>
+                )}
+                
                 <TableHead className="text-right">
                     Actions
                 </TableHead>

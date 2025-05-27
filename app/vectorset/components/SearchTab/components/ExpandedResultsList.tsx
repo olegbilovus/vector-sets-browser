@@ -17,6 +17,9 @@ interface ExpandedResultsListProps {
     onShowVectorClick: (e: React.MouseEvent, element: string) => void
     setEditingAttributes: (element: string) => void
     onDeleteClick: (e: React.MouseEvent, element: string) => void
+    showEmbeddings?: boolean
+    embeddingsCache?: Record<string, number[] | null>
+    isLoadingEmbeddings?: boolean
 }
 
 export default function ExpandedResultsList({
@@ -34,7 +37,10 @@ export default function ExpandedResultsList({
     handleSearchSimilar,
     onShowVectorClick,
     setEditingAttributes,
-    onDeleteClick
+    onDeleteClick,
+    showEmbeddings,
+    embeddingsCache,
+    isLoadingEmbeddings
 }: ExpandedResultsListProps) {
     return (
         <div className="space-y-4 mb-8">
@@ -57,6 +63,9 @@ export default function ExpandedResultsList({
                     onShowVectorClick={onShowVectorClick}
                     setEditingAttributes={setEditingAttributes}
                     onDeleteClick={onDeleteClick}
+                    showEmbeddings={showEmbeddings}
+                    embeddingsCache={embeddingsCache}
+                    isLoadingEmbeddings={isLoadingEmbeddings}
                 />
             ))}
         </div>

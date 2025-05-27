@@ -7,6 +7,7 @@ interface VectorRadialRendererProps {
     showStats?: boolean
     scalingMode?: 'relative' | 'absolute'
     colorScheme?: 'thermal' | 'viridis' | 'classic'
+    noPadding?: boolean
 }
 
 interface HoverInfo {
@@ -22,7 +23,8 @@ export default function VectorRadialRenderer({
     size = 300,
     showStats = false,
     scalingMode = 'relative',
-    colorScheme = 'thermal'
+    colorScheme = 'thermal',
+    noPadding = false
 }: VectorRadialRendererProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null)
@@ -115,7 +117,7 @@ export default function VectorRadialRenderer({
 
         const centerX = size / 2
         const centerY = size / 2
-        const padding = Math.max(10, size * 0.05) // Proportional padding: 5% of size, minimum 10px
+        const padding = noPadding ? 0 : Math.max(10, size * 0.05) // Proportional padding: 5% of size, minimum 10px
         const maxRadius = Math.min(size / 2 - padding, size / 2 - padding)
 
         // Calculate min/max for scaling
@@ -194,7 +196,7 @@ export default function VectorRadialRenderer({
             }
         }
 
-    }, [vector, size, scalingMode, colorScheme])
+    }, [vector, size, scalingMode, colorScheme, noPadding])
 
     // Handle mouse movement for hover effects
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -206,7 +208,7 @@ export default function VectorRadialRenderer({
 
         const centerX = size / 2
         const centerY = size / 2
-        const padding = Math.max(10, size * 0.05)
+        const padding = noPadding ? 0 : Math.max(10, size * 0.05)
         const maxRadius = Math.min(size / 2 - padding, size / 2 - padding)
         const absMax = scalingMode === 'absolute' ? 1 : Math.max(Math.abs(Math.min(...vector)), Math.abs(Math.max(...vector)))
 

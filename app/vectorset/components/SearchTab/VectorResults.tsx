@@ -2,7 +2,7 @@ import {
     ColumnConfig,
     useVectorResultsSettings,
 } from "@/app/vectorset/hooks/useVectorResultsSettings"
-import { vgetattr_multi } from "@/lib/redis-server/api"
+import { vgetattr_multi, vemb_multi } from "@/lib/redis-server/api"
 import { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import AttributeColumnsDialog from "./components/AttributeColumnsDialog"
 import DropzoneResultsTable from "./components/DropzoneResultsTable"
@@ -46,6 +46,8 @@ export default function VectorResults({
         setShowAttributes,
         showOnlyFilteredAttributes,
         setShowOnlyFilteredAttributes,
+        showEmbeddings,
+        setShowEmbeddings,
         updateAttributeColumnVisibility,
         getColumnVisibility,
         isLoaded,
@@ -91,7 +93,7 @@ export default function VectorResults({
     const lastKeyNameRef = useRef<string>("")
     
     // Debouncing ref for attribute fetching
-    const attributeFetchTimeoutRef = useRef<NodeJS.Timeout>()
+    const attributeFetchTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
     // Filter fields state - memoized to prevent recalculation
     const filterFields = useMemo(
@@ -343,6 +345,53 @@ export default function VectorResults({
         }
     }, [showAttributes, results, keyName, fetchAttributes])
 
+    // Embeddings fetching logic - similar to attributes but for embeddings
+    useEffect(() => {
+        if (!showEmbeddings || results.length === 0) {
+            return
+        }
+
+        // Check if results actually changed (avoid refetching for same data)
+        const currentElements = results.map(row => row[0]).sort()
+        const lastElements = lastResultsRef.current.map(row => row[0]).sort()
+        
+        const elementsChanged = currentElements.length !== lastElements.length || 
+            currentElements.some((element, index) => element !== lastElements[index])
+
+        if (!elementsChanged) {
+            return // No need to refetch if elements haven't changed
+        }
+
+        const fetchEmbeddings = async () => {
+            const elements = results.map((row) => row[0])
+            setIsLoadingEmbeddings(true)
+
+            try {
+                const embeddingsResult = await vemb_multi({
+                    keyName,
+                    elements,
+                    returnCommandOnly: false
+                })
+                
+                if (embeddingsResult.success && embeddingsResult.result) {
+                    const newEmbeddingsCache: Record<string, number[] | null> = {}
+                    elements.forEach((element, index) => {
+                        newEmbeddingsCache[element] = embeddingsResult.result![index]
+                    })
+                    setEmbeddingsCache(newEmbeddingsCache)
+                } else {
+                    console.error("Error fetching embeddings:", embeddingsResult.error)
+                }
+            } catch (error) {
+                console.error("Error fetching embeddings:", error)
+            } finally {
+                setIsLoadingEmbeddings(false)
+            }
+        }
+
+        fetchEmbeddings()
+    }, [showEmbeddings, results, keyName])
+
     // Extract field names from searchFilter - memoized
     const filteredFields = useMemo(() => {
         if (!searchFilter) return []
@@ -538,6 +587,10 @@ export default function VectorResults({
     const hasResults = results.length > 0
     const isEmptyResults = results.length === 0 && !isLoading
 
+    // Add embeddings state
+    const [embeddingsCache, setEmbeddingsCache] = useState<Record<string, number[] | null>>({})
+    const [isLoadingEmbeddings, setIsLoadingEmbeddings] = useState(false)
+
     // Early returns for different states - but avoid complete component replacement during search
     if (!isLoaded) {
         return (
@@ -614,10 +667,12 @@ export default function VectorResults({
                 isCompact={isCompact}
                 showAttributes={showAttributes}
                 showOnlyFilteredAttributes={showOnlyFilteredAttributes}
+                showEmbeddings={showEmbeddings}
                 availableColumns={availableColumns}
                 setIsCompact={setIsCompact}
                 setShowAttributes={setShowAttributes}
                 setShowOnlyFilteredAttributes={setShowOnlyFilteredAttributes}
+                setShowEmbeddings={setShowEmbeddings}
                 setIsAttributeColumnsDialogOpen={
                     setIsAttributeColumnsDialogOpen
                 }
@@ -656,6 +711,9 @@ export default function VectorResults({
                         handleAddVectorWithImage || (async () => {})
                     }
                     metadata={metadata}
+                    showEmbeddings={showEmbeddings}
+                    embeddingsCache={embeddingsCache}
+                    isLoadingEmbeddings={isLoadingEmbeddings}
                 />
             ) : (
                 <ExpandedResultsList
@@ -674,6 +732,9 @@ export default function VectorResults({
                     onShowVectorClick={onShowVectorClick}
                     setEditingAttributes={setEditingAttributes}
                     onDeleteClick={onDeleteClick}
+                    showEmbeddings={showEmbeddings}
+                    embeddingsCache={embeddingsCache}
+                    isLoadingEmbeddings={isLoadingEmbeddings}
                 />
             )}
         </div>

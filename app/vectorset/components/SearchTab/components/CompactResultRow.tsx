@@ -8,6 +8,7 @@ import {
 } from "@/components/EmbeddingConfig/EmbeddingIcons"
 import { EmbeddingDataFormat, getEmbeddingDataFormat } from "@/lib/embeddings/types/embeddingModels"
 import { VectorSetMetadata } from "@/lib/types/vectors"
+import MiniVectorHeatmap from "@/components/MiniVectorHeatmap"
 
 interface CompactResultRowProps {
     row: VectorTuple
@@ -22,6 +23,9 @@ interface CompactResultRowProps {
     setEditingAttributes: (element: string) => void
     onDeleteClick: (e: React.MouseEvent, element: string) => void
     metadata?: VectorSetMetadata | null
+    showEmbeddings?: boolean
+    embeddingsCache?: Record<string, number[] | null>
+    isLoadingEmbeddings?: boolean
 }
 
 const CompactResultRow = React.memo(function CompactResultRow({
@@ -36,7 +40,10 @@ const CompactResultRow = React.memo(function CompactResultRow({
     onShowVectorClick,
     setEditingAttributes,
     onDeleteClick,
-    metadata
+    metadata,
+    showEmbeddings,
+    embeddingsCache,
+    isLoadingEmbeddings
 }: CompactResultRowProps) {
     // Helper to format different attribute value types
     const formatAttributeValue = (value: any): string => {
@@ -108,6 +115,21 @@ const CompactResultRow = React.memo(function CompactResultRow({
                         )}
                     </TableCell>
                 ))}
+            
+            {/* Add MiniVectorHeatmap column when embeddings are enabled */}
+            {showEmbeddings && (
+                <TableCell className="w-12">
+                    <div className="flex items-center justify-center">
+                        <MiniVectorHeatmap
+                            vector={embeddingsCache?.[element] || null}
+                            disabled={!showEmbeddings}
+                            isGeneratingEmbedding={isLoadingEmbeddings}
+                            size={40}
+                        />
+                    </div>
+                </TableCell>
+            )}
+            
             <TableCell className="text-right">
                 <div className="flex justify-end -space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     {!selectMode && (

@@ -5,6 +5,7 @@ import {
     ImageEmbeddingIcon, 
     MultiModalEmbeddingIcon 
 } from "@/components/EmbeddingConfig/EmbeddingIcons"
+import MiniVectorHeatmap from "@/components/MiniVectorHeatmap"
 
 interface ExpandedResultRowProps {
     row: VectorTuple
@@ -23,6 +24,9 @@ interface ExpandedResultRowProps {
     onShowVectorClick: (e: React.MouseEvent, element: string) => void
     setEditingAttributes: (element: string) => void
     onDeleteClick: (e: React.MouseEvent, element: string) => void
+    showEmbeddings?: boolean
+    embeddingsCache?: Record<string, number[] | null>
+    isLoadingEmbeddings?: boolean
 }
 
 export default function ExpandedResultRow({
@@ -41,7 +45,10 @@ export default function ExpandedResultRow({
     handleSearchSimilar,
     onShowVectorClick,
     setEditingAttributes,
-    onDeleteClick
+    onDeleteClick,
+    showEmbeddings,
+    embeddingsCache,
+    isLoadingEmbeddings
 }: ExpandedResultRowProps) {
     // Helper to format different attribute value types
     const formatAttributeValue = (value: any): string => {
@@ -131,6 +138,22 @@ export default function ExpandedResultRow({
                                     : row[1]}
                             </div>
                         </div>
+                        
+                        {/* Add MiniVectorHeatmap when embeddings are enabled */}
+                        {showEmbeddings && (
+                            <div>
+                                <div className="text-sm text-gray-500">
+                                    EMBEDDING
+                                </div>
+                                <div className="mt-1">
+                                    <MiniVectorHeatmap
+                                        vector={embeddingsCache?.[row[0]] || null}
+                                        disabled={!showEmbeddings}
+                                        isGeneratingEmbedding={isLoadingEmbeddings}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
                 {!selectMode && (

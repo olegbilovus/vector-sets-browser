@@ -10,6 +10,7 @@ interface VectorVisualizationRendererProps {
     scalingMode?: 'relative' | 'absolute'
     colorScheme?: 'thermal' | 'viridis' | 'classic'
     visualizationType?: 'heatmap' | 'distribution' | 'radial'
+    noPadding?: boolean
 }
 
 export default function VectorVisualizationRenderer({
@@ -19,7 +20,8 @@ export default function VectorVisualizationRenderer({
     showStats = false,
     scalingMode = 'relative',
     colorScheme = 'thermal',
-    visualizationType = 'heatmap'
+    visualizationType = 'heatmap',
+    noPadding = false
 }: VectorVisualizationRendererProps) {
     
     if (visualizationType === 'distribution') {
@@ -44,6 +46,7 @@ export default function VectorVisualizationRenderer({
                 showStats={showStats}
                 scalingMode={scalingMode}
                 colorScheme={colorScheme}
+                noPadding={noPadding}
             />
         )
     }

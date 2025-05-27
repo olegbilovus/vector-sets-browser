@@ -12,6 +12,7 @@ export function useVectorResultsSettings() {
     const [showAttributes, setShowAttributes] = useState<boolean>(false)
     const [showOnlyFilteredAttributes, setShowOnlyFilteredAttributes] =
         useState<boolean>(true)
+    const [showEmbeddings, setShowEmbeddings] = useState<boolean>(true)
     const [isLoaded, setIsLoaded] = useState<boolean>(false)
     const [attributeColumns, setAttributeColumns] = useState<
         Record<string, boolean>
@@ -29,6 +30,8 @@ export function useVectorResultsSettings() {
         setShowAttributes(userSettings.get("vectorResults.showAttributes") || false)
 
         setShowOnlyFilteredAttributes(userSettings.get("vectorResults.showOnlyFilteredAttributes") || false)
+
+        setShowEmbeddings(userSettings.get("vectorResults.showEmbeddings") ?? true)
 
         setAttributeColumns(userSettings.get("vectorResults.attributeColumns") || {})
 
@@ -64,6 +67,24 @@ export function useVectorResultsSettings() {
                 // Persist the new value
                 userSettings
                     .set("vectorResults.showOnlyFilteredAttributes", newValue)
+
+                return newValue
+            })
+        },
+        []
+    )
+
+    // Custom setter that updates state and persists the change for embeddings
+    const setAndPersistShowEmbeddings = useCallback(
+        (value: boolean | ((prevState: boolean) => boolean)) => {
+            setShowEmbeddings((prevValue) => {
+                // Handle both direct values and updater functions
+                const newValue =
+                    typeof value === "function" ? value(prevValue) : value
+
+                // Persist the new value
+                userSettings
+                    .set("vectorResults.showEmbeddings", newValue)
 
                 return newValue
             })
@@ -116,6 +137,8 @@ export function useVectorResultsSettings() {
         setShowAttributes: setAndPersistShowAttributes,
         showOnlyFilteredAttributes,
         setShowOnlyFilteredAttributes: setAndPersistShowOnlyFilteredAttributes,
+        showEmbeddings,
+        setShowEmbeddings: setAndPersistShowEmbeddings,
         attributeColumns,
         updateAttributeColumnVisibility,
         getColumnVisibility,

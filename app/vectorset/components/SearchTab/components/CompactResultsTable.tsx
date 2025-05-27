@@ -25,6 +25,9 @@ export interface CompactResultsTableProps {
     setEditingAttributes: (element: string) => void
     onDeleteClick: (e: React.MouseEvent, element: string) => void
     metadata?: VectorSetMetadata | null
+    showEmbeddings?: boolean
+    embeddingsCache?: Record<string, number[] | null>
+    isLoadingEmbeddings?: boolean
 }
 
 const CompactResultsTable = React.memo(function CompactResultsTable({
@@ -44,7 +47,10 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
     onShowVectorClick,
     setEditingAttributes,
     onDeleteClick,
-    metadata
+    metadata,
+    showEmbeddings,
+    embeddingsCache,
+    isLoadingEmbeddings
 }: CompactResultsTableProps) {
     return (
         <Table>
@@ -59,6 +65,7 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
                 handleSelectAll={handleSelectAll}
                 handleDeselectAll={handleDeselectAll}
                 filteredAndSortedResults={filteredAndSortedResults}
+                showEmbeddings={showEmbeddings}
             />
             <TableBody>
                 {filteredAndSortedResults.map((row, index) => (
@@ -76,6 +83,9 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
                         setEditingAttributes={setEditingAttributes}
                         onDeleteClick={onDeleteClick}
                         metadata={metadata}
+                        showEmbeddings={showEmbeddings}
+                        embeddingsCache={embeddingsCache}
+                        isLoadingEmbeddings={isLoadingEmbeddings}
                     />
                 ))}
             </TableBody>

@@ -28,10 +28,12 @@ interface ResultsHeaderProps {
     isCompact: boolean
     showAttributes: boolean
     showOnlyFilteredAttributes: boolean
+    showEmbeddings: boolean
     availableColumns: ColumnConfig[]
     setIsCompact: (value: boolean) => void
     setShowAttributes: (value: boolean) => void
     setShowOnlyFilteredAttributes: (value: boolean) => void
+    setShowEmbeddings: (value: boolean) => void
     setIsAttributeColumnsDialogOpen: (value: boolean) => void
     setSelectMode: (value: boolean) => void
     handleSelectAll: () => void
@@ -57,10 +59,12 @@ const ResultsHeader = React.memo(function ResultsHeader({
     isCompact,
     showAttributes,
     showOnlyFilteredAttributes,
+    showEmbeddings,
     availableColumns,
     setIsCompact,
     setShowAttributes,
     setShowOnlyFilteredAttributes,
+    setShowEmbeddings,
     setIsAttributeColumnsDialogOpen,
     setSelectMode,
     handleSelectAll,
@@ -276,6 +280,14 @@ const ResultsHeader = React.memo(function ResultsHeader({
                                         Show Only Filtered Attributes
                                     </DropdownMenuCheckboxItem>
                                 )}
+                                <DropdownMenuCheckboxItem
+                                    checked={showEmbeddings}
+                                    onCheckedChange={(checked) => {
+                                        setShowEmbeddings(checked)
+                                    }}
+                                >
+                                    Show Embeddings
+                                </DropdownMenuCheckboxItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuLabel>
                                     Columns
