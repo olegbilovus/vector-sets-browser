@@ -95,9 +95,18 @@ const CompactResultRow = React.memo(function CompactResultRow({
                             col.name === "element" ? (
                                 <div className="line-clamp-2 break-words flex items-center gap-2">
                                     <span className="flex-shrink-0">
-                                        {React.createElement(getEmbeddingIcon(getEmbeddingDataFormat(
+                                        {showEmbeddings ? (
+                                            <MiniVectorHeatmap
+                                                vector={embeddingsCache?.[element] || null}
+                                                disabled={!showEmbeddings}
+                                                isGeneratingEmbedding={isLoadingEmbeddings}
+                                                size={40}
+                                            />
+                                        ) : (
+                                            React.createElement(getEmbeddingIcon(getEmbeddingDataFormat(
                                                             metadata?.embedding
-                                                        )))}
+                                            )))
+                                        )}
                                     </span>
                                     <span className="font-medium">{element}</span>
                                 </div>
