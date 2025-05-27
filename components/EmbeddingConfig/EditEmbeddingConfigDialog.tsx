@@ -6,7 +6,7 @@ import {
     getEmbeddingDataFormat,
     getModelData,
     getProviderInfo,
-    getProvidersByDataFormat
+    getProvidersByDataFormat,
 } from "@/lib/embeddings/types/embeddingModels"
 import { defaultOllamaUrl } from "@/lib/embeddings/utils"
 import { userSettings } from "@/lib/storage/userSettings"
@@ -25,7 +25,7 @@ import { useEffect, useState } from "react"
 import {
     ImageEmbeddingIcon,
     MultiModalEmbeddingIcon,
-    TextEmbeddingIcon
+    TextEmbeddingIcon,
 } from "./EmbeddingIcons"
 import ModelSelector from "./ModelSelector"
 import ProviderSelector from "./ProviderSelector"
@@ -80,9 +80,10 @@ export default function EditEmbeddingConfigModal({
     const [provider, setProvider] = useState<EmbeddingProvider>(
         config?.provider || "openai"
     )
-    const [selectedDataFormat, setSelectedDataFormat] = useState<EmbeddingDataFormat>(
-        initialDataFormat || getEmbeddingDataFormat(config) || "text"
-    )
+    const [selectedDataFormat, setSelectedDataFormat] =
+        useState<EmbeddingDataFormat>(
+            initialDataFormat || getEmbeddingDataFormat(config) || "text"
+        )
     const { apiKey, saveApiKey, isLoaded } = useOpenAIKey()
     const [tempApiKey, setTempApiKey] = useState("")
 
@@ -147,33 +148,37 @@ export default function EditEmbeddingConfigModal({
 
     // When data format changes, select an appropriate provider
     useEffect(() => {
-        const providers = getProvidersByDataFormat(selectedDataFormat);
-        
+        const providers = getProvidersByDataFormat(selectedDataFormat)
+
         // Check if current provider supports the selected data format
-        const currentProviderInfo = getProviderInfo(provider);
-        const isProviderCompatible = currentProviderInfo.dataFormats.includes(selectedDataFormat);
-        
+        const currentProviderInfo = getProviderInfo(provider)
+        const isProviderCompatible =
+            currentProviderInfo.dataFormats.includes(selectedDataFormat)
+
         if (!isProviderCompatible && providers.length > 0) {
             // Select the first available provider for this data format
-            setProvider(providers[0].id);
+            setProvider(providers[0].id)
         }
-    }, [selectedDataFormat]);
+    }, [selectedDataFormat])
 
     // When provider changes, initialize with default model for that provider
     useEffect(() => {
-        const defaultModel = getDefaultModelForProvider(provider);
+        const defaultModel = getDefaultModelForProvider(provider)
         if (defaultModel) {
             if (provider === "openai") {
-                setOpenaiConfig(prev => ({ ...prev, model: defaultModel.id }));
+                setOpenaiConfig((prev) => ({ ...prev, model: defaultModel.id }))
             } else if (provider === "ollama") {
-                setOllamaConfig(prev => ({ ...prev, modelName: defaultModel.id }));
+                setOllamaConfig((prev) => ({
+                    ...prev,
+                    modelName: defaultModel.id,
+                }))
             } else if (provider === "image") {
-                setImageConfig(prev => ({ ...prev, model: defaultModel.id }));
+                setImageConfig((prev) => ({ ...prev, model: defaultModel.id }))
             } else if (provider === "clip") {
-                setClipConfig(prev => ({ ...prev, model: defaultModel.id }));
+                setClipConfig((prev) => ({ ...prev, model: defaultModel.id }))
             }
         }
-    }, [provider]);
+    }, [provider])
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -212,7 +217,7 @@ export default function EditEmbeddingConfigModal({
                 }
             } else if (provider === "clip") {
                 newConfig.clip = {
-                    model: clipConfig.model
+                    model: clipConfig.model,
                 }
             }
 
@@ -233,19 +238,25 @@ export default function EditEmbeddingConfigModal({
                     <>
                         <div className="space-y-2">
                             <Label htmlFor="apiKey">
-                                OpenAI API Key {apiKey ? "(Saved)" : "(Not Saved)"}
+                                OpenAI API Key{" "}
+                                {apiKey ? "(Saved)" : "(Not Saved)"}
                             </Label>
                             <Input
                                 id="apiKey"
                                 type="password"
                                 value={tempApiKey}
                                 onChange={(e) => setTempApiKey(e.target.value)}
-                                placeholder={apiKey ? "Using saved API key" : "Enter API key"}
+                                placeholder={
+                                    apiKey
+                                        ? "Using saved API key"
+                                        : "Enter API key"
+                                }
                             />
                             {apiKey && (
                                 <p className="text-xs text-gray-500">
-                                    A global API key is already saved. Leave empty to use the saved key,
-                                    or enter a new one to update it.
+                                    A global API key is already saved. Leave
+                                    empty to use the saved key, or enter a new
+                                    one to update it.
                                 </p>
                             )}
                         </div>
@@ -256,15 +267,16 @@ export default function EditEmbeddingConfigModal({
                             <ModelSelector
                                 provider="openai"
                                 value={openaiConfig.model}
-                                onChange={(value) => 
-                                    setOpenaiConfig(prev => ({ ...prev, model: value }))
+                                onChange={(value) =>
+                                    setOpenaiConfig((prev) => ({
+                                        ...prev,
+                                        model: value,
+                                    }))
                                 }
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="batchSize">
-                                Batch Size
-                            </Label>
+                            <Label htmlFor="batchSize">Batch Size</Label>
                             <Input
                                 id="batchSize"
                                 type="number"
@@ -278,8 +290,8 @@ export default function EditEmbeddingConfigModal({
                             />
                         </div>
                     </>
-                );
-                
+                )
+
             case "ollama":
                 return (
                     <>
@@ -334,14 +346,25 @@ export default function EditEmbeddingConfigModal({
                             />
                         </div>
                     </>
-                );
-                
+                )
+
             case "image":
                 return (
                     <>
-                        <div className="space-y-2">
-                            <Label htmlFor="model">Image Model</Label>
-                            <ModelSelector
+                        <div className="">
+                            <div className="text-sm ">
+                                Model Name:{" "}
+                                <span className="font-bold">
+                                    {getDefaultModelForProvider("image")?.name}
+                                </span>
+                            </div>
+                            <div className="text-xs text-gray-500">
+                                {
+                                    getDefaultModelForProvider("image")
+                                        ?.description
+                                }
+                            </div>
+                            {/* <ModelSelector
                                 provider="image"
                                 value={imageConfig.model}
                                 onChange={(value) =>
@@ -350,12 +373,10 @@ export default function EditEmbeddingConfigModal({
                                         model: value,
                                     })
                                 }
-                            />
+                            /> */}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="inputSize">
-                                Input Size (px)
-                            </Label>
+                            <Label htmlFor="inputSize">Input Size (px)</Label>
                             <Input
                                 id="inputSize"
                                 type="number"
@@ -369,66 +390,69 @@ export default function EditEmbeddingConfigModal({
                                 placeholder="224"
                             />
                             <p className="text-xs text-gray-500">
-                                Images will be resized to this size
-                                before processing. Default is 224px.
-                            </p>
-                        </div>
-                        <div className="text-sm text-gray-500 mt-4 p-4 bg-gray-50 rounded-md">
-                            <p>
-                                Image embedding models run directly in
-                                the browser using TensorFlow.js. The
-                                first use may take a moment to download
-                                the model.
+                                Images will be resized to this size before
+                                processing. Default is 224px. Image embedding
+                                models run directly in the browser using
+                                TensorFlow.js. The first use may take a moment
+                                to download the model.
                             </p>
                         </div>
                     </>
-                );
-                
+                )
+
             case "clip":
-                const clipModel = getModelData({ provider: "clip", clip: { model: clipConfig.model } });
+                const clipModel = getModelData({
+                    provider: "clip",
+                    clip: { model: clipConfig.model },
+                })
                 return (
-                    <div className="text-sm text-gray-500 mt-4 p-4 bg-gray-50 rounded-md">
+                    <div className="text-xs">
                         <p>
-                            {clipModel?.name} will be used for both text and image embeddings.
-                            This model creates {clipModel?.dimensions}-dimensional vectors.
+                            No Configuration is necessary for CLIP model. This
+                            model creates {clipModel?.dimensions}-dimensional
+                            vectors.
                         </p>
                         <p className="mt-2">
-                            Multi-modal models can understand both text and images in the same vector space,
-                            enabling cross-modal similarity search.
+                            Multi-modal models can understand both text and
+                            images in the same vector space, enabling
+                            cross-modal similarity search.
                         </p>
                     </div>
-                );
-                
+                )
+
             default:
                 return (
                     <div className="text-sm text-gray-500 mt-4 p-4 bg-gray-50 rounded-md">
                         No additional configuration needed.
                     </div>
-                );
+                )
         }
-    };
+    }
 
     // Data format selection options
     const dataFormatOptions = [
         {
             id: "text",
             name: "Text",
-            description: "Process and embed textual data like sentences, paragraphs, or documents",
-            icon: <TextEmbeddingIcon />
+            description:
+                "Process and embed textual data like sentences, paragraphs, or documents",
+            icon: <TextEmbeddingIcon />,
         },
         {
             id: "image",
             name: "Image",
-            description: "Process and embed images for visual similarity search",
-            icon: <ImageEmbeddingIcon />
+            description:
+                "Process and embed images for visual similarity search",
+            icon: <ImageEmbeddingIcon />,
         },
         {
             id: "text-and-image",
-            name: "Multi-modal (Text & Image)",
-            description: "Process both text and images in a unified embedding space",
-            icon: <MultiModalEmbeddingIcon />
-        }
-    ];
+            name: "Multi-modal",
+            description:
+                "Process both text and images in a unified embedding space",
+            icon: <MultiModalEmbeddingIcon />,
+        },
+    ]
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -451,18 +475,28 @@ export default function EditEmbeddingConfigModal({
                         </Label>
                         <div className="pt-2">
                             <div className="grid grid-cols-3 gap-3">
-                                {dataFormatOptions.map(option => (
-                                    <div 
+                                {dataFormatOptions.map((option) => (
+                                    <div
                                         key={option.id}
                                         className={`border rounded-md p-4 cursor-pointer transition-all hover:bg-slate-50 
-                                            ${selectedDataFormat === option.id ? 'border-2 border-primary ring-1 ring-primary' : 'border-border'}`}
-                                        onClick={() => setSelectedDataFormat(option.id as EmbeddingDataFormat)}
+                                            ${
+                                                selectedDataFormat === option.id
+                                                    ? "border-2 border-primary ring-1 ring-primary"
+                                                    : "border-border"
+                                            }`}
+                                        onClick={() =>
+                                            setSelectedDataFormat(
+                                                option.id as EmbeddingDataFormat
+                                            )
+                                        }
                                     >
                                         <div className="flex items-center gap-2 mb-2">
                                             <div>{option.icon}</div>
-                                            <span className="font-semibold">{option.name}</span>
+                                            <span className="font-semibold">
+                                                {option.name}
+                                            </span>
                                         </div>
-                                        <p className="text-sm text-gray-500">
+                                        <p className="text-xs text-gray-500">
                                             {option.description}
                                         </p>
                                     </div>
@@ -476,9 +510,9 @@ export default function EditEmbeddingConfigModal({
                         <Label className="text-base font-semibold">
                             Step 2: Select embedding provider
                         </Label>
-                        <ProviderSelector 
-                            value={provider} 
-                            onChange={setProvider} 
+                        <ProviderSelector
+                            value={provider}
+                            onChange={setProvider}
                             dataFormat={selectedDataFormat}
                         />
                     </div>

@@ -46,7 +46,7 @@ export const PROVIDER_INFO: Record<EmbeddingProvider, ProviderInfo> = {
         displayName: "Transformers.js",
         description: "Multi-modal models that handle both text and images",
         isBuiltIn: true,
-        dataFormats: ["text", "image", "text-and-image"],
+        dataFormats: ["text-and-image"],
     },
     "none": {
         id: "none",
@@ -339,10 +339,7 @@ export function getModelsByProvider(provider: EmbeddingProvider): ModelData[] {
 
 // Helper function to get models by data format
 export function getModelsByDataFormat(dataFormat: EmbeddingDataFormat): ModelData[] {
-    return ALL_MODELS.filter(model => 
-        model.dataFormat === dataFormat || 
-        model.dataFormat === "text-and-image"
-    );
+    return ALL_MODELS.filter(model => model.dataFormat === dataFormat);
 }
 
 // Helper function to get provider display information
