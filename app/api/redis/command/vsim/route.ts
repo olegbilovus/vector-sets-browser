@@ -186,7 +186,7 @@ export async function POST(request: Request) {
         return formatResponse({
             success: true,
             result: finalResult,
-            executedCommand: commandStr + (fallbackUsed ? ' (fallback used)' : ''),
+            executedCommand: commandStr,
             executionTimeMs: redisResult.executionTimeMs
         })
 
