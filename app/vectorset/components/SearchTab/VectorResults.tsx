@@ -2,8 +2,8 @@ import {
     ColumnConfig,
     useVectorResultsSettings,
 } from "@/app/vectorset/hooks/useVectorResultsSettings"
-import { vgetattr_multi, vemb_multi } from "@/lib/redis-server/api"
-import { useEffect, useMemo, useRef, useState, useCallback } from "react"
+import { vemb_multi, vgetattr_multi } from "@/lib/redis-server/api"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import AttributeColumnsDialog from "./components/AttributeColumnsDialog"
 import DropzoneResultsTable from "./components/DropzoneResultsTable"
 import ExpandedResultsList from "./components/ExpandedResultsList"
@@ -19,7 +19,6 @@ import {
     VectorResultsProps,
 } from "./types"
 import { extractFilterFields, isEmptyVectorSet, sortResults } from "./utils"
-import { getProviderInfo, getProvidersByDataFormat } from "@/lib/embeddings/types/embeddingModels"
 
 export default function VectorResults({
     results,
@@ -91,9 +90,14 @@ export default function VectorResults({
     // Add ref to track the last results for comparison
     const lastResultsRef = useRef<typeof results>([])
     const lastKeyNameRef = useRef<string>("")
-    
+
+    // Add separate ref for embeddings tracking
+    const lastEmbeddingsResultsRef = useRef<typeof results>([])
+
     // Debouncing ref for attribute fetching
-    const attributeFetchTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+    const attributeFetchTimeoutRef = useRef<NodeJS.Timeout | undefined>(
+        undefined
+    )
 
     // Filter fields state - memoized to prevent recalculation
     const filterFields = useMemo(
@@ -137,7 +141,7 @@ export default function VectorResults({
 
     // Handle "Select All" action
     const handleSelectAll = useCallback(() => {
-        setSelectedElements(prev => {
+        setSelectedElements((prev) => {
             const allElements = filteredAndSortedResults.map((row) => row[0])
             return new Set(allElements)
         })
@@ -167,7 +171,7 @@ export default function VectorResults({
     useEffect(() => {
         if (keyName !== lastKeyNameRef.current) {
             lastKeyNameRef.current = keyName
-            
+
             // Batch all state updates together
             const defaultColumns: ColumnConfig[] = [
                 {
@@ -197,31 +201,35 @@ export default function VectorResults({
             setSortDirection("asc")
             setFilterText("")
             setIsLoadingAttributes(false)
-            
+
             // Reset results reference
             lastResultsRef.current = []
+            lastEmbeddingsResultsRef.current = []
         }
     }, [keyName])
 
     // Single source of truth for attribute fetching - memoized
-    const fetchAttributes = useCallback(async (elements: string[]) => {
-        try {
-            const response = await vgetattr_multi({
-                keyName,
-                elements,
-                returnCommandOnly: false,
-            })
+    const fetchAttributes = useCallback(
+        async (elements: string[]) => {
+            try {
+                const response = await vgetattr_multi({
+                    keyName,
+                    elements,
+                    returnCommandOnly: false,
+                })
 
-            if (!response?.success || !response?.result) {
-                console.error(`Error fetching attributes`, response?.error)
+                if (!response?.success || !response?.result) {
+                    console.error(`Error fetching attributes`, response?.error)
+                    return null
+                }
+                return response.result
+            } catch (error) {
+                console.error(`Error fetching attributes`, error)
                 return null
             }
-            return response.result
-        } catch (error) {
-            console.error(`Error fetching attributes`, error)
-            return null
-        }
-    }, [keyName])
+        },
+        [keyName]
+    )
 
     // Optimized attribute fetching with debouncing and comparison
     useEffect(() => {
@@ -233,11 +241,14 @@ export default function VectorResults({
         }
 
         // Check if results actually changed (avoid refetching for same data)
-        const currentElements = results.map(row => row[0]).sort()
-        const lastElements = lastResultsRef.current.map(row => row[0]).sort()
-        
-        const elementsChanged = currentElements.length !== lastElements.length || 
-            currentElements.some((element, index) => element !== lastElements[index])
+        const currentElements = results.map((row) => row[0]).sort()
+        const lastElements = lastResultsRef.current.map((row) => row[0]).sort()
+
+        const elementsChanged =
+            currentElements.length !== lastElements.length ||
+            currentElements.some(
+                (element, index) => element !== lastElements[index]
+            )
 
         if (!elementsChanged) {
             return // No need to refetch if elements haven't changed
@@ -265,7 +276,7 @@ export default function VectorResults({
                 const updates = {
                     newCache: { ...attributeCache },
                     newParsedCache: {} as Record<string, ParsedAttributes>,
-                    allAttributeColumns: new Set<string>()
+                    allAttributeColumns: new Set<string>(),
                 }
 
                 elements.forEach((element, i) => {
@@ -297,30 +308,46 @@ export default function VectorResults({
                             (col) => col.type === "system"
                         )
                         const existingAttributeColumns = new Set(
-                            prev.filter(col => col.type === "attribute").map(col => col.name)
+                            prev
+                                .filter((col) => col.type === "attribute")
+                                .map((col) => col.name)
                         )
-                        
+
                         // Only add new columns, don't recreate existing ones
                         const newAttributeColumns = Array.from(
                             updates.allAttributeColumns
                         )
-                        .filter(name => !existingAttributeColumns.has(name))
-                        .map((name) => ({
-                            name,
-                            visible: getColumnVisibilityRef.current(name, true),
-                            type: "attribute" as const,
-                        }))
+                            .filter(
+                                (name) => !existingAttributeColumns.has(name)
+                            )
+                            .map((name) => ({
+                                name,
+                                visible: getColumnVisibilityRef.current(
+                                    name,
+                                    true
+                                ),
+                                type: "attribute" as const,
+                            }))
 
-                        if (newAttributeColumns.length === 0 && 
-                            prev.filter(col => col.type === "attribute").length === updates.allAttributeColumns.size) {
+                        if (
+                            newAttributeColumns.length === 0 &&
+                            prev.filter((col) => col.type === "attribute")
+                                .length === updates.allAttributeColumns.size
+                        ) {
                             return prev // No changes needed
                         }
 
-                        const existingAttributeColumnsArray = prev.filter(col => 
-                            col.type === "attribute" && updates.allAttributeColumns.has(col.name)
+                        const existingAttributeColumnsArray = prev.filter(
+                            (col) =>
+                                col.type === "attribute" &&
+                                updates.allAttributeColumns.has(col.name)
                         )
 
-                        return [...systemColumns, ...existingAttributeColumnsArray, ...newAttributeColumns]
+                        return [
+                            ...systemColumns,
+                            ...existingAttributeColumnsArray,
+                            ...newAttributeColumns,
+                        ]
                     })
                 }
             } catch (error) {
@@ -347,40 +374,55 @@ export default function VectorResults({
 
     // Embeddings fetching logic - similar to attributes but for embeddings
     useEffect(() => {
+        console.log("showEmbeddings", showEmbeddings)
+        console.log("results", results)
         if (!showEmbeddings || results.length === 0) {
             return
         }
 
         // Check if results actually changed (avoid refetching for same data)
-        const currentElements = results.map(row => row[0]).sort()
-        const lastElements = lastResultsRef.current.map(row => row[0]).sort()
-        
-        const elementsChanged = currentElements.length !== lastElements.length || 
-            currentElements.some((element, index) => element !== lastElements[index])
+        const currentElements = results.map((row) => row[0]).sort()
+        const lastElements = lastEmbeddingsResultsRef.current.map((row) => row[0]).sort()
+
+        const elementsChanged =
+            currentElements.length !== lastElements.length ||
+            currentElements.some(
+                (element, index) => element !== lastElements[index]
+            )
 
         if (!elementsChanged) {
+            console.log("No need to refetch embeddings if elements haven't changed")
             return // No need to refetch if elements haven't changed
         }
+
+        // Update the ref to track current results
+        lastEmbeddingsResultsRef.current = results
 
         const fetchEmbeddings = async () => {
             const elements = results.map((row) => row[0])
             setIsLoadingEmbeddings(true)
 
             try {
+                console.log("Fetching embeddings for", elements)
                 const embeddingsResult = await vemb_multi({
                     keyName,
                     elements,
-                    returnCommandOnly: false
+                    returnCommandOnly: false,
                 })
-                
+
                 if (embeddingsResult.success && embeddingsResult.result) {
-                    const newEmbeddingsCache: Record<string, number[] | null> = {}
+                    const newEmbeddingsCache: Record<string, number[] | null> =
+                        {}
                     elements.forEach((element, index) => {
-                        newEmbeddingsCache[element] = embeddingsResult.result![index]
+                        newEmbeddingsCache[element] =
+                            embeddingsResult.result![index]
                     })
                     setEmbeddingsCache(newEmbeddingsCache)
                 } else {
-                    console.error("Error fetching embeddings:", embeddingsResult.error)
+                    console.error(
+                        "Error fetching embeddings:",
+                        embeddingsResult.error
+                    )
                 }
             } catch (error) {
                 console.error("Error fetching embeddings:", error)
@@ -412,12 +454,12 @@ export default function VectorResults({
         if (!showAttributes || (showOnlyFilteredAttributes && !searchFilter)) {
             // Only update if visibility actually changes
             setAvailableColumns((prev) => {
-                const hasVisibleAttributes = prev.some(col => 
-                    col.type === "attribute" && col.visible
+                const hasVisibleAttributes = prev.some(
+                    (col) => col.type === "attribute" && col.visible
                 )
-                
+
                 if (!hasVisibleAttributes) return prev // No changes needed
-                
+
                 return prev.map((col) => ({
                     ...col,
                     visible: col.type === "system" ? col.visible : false,
@@ -446,7 +488,7 @@ export default function VectorResults({
                     visible: shouldBeVisible,
                 }
             })
-            
+
             return hasChanges ? newColumns : prev
         })
     }, [
@@ -490,54 +532,57 @@ export default function VectorResults({
     ])
 
     // Handle dialog close with updated attributes
-    const handleAttributesDialogClose = useCallback((updatedAttributes?: string) => {
-        if (updatedAttributes && editingAttributes) {
-            // If attributes were saved, update our cache directly
-            setAttributeCache((prev) => ({
-                ...prev,
-                [editingAttributes]: updatedAttributes,
-            }))
-
-            try {
-                // Also update the parsed cache
-                const parsed = JSON.parse(updatedAttributes)
-                setParsedAttributeCache((prev) => ({
+    const handleAttributesDialogClose = useCallback(
+        (updatedAttributes?: string) => {
+            if (updatedAttributes && editingAttributes) {
+                // If attributes were saved, update our cache directly
+                setAttributeCache((prev) => ({
                     ...prev,
-                    [editingAttributes]: parsed,
+                    [editingAttributes]: updatedAttributes,
                 }))
 
-                // Update available columns with any new attributes
-                const newColumns = new Set(Object.keys(parsed))
-                setAvailableColumns((prev) => {
-                    const existingColumns = new Set(prev.map((c) => c.name))
-                    const updatedColumns = [...prev]
+                try {
+                    // Also update the parsed cache
+                    const parsed = JSON.parse(updatedAttributes)
+                    setParsedAttributeCache((prev) => ({
+                        ...prev,
+                        [editingAttributes]: parsed,
+                    }))
 
-                    newColumns.forEach((colName) => {
-                        if (!existingColumns.has(colName)) {
-                            updatedColumns.push({
-                                name: colName,
-                                visible: true,
-                                type: "attribute",
-                            })
-                        }
+                    // Update available columns with any new attributes
+                    const newColumns = new Set(Object.keys(parsed))
+                    setAvailableColumns((prev) => {
+                        const existingColumns = new Set(prev.map((c) => c.name))
+                        const updatedColumns = [...prev]
+
+                        newColumns.forEach((colName) => {
+                            if (!existingColumns.has(colName)) {
+                                updatedColumns.push({
+                                    name: colName,
+                                    visible: true,
+                                    type: "attribute",
+                                })
+                            }
+                        })
+
+                        return updatedColumns
                     })
-
-                    return updatedColumns
-                })
-            } catch (e) {
-                console.error(`Error parsing updated attributes:`, e)
+                } catch (e) {
+                    console.error(`Error parsing updated attributes:`, e)
+                }
             }
-        }
 
-        // Clear the editing state
-        setEditingAttributes(null)
-    }, [editingAttributes])
+            // Clear the editing state
+            setEditingAttributes(null)
+        },
+        [editingAttributes]
+    )
 
     const handleSort = useCallback((column: SortColumn) => {
-        setSortColumn(prevColumn => {
+        setSortColumn((prevColumn) => {
             if (prevColumn === column) {
                 // Cycle through: asc -> desc -> none
-                setSortDirection(prevDirection => {
+                setSortDirection((prevDirection) => {
                     if (prevDirection === "asc") {
                         return "desc"
                     } else if (prevDirection === "desc") {
@@ -556,10 +601,13 @@ export default function VectorResults({
         })
     }, [])
 
-    const handleSearchSimilar = useCallback((element: string) => {
-        // Use a combined callback that updates both values at once
-        onRowClick(element)
-    }, [onRowClick])
+    const handleSearchSimilar = useCallback(
+        (element: string) => {
+            // Use a combined callback that updates both values at once
+            onRowClick(element)
+        },
+        [onRowClick]
+    )
 
     // Modify the Add Vector button click handler
     const handleAddVector = useCallback(async () => {
@@ -570,15 +618,18 @@ export default function VectorResults({
     }, [onAddVector])
 
     // Update the handler for toggling column visibility
-    const handleToggleColumn = useCallback((columnName: string, visible: boolean) => {
-        // Update the local state
-        setAvailableColumns((prev) =>
-            prev.map((c) => (c.name === columnName ? { ...c, visible } : c))
-        )
+    const handleToggleColumn = useCallback(
+        (columnName: string, visible: boolean) => {
+            // Update the local state
+            setAvailableColumns((prev) =>
+                prev.map((c) => (c.name === columnName ? { ...c, visible } : c))
+            )
 
-        // Persist the change to user settings
-        updateAttributeColumnVisibility(columnName, visible)
-    }, [updateAttributeColumnVisibility])
+            // Persist the change to user settings
+            updateAttributeColumnVisibility(columnName, visible)
+        },
+        [updateAttributeColumnVisibility]
+    )
 
     // Check if the vectorset is empty (only has placeholder) - memoized
     const vectorSetIsEmpty = useMemo(() => isEmptyVectorSet(results), [results])
@@ -588,7 +639,9 @@ export default function VectorResults({
     const isEmptyResults = results.length === 0 && !isLoading
 
     // Add embeddings state
-    const [embeddingsCache, setEmbeddingsCache] = useState<Record<string, number[] | null>>({})
+    const [embeddingsCache, setEmbeddingsCache] = useState<
+        Record<string, number[] | null>
+    >({})
     const [isLoadingEmbeddings, setIsLoadingEmbeddings] = useState(false)
 
     // Early returns for different states - but avoid complete component replacement during search

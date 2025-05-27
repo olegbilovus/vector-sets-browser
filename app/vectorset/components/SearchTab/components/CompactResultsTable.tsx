@@ -65,7 +65,6 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
                 handleSelectAll={handleSelectAll}
                 handleDeselectAll={handleDeselectAll}
                 filteredAndSortedResults={filteredAndSortedResults}
-                showEmbeddings={showEmbeddings}
             />
             <TableBody>
                 {filteredAndSortedResults.map((row, index) => (

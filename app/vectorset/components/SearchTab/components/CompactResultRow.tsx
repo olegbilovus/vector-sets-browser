@@ -1,14 +1,12 @@
-import React from "react"
+import { ColumnConfig } from "@/app/vectorset/hooks/useVectorResultsSettings"
+import { getEmbeddingIcon } from "@/components/EmbeddingConfig/EmbeddingIcons"
+import MiniVectorHeatmap from "@/components/MiniVectorHeatmap"
 import { Button } from "@/components/ui/button"
 import { TableCell, TableRow } from "@/components/ui/table"
-import { ColumnConfig } from "@/app/vectorset/hooks/useVectorResultsSettings"
+import { getEmbeddingDataFormat } from "@/lib/embeddings/types/embeddingModels"
 import { VectorTuple } from "@/lib/redis-server/api"
-import { 
-    getEmbeddingIcon
-} from "@/components/EmbeddingConfig/EmbeddingIcons"
-import { EmbeddingDataFormat, getEmbeddingDataFormat } from "@/lib/embeddings/types/embeddingModels"
 import { VectorSetMetadata } from "@/lib/types/vectors"
-import MiniVectorHeatmap from "@/components/MiniVectorHeatmap"
+import React from "react"
 
 interface CompactResultRowProps {
     row: VectorTuple
@@ -43,7 +41,7 @@ const CompactResultRow = React.memo(function CompactResultRow({
     metadata,
     showEmbeddings,
     embeddingsCache,
-    isLoadingEmbeddings
+    isLoadingEmbeddings,
 }: CompactResultRowProps) {
     // Helper to format different attribute value types
     const formatAttributeValue = (value: any): string => {
@@ -57,13 +55,7 @@ const CompactResultRow = React.memo(function CompactResultRow({
     const isSelected = selectedElements.has(element)
 
     return (
-        <TableRow
-            className={`group ${
-                isSelected
-                    ? "bg-blue-50"
-                    : ""
-            }`}
-        >
+        <TableRow className={`group ${isSelected ? "bg-blue-50" : ""}`}>
             {/* Add a checkbox cell when in select mode */}
             {selectMode && (
                 <TableCell className="w-12">
@@ -96,22 +88,38 @@ const CompactResultRow = React.memo(function CompactResultRow({
                                 <div className="line-clamp-2 break-words flex items-center gap-2">
                                     <span className="flex-shrink-0">
                                         {showEmbeddings ? (
-                                            <MiniVectorHeatmap
-                                                vector={embeddingsCache?.[element] || null}
-                                                disabled={!showEmbeddings}
-                                                isGeneratingEmbedding={isLoadingEmbeddings}
-                                                size={40}
-                                            />
+                                            <div>
+                                                <MiniVectorHeatmap
+                                                    vector={
+                                                        embeddingsCache?.[
+                                                            element
+                                                        ] || null
+                                                    }
+                                                    disabled={!showEmbeddings}
+                                                    isGeneratingEmbedding={
+                                                        isLoadingEmbeddings
+                                                    }
+                                                    size={40}
+                                                />
+                                            </div>
                                         ) : (
-                                            React.createElement(getEmbeddingIcon(getEmbeddingDataFormat(
-                                                            metadata?.embedding
-                                            )))
+                                            React.createElement(
+                                                getEmbeddingIcon(
+                                                    getEmbeddingDataFormat(
+                                                        metadata?.embedding
+                                                    )
+                                                )
+                                            )
                                         )}
                                     </span>
-                                    <span className="font-medium">{element}</span>
+                                    <span className="font-medium">
+                                        {element}
+                                    </span>
                                 </div>
                             ) : typeof row[1] === "number" ? (
-                                <span className="text-muted-foreground border border-gray-200 rounded-full p-1 text-xs">{row[1].toFixed(4)}</span>
+                                <span className="text-muted-foreground border border-gray-200 rounded-full p-1 text-xs">
+                                    {row[1].toFixed(4)}
+                                </span>
                             ) : (
                                 row[1]
                             )
@@ -124,21 +132,7 @@ const CompactResultRow = React.memo(function CompactResultRow({
                         )}
                     </TableCell>
                 ))}
-            
-            {/* Add MiniVectorHeatmap column when embeddings are enabled */}
-            {showEmbeddings && (
-                <TableCell className="w-12">
-                    <div className="flex items-center justify-center">
-                        <MiniVectorHeatmap
-                            vector={embeddingsCache?.[element] || null}
-                            disabled={!showEmbeddings}
-                            isGeneratingEmbedding={isLoadingEmbeddings}
-                            size={40}
-                        />
-                    </div>
-                </TableCell>
-            )}
-            
+
             <TableCell className="text-right">
                 <div className="flex justify-end -space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     {!selectMode && (
@@ -235,4 +229,4 @@ const CompactResultRow = React.memo(function CompactResultRow({
     )
 })
 
-export default CompactResultRow 
+export default CompactResultRow

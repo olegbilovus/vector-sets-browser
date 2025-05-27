@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { VectorTuple } from "@/lib/redis-server/api"
-import { 
-    TextEmbeddingIcon, 
-    ImageEmbeddingIcon, 
-    MultiModalEmbeddingIcon 
+import {
+    TextEmbeddingIcon,
+    ImageEmbeddingIcon,
+    MultiModalEmbeddingIcon,
 } from "@/components/EmbeddingConfig/EmbeddingIcons"
 import MiniVectorHeatmap from "@/components/MiniVectorHeatmap"
 
@@ -48,7 +48,7 @@ export default function ExpandedResultRow({
     onDeleteClick,
     showEmbeddings,
     embeddingsCache,
-    isLoadingEmbeddings
+    isLoadingEmbeddings,
 }: ExpandedResultRowProps) {
     // Helper to format different attribute value types
     const formatAttributeValue = (value: any): string => {
@@ -61,23 +61,28 @@ export default function ExpandedResultRow({
     // Helper to determine the vector type icon
     const getVectorTypeIcon = (element: string) => {
         const attributes = parsedAttributeCache[element]
-        
+
         // Check for content_type or type attribute that indicates image
-        if (attributes?.content_type?.includes('image') || 
-            attributes?.type === 'image' || 
-            attributes?.vector_type === 'image' ||
-            (typeof attributes?.filename === 'string' && /\.(jpe?g|png|gif|webp|bmp)$/i.test(attributes.filename))) {
+        if (
+            attributes?.content_type?.includes("image") ||
+            attributes?.type === "image" ||
+            attributes?.vector_type === "image" ||
+            (typeof attributes?.filename === "string" &&
+                /\.(jpe?g|png|gif|webp|bmp)$/i.test(attributes.filename))
+        ) {
             return <ImageEmbeddingIcon />
         }
-        
+
         // Check for multi-modal content
-        if (attributes?.content_type?.includes('multimodal') || 
-            attributes?.type === 'text-and-image' || 
-            attributes?.vector_type === 'text-and-image' ||
-            attributes?.has_image === true) {
+        if (
+            attributes?.content_type?.includes("multimodal") ||
+            attributes?.type === "text-and-image" ||
+            attributes?.vector_type === "text-and-image" ||
+            attributes?.has_image === true
+        ) {
             return <MultiModalEmbeddingIcon />
         }
-        
+
         // Default to text
         return <TextEmbeddingIcon />
     }
@@ -85,15 +90,9 @@ export default function ExpandedResultRow({
     return (
         <div
             className={`bg-[white] rounded-lg border p-4 hover:shadow-md group ${
-                selectedElements.has(row[0])
-                    ? "border-blue-400 bg-blue-50"
-                    : ""
+                selectedElements.has(row[0]) ? "border-blue-400 bg-blue-50" : ""
             }`}
-            onClick={
-                selectMode
-                    ? () => handleSelectToggle(row[0])
-                    : undefined
-            }
+            onClick={selectMode ? () => handleSelectToggle(row[0]) : undefined}
         >
             <div className="flex items-start justify-between w-full">
                 {/* Add checkbox in non-compact view */}
@@ -101,68 +100,52 @@ export default function ExpandedResultRow({
                     <div className="mr-2 mt-1">
                         <input
                             type="checkbox"
-                            checked={selectedElements.has(
-                                row[0]
-                            )}
-                            onChange={() =>
-                                handleSelectToggle(row[0])
-                            }
+                            checked={selectedElements.has(row[0])}
+                            onChange={() => handleSelectToggle(row[0])}
                             className="h-4 w-4 rounded border-gray-300"
                             onClick={(e) => e.stopPropagation()}
                         />
                     </div>
                 )}
                 <div className="flex items-start space-x-4 w-full">
-                    <div className="bg-gray-100 rounded-lg p-2 text-gray-600">
-                        {index + 1}
+                    <div className="bg-gray-100 rounded-lg text-gray-600">
+                        {getVectorTypeIcon(row[0])}
                     </div>
+                    {showEmbeddings && (
+                        <div>
+                            <div className="text-sm text-gray-500">
+                                EMBEDDING
+                            </div>
+                            <MiniVectorHeatmap
+                                vector={embeddingsCache?.[row[0]] || null}
+                                disabled={!showEmbeddings}
+                                isGeneratingEmbedding={isLoadingEmbeddings}
+                                size={80}
+                            />
+                        </div>
+                    )}
                     <div className="flex flex-col gap-2 w-full">
                         <div className="grow">
                             <div className="text-sm text-gray-500 uppercase">
                                 Element
                             </div>
-                            <div className="font-medium flex items-center gap-2">
-                                <span className="flex-shrink-0">
-                                    {getVectorTypeIcon(row[0])}
-                                </span>
-                                {row[0]}
-                            </div>
+                            {row[0]}
                         </div>
                         <div>
-                            <div className="text-sm text-gray-500">
-                                SCORE
-                            </div>
+                            <div className="text-sm text-gray-500">SCORE</div>
                             <div className="font-medium">
                                 {typeof row[1] === "number"
                                     ? row[1].toFixed(4)
                                     : row[1]}
                             </div>
                         </div>
-                        
-                        {/* Add MiniVectorHeatmap when embeddings are enabled */}
-                        {showEmbeddings && (
-                            <div>
-                                <div className="text-sm text-gray-500">
-                                    EMBEDDING
-                                </div>
-                                <div className="mt-1">
-                                    <MiniVectorHeatmap
-                                        vector={embeddingsCache?.[row[0]] || null}
-                                        disabled={!showEmbeddings}
-                                        isGeneratingEmbedding={isLoadingEmbeddings}
-                                    />
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
                 {!selectMode && (
                     <div className="flex flex-col items-end space-y--1 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
                             variant="ghost"
-                            onClick={() =>
-                                handleSearchSimilar(row[0])
-                            }
+                            onClick={() => handleSearchSimilar(row[0])}
                             className="p-2 hover:bg-gray-100 rounded-full flex items-center gap-2 text-gray-500"
                             title="Search similar vectors"
                         >
@@ -183,9 +166,7 @@ export default function ExpandedResultRow({
                         </Button>
                         <Button
                             variant="ghost"
-                            onClick={(e) =>
-                                onShowVectorClick(e, row[0])
-                            }
+                            onClick={(e) => onShowVectorClick(e, row[0])}
                             className="p-2 hover:bg-gray-100 rounded-full text-gray-500 flex items-center gap-2"
                             title="Copy vector"
                         >
@@ -207,9 +188,7 @@ export default function ExpandedResultRow({
                         {!showAttributes && (
                             <Button
                                 variant="ghost"
-                                onClick={() =>
-                                    setEditingAttributes(row[0])
-                                }
+                                onClick={() => setEditingAttributes(row[0])}
                                 className="p-2 hover:bg-gray-100 rounded-full text-gray-500 flex items-center gap-2"
                                 title="Edit attributes"
                             >
@@ -231,9 +210,7 @@ export default function ExpandedResultRow({
                         )}
                         <Button
                             variant="ghost"
-                            onClick={(e) =>
-                                onDeleteClick(e, row[0])
-                            }
+                            onClick={(e) => onDeleteClick(e, row[0])}
                             className="p-2 hover:bg-gray-100 rounded-full text-red-600 flex items-center gap-2"
                             title="Delete vector"
                         >
@@ -262,48 +239,34 @@ export default function ExpandedResultRow({
                             {field}
                         </div>
                         <div className="font-medium">
-                            {filteredFieldValues[row[0]]?.[
-                                field
-                            ] || ""}
+                            {filteredFieldValues[row[0]]?.[field] || ""}
                         </div>
                     </div>
                 ))}
             {showAttributes && !showOnlyFilteredAttributes && (
                 <div className="w-full pl-10">
-                    <div className="text-sm text-gray-500">
-                        ATTRIBUTES
-                    </div>
+                    <div className="text-sm text-gray-500">ATTRIBUTES</div>
                     {isLoadingAttributes &&
                     attributeCache[row[0]] === undefined ? (
-                        <div className="text-sm text-gray-500">
-                            Loading...
-                        </div>
+                        <div className="text-sm text-gray-500">Loading...</div>
                     ) : attributeCache[row[0]] ? (
                         <div className="flex gap-4 flex-wrap bg-gray-50 rounded-md p-2 w-full items-center">
                             {Object.entries(
-                                parsedAttributeCache[row[0]] ||
-                                    {}
+                                parsedAttributeCache[row[0]] || {}
                             ).map(([key, value]) => (
-                                <div
-                                    key={key}
-                                    className="flex flex-col"
-                                >
+                                <div key={key} className="flex flex-col">
                                     <div className="text-xs text-gray-500 uppercase">
                                         {key}
                                     </div>
                                     <div className="">
-                                        {formatAttributeValue(
-                                            value
-                                        )}
+                                        {formatAttributeValue(value)}
                                     </div>
                                 </div>
                             ))}
                             <div className="grow"></div>
                             <Button
                                 variant="ghost"
-                                onClick={() =>
-                                    setEditingAttributes(row[0])
-                                }
+                                onClick={() => setEditingAttributes(row[0])}
                                 className="h-8 w-8 text-gray-500 mr-2"
                                 title="Edit attributes"
                             >
@@ -327,9 +290,7 @@ export default function ExpandedResultRow({
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() =>
-                                setEditingAttributes(row[0])
-                            }
+                            onClick={() => setEditingAttributes(row[0])}
                         >
                             Add Attributes
                         </Button>
@@ -338,4 +299,4 @@ export default function ExpandedResultRow({
             )}
         </div>
     )
-} 
+}
