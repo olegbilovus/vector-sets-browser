@@ -132,12 +132,6 @@ export default function VectorHeatmapRenderer({
     // Draw to canvas using useLayoutEffect for synchronous DOM measurements/mutations
     useLayoutEffect(() => {
         if (!vector || !canvasRef.current || !isCanvasReady) {
-            console.log("VectorHeatmapRenderer: Skipping render - prerequisites not met", {
-                hasVector: !!vector,
-                vectorLength: vector?.length,
-                hasCanvasRef: !!canvasRef.current,
-                isCanvasReady
-            });
             return;
         }
 

@@ -304,7 +304,19 @@ export default function VectorSettings({
                     }
                 }
 
-                // If we get here, we need to show the warning dialog
+                if (countResponse.result && countResponse.result > 1) {
+                    
+                    // Since we have real data (50 vectors), we should show the warning dialog
+                    // The user needs to decide if they want to change the embedding model
+                    // which could affect compatibility with existing vectors
+                    console.log("[VectorSettings] Multiple real vectors detected, showing warning dialog...")
+                    setPendingEmbeddingConfig(newConfig)
+                    setIsWarningDialogOpen(true)
+                    setIsEditConfigModalOpen(false)
+                    return
+                }
+
+                // If we get here, we have real data vectors, so show the warning dialog
                 setPendingEmbeddingConfig(newConfig)
                 setIsWarningDialogOpen(true)
                 setIsEditConfigModalOpen(false)
@@ -312,9 +324,10 @@ export default function VectorSettings({
             }
 
             // If no warning needed, proceed with the update
+            console.log("[VectorSettings] No embedding model change detected, calling saveEmbeddingConfig...")
             await saveEmbeddingConfig(newConfig)
         } catch (error) {
-            console.error("[VectorSetPage] Error saving config:", error)
+            console.error("[VectorSettings] Error saving config:", error)
         }
     }
 
@@ -326,25 +339,31 @@ export default function VectorSettings({
             lastUpdated: new Date().toISOString(),
         }
 
-        await vectorSets.setMetadata({
-            name: vectorSetName,
-            metadata: updatedMetadata,
-        })
 
-        // Notify parent of metadata update
-        onMetadataUpdate?.(updatedMetadata)
+        try {
+            await vectorSets.setMetadata({
+                name: vectorSetName,
+                metadata: updatedMetadata,
+            })
 
-        setIsEditConfigModalOpen(false)
-        setIsWarningDialogOpen(false)
-        setIsSuccessDialogOpen(false)
-        setPendingEmbeddingConfig(null)
+            // Notify parent of metadata update
+            onMetadataUpdate?.(updatedMetadata)
 
-        // Check for dimension mismatch after updating config
-        if (actualVectorDim !== null) {
-            const expectedDimensions = getExpectedDimensions(newConfig)
-            setDimensionMismatch(
-                expectedDimensions > 0 && actualVectorDim !== expectedDimensions
-            )
+            setIsEditConfigModalOpen(false)
+            setIsWarningDialogOpen(false)
+            setIsSuccessDialogOpen(false)
+            setPendingEmbeddingConfig(null)
+
+            // Check for dimension mismatch after updating config
+            if (actualVectorDim !== null) {
+                const expectedDimensions = getExpectedDimensions(newConfig)
+                setDimensionMismatch(
+                    expectedDimensions > 0 && actualVectorDim !== expectedDimensions
+                )
+            }
+        } catch (error) {
+            console.error("[VectorSettings] Error in saveEmbeddingConfig:", error)
+            throw error
         }
     }
 
@@ -440,7 +459,10 @@ export default function VectorSettings({
 
                     {/* Embedding content */}
                     {metadata?.embedding && metadata.embedding.provider !== "none" ? (
-                        <div className="flex flex-col p-4 bg-white rounded-md border border-slate-200">
+                        <div 
+                            key={`${metadata.embedding.provider}-${getModelName(metadata.embedding)}-${metadata.lastUpdated}`}
+                            className="flex flex-col p-4 bg-white rounded-md border border-slate-200"
+                        >
                             {/* Top part with model info */}
                             <div className="flex items-start">
                                 {/* Provider logo and model info */}
@@ -548,9 +570,88 @@ export default function VectorSettings({
             <EditEmbeddingConfigModal
                 isOpen={isEditConfigModalOpen}
                 onClose={() => setIsEditConfigModalOpen(false)}
-                config={metadata?.embedding as EmbeddingConfig || DEFAULT_EMBEDDING}
+                config={metadata?.embedding as EmbeddingConfig || DEFAULT_EMBEDDING_CONFIG}
                 onSave={handleEditConfig}
             />
+
+            {/* Warning Dialog for Embedding Model Change */}
+            <Dialog open={isWarningDialogOpen} onOpenChange={setIsWarningDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Change Embedding Model?</DialogTitle>
+                        <DialogDescription>
+                            You are about to change the embedding model for this vector set. 
+                            This vector set contains {metadata && 'recordCount' in metadata ? metadata.recordCount : 'multiple'} vectors.
+                            Changing the embedding model may affect compatibility with existing vectors.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                            <p className="text-sm text-yellow-800">
+                                <strong>Warning:</strong> The new embedding model may produce vectors with different dimensions 
+                                or characteristics than the existing vectors. This could affect search results and similarity calculations.
+                            </p>
+                        </div>
+                        {pendingEmbeddingConfig && (
+                            <div className="space-y-2">
+                                <p className="text-sm">
+                                    <strong>Current:</strong> {metadata?.embedding ? getModelName(metadata.embedding) : 'None'}
+                                </p>
+                                <p className="text-sm">
+                                    <strong>New:</strong> {getModelName(pendingEmbeddingConfig)}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex justify-end space-x-2 pt-4">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setIsWarningDialogOpen(false)
+                                setPendingEmbeddingConfig(null)
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleConfirmEmbeddingChange}
+                        >
+                            Change Embedding Model
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Success Dialog */}
+            <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Embedding Model Changed Successfully</DialogTitle>
+                        <DialogDescription>
+                            The embedding model has been updated and the placeholder vector has been recreated with the new dimensions.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {successInfo && (
+                        <div className="space-y-2">
+                            <p className="text-sm">
+                                <strong>Changed from:</strong> {successInfo.oldModel}
+                            </p>
+                            <p className="text-sm">
+                                <strong>Changed to:</strong> {successInfo.newModel}
+                            </p>
+                            <p className="text-sm">
+                                <strong>New dimensions:</strong> {successInfo.dimensions}
+                            </p>
+                        </div>
+                    )}
+                    <div className="flex justify-end pt-4">
+                        <Button onClick={() => setIsSuccessDialogOpen(false)}>
+                            OK
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
