@@ -459,12 +459,10 @@ export default function EditEmbeddingConfigModal({
             <DialogContent className="sm:max-w-4xl">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">
-                        Embedding Configuration
+                        Embedding Model Configuration
                     </DialogTitle>
                     <DialogDescription>
-                        The Vector Set Browser will auto-encode new vectors when
-                        you add them to a set, and use the encoder to encode
-                        search queries.
+                        The Embedding Model will be used to encode your text/images into vector embeddings when you add new elements and encode your search queries
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-6">
