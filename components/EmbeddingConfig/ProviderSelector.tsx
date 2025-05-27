@@ -7,7 +7,7 @@ import {
     getProvidersByDataFormat
 } from "@/lib/embeddings/types/embeddingModels"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ImageEmbeddingIcon, MultiModalEmbeddingIcon, TextEmbeddingIcon } from "./EmbeddingIcons"
+import { getProviderIcon } from "./EmbeddingIcons"
 
 interface ProviderSelectorProps {
     value: EmbeddingProvider
@@ -15,15 +15,10 @@ interface ProviderSelectorProps {
     dataFormat?: EmbeddingDataFormat
 }
 
-// Returns the appropriate icon component for a provider based on its data format
-function getProviderIcon(provider: ProviderInfo) {
-    if (provider.dataFormats.includes("text-and-image")) {
-        return <MultiModalEmbeddingIcon />
-    } else if (provider.dataFormats.includes("image")) {
-        return <ImageEmbeddingIcon />
-    } else {
-        return <TextEmbeddingIcon />
-    }
+// Returns the appropriate icon component for a provider
+function getProviderIconComponent(provider: ProviderInfo) {
+    const IconComponent = getProviderIcon(provider.id)
+    return <IconComponent />
 }
 
 export default function ProviderSelector({
@@ -45,7 +40,7 @@ export default function ProviderSelector({
                 <SelectValue placeholder="Select provider">
                     {value && (
                         <div className="flex items-center gap-2">
-                            {getProviderIcon(currentProvider)}
+                            {getProviderIconComponent(currentProvider)}
                             <span>
                                 {currentProvider.displayName}
                                 {currentProvider.isBuiltIn && " (Built-in)"}
@@ -58,7 +53,7 @@ export default function ProviderSelector({
                 {availableProviders.map(provider => (
                     <SelectItem key={provider.id} value={provider.id}>
                         <div className="flex items-center gap-2">
-                            {getProviderIcon(provider)}
+                            {getProviderIconComponent(provider)}
                             <div className="flex flex-col items-start">
                                 <div className="font-medium">
                                     {provider.displayName}
