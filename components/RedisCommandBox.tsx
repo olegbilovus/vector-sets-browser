@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { BorderBeam } from "@stianlarsen/border-beam"
 import { Copy } from "lucide-react"
 import { useState } from "react"
 
@@ -110,19 +111,21 @@ export default function RedisCommandBox({
 
     return (
         <div className="flex gap-2 items-center w-full bg-gray-100 rounded-md">
+            {/* Animated border beam effect */}
+
             <div className="text-muted-foreground p-1 font-mono overflow-x-scroll text-sm grow">
                 {(() => {
-                    const commandData = getRedisCommand(false);
+                    const commandData = getRedisCommand(false)
                     if (!commandData) {
-                        return "Enter search parameters to see the Redis command";
+                        return "Enter search parameters to see the Redis command"
                     }
 
-                    if (typeof commandData === 'string') {
-                        return commandData;
+                    if (typeof commandData === "string") {
+                        return commandData
                     }
 
-                    if (commandData.type === 'simple') {
-                        return commandData.text;
+                    if (commandData.type === "simple") {
+                        return commandData.text
                     }
 
                     // Render structured command
@@ -130,7 +133,7 @@ export default function RedisCommandBox({
                         <div className="text-muted-foreground font-mono text-xs">
                             {commandData.prefix}
                             {showFullVector ? (
-                                <span 
+                                <span
                                     className="inline-flex border border-gray-300 p-0.5 items-center rounded mx-1 cursor-pointer hover:bg-gray-100"
                                     onClick={() => setShowFullVector(false)}
                                     title="Click to collapse vector values"
@@ -146,7 +149,7 @@ export default function RedisCommandBox({
                                         {commandData.vectors}
                                         <span className="absolute inset-y-0 right-0 w-8 bg-linear-to-r from-transparent to-gray-100"></span>
                                     </span>
-                                    <span 
+                                    <span
                                         className="text-black rounded-r cursor-pointer hover:bg-gray-200 px-1"
                                         onClick={() => setShowFullVector(true)}
                                     >
@@ -156,7 +159,7 @@ export default function RedisCommandBox({
                             )}
                             {commandData.suffix}
                         </div>
-                    );
+                    )
                 })()}
             </div>
             <div className="grow"></div>
@@ -166,7 +169,11 @@ export default function RedisCommandBox({
                 className="h-6 w-6 text-gray-500 mr-2"
                 onClick={() => {
                     const command = getRedisCommand(true)
-                    navigator.clipboard.writeText(typeof command === 'string' ? command : executedCommand || '')
+                    navigator.clipboard.writeText(
+                        typeof command === "string"
+                            ? command
+                            : executedCommand || ""
+                    )
                 }}
             >
                 <Copy className="h-4 w-4" />

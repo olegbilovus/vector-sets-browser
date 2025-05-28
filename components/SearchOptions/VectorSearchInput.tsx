@@ -9,8 +9,9 @@ import {
 } from "@/lib/embeddings/types/embeddingModels"
 import { type VectorSetMetadata } from "@/lib/types/vectors"
 import { ImageIcon, Shuffle, X } from "lucide-react"
-import { useCallback, useMemo, useState, useEffect, useRef } from "react"
+import { useCallback, useMemo, useState, useEffect, useRef, forwardRef } from "react"
 import MiniVectorHeatmap from "../MiniVectorHeatmap"
+import { BorderBeam } from "@stianlarsen/border-beam"
 
 export interface VectorSearchInputProps {
     // Display text (what user sees and types)
@@ -39,7 +40,7 @@ export interface VectorSearchInputProps {
  * This component matches the exact visual design and functionality of SearchInput
  * while providing unified behavior for both single and multi-vector modes
  */
-export default function VectorSearchInput({
+const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps>(({
     displayText,
     onDisplayTextChange,
     onEmbeddingGenerated,
@@ -51,7 +52,7 @@ export default function VectorSearchInput({
     searchType = "Vector",
     lastTextEmbedding,
     vectorSetName
-}: VectorSearchInputProps) {
+}, ref) => {
     
     const supportsEmbeddings =
         metadata?.embedding.provider && metadata?.embedding.provider !== "none"
@@ -76,6 +77,10 @@ export default function VectorSearchInput({
     
     // Add debouncing for text embedding generation
     const textEmbeddingTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+    // State for controlling BorderBeam visibility
+    const [isFocused, setIsFocused] = useState<boolean>(false)
+    const [isHovered, setIsHovered] = useState<boolean>(false)
 
     // Update current vector when lastTextEmbedding changes (for single vector mode)
     useEffect(() => {        
@@ -310,7 +315,19 @@ export default function VectorSearchInput({
                 className={`relative border rounded w-full flex items-stretch overflow-hidden ${
                     showShuffleButton ? "pr-24" : "pr-12"
                 }`}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
             >
+                {/* Animated border beam effect - only show when focused or hovered */}
+                {(isFocused || isHovered) && (
+                    <BorderBeam 
+                        size={120} 
+                        duration={20} 
+                        borderWidth={1}
+                        delay={0}
+                    />
+                )}
+
                 {/* Image button - simplified alternative to ImageUploader */}
                 {showImageUploader && (
                     <div
@@ -327,6 +344,9 @@ export default function VectorSearchInput({
                             height: "80px",
                         }}
                         onClick={!hasImage ? handleImageButtonClick : undefined}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setIsFocused(false)}
+                        tabIndex={0}
                         onDragOver={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
@@ -426,6 +446,8 @@ export default function VectorSearchInput({
                                         e.stopPropagation()
                                         clearSelectedImage()
                                     }}
+                                    onFocus={() => setIsFocused(true)}
+                                    onBlur={() => setIsFocused(false)}
                                 >
                                     <X className="h-3 w-3" />
                                 </Button>
@@ -440,6 +462,8 @@ export default function VectorSearchInput({
                         <Textarea
                             value={displayText}
                             onChange={handleTextChange}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
                             placeholder={
                                 showImageUploader
                                     ? imageHelpText
@@ -447,6 +471,7 @@ export default function VectorSearchInput({
                             }
                             disabled={disabled}
                             className="border-0 flex-1 px-4 py-3 min-w-0 h-20 resize-none focus-visible:ring-0"
+                            ref={ref}
                         />
                     </div>
                 )}
@@ -470,6 +495,8 @@ export default function VectorSearchInput({
                         size="icon"
                         className="absolute right-0 top-0 h-full"
                         onClick={generateRandomVector}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setIsFocused(false)}
                         title="Generate random vector"
                         disabled={disabled}
                     >
@@ -478,18 +505,20 @@ export default function VectorSearchInput({
                 )}
                 
                 {/* Embedding model info */}
-                <div className="absolute bottom-1 right-1 flex flex-row gap-2 backdrop-blur-sm bg-white/80 rounded-tl-md px-0">
-                    <div className="flex-grow"></div>
-                    <div className="text-xs text-gray-400 p-0.5 px-1 rounded-lg w-fit mt-1">
-                        Embedding model:{" "}
-                        <span className="font-bold">
-                            {metadata?.embedding.provider &&
-                                `${
-                                    metadata?.embedding.provider
-                                } - ${getModelName(metadata?.embedding)}`}
-                        </span>
+                {!displayText.trim() && (
+                    <div className="absolute bottom-1 right-1 flex flex-row gap-2 backdrop-blur-sm bg-white/80 rounded-tl-md px-0">
+                        <div className="flex-grow"></div>
+                        <div className="text-xs text-gray-400 p-0.5 px-1 rounded-lg w-fit mt-1">
+                            Embedding model:{" "}
+                            <span className="font-bold">
+                                {metadata?.embedding.provider &&
+                                    `${
+                                        metadata?.embedding.provider
+                                    } - ${getModelName(metadata?.embedding)}`}
+                            </span>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Mini vector heatmap - moved outside the search input and full height */}
@@ -509,4 +538,6 @@ export default function VectorSearchInput({
             )}
         </div>
     )
-} 
+})
+
+export default VectorSearchInput 

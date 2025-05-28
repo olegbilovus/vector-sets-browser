@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { type VectorSetMetadata } from "@/lib/types/vectors"
 import { Filter, X, ChevronRight } from "lucide-react"
-import { useCallback, useState } from "react"
+import { useCallback, useState, useRef, useEffect } from "react"
 
 import { VectorTuple } from "@/lib/redis-server/api"
 import RedisCommandBox from "./RedisCommandBox"
@@ -20,6 +20,7 @@ import {
 import MultiVectorInput from "./SearchOptions/MultiVectorInput"
 import VectorSearchInput from "./SearchOptions/VectorSearchInput"
 import { SearchType } from "./SearchOptions/SearchTypeSelector"
+import { BorderBeam } from "@stianlarsen/border-beam"
 
 const searchTypes = [
     {
@@ -61,8 +62,8 @@ interface SearchBoxProps {
     executedCommand?: string
     results?: VectorTuple[]
     lastTextEmbedding?: number[]
-    vectorFormat?: 'FP32' | 'VALUES'
-    setVectorFormat?: (format: 'FP32' | 'VALUES') => void
+    vectorFormat?: "FP32" | "VALUES"
+    setVectorFormat?: (format: "FP32" | "VALUES") => void
 }
 
 export default function SearchBox({
@@ -93,6 +94,16 @@ export default function SearchBox({
     vectorFormat,
     setVectorFormat,
 }: SearchBoxProps) {
+    // Create ref for the VectorSearchInput
+    const vectorSearchInputRef = useRef<HTMLTextAreaElement>(null)
+
+    // Focus the input when component loads
+    useEffect(() => {
+        if (vectorSearchInputRef.current && searchType !== "Multi-vector") {
+            vectorSearchInputRef.current.focus()
+        }
+    }, [searchType])
+
     // Use custom hook for search options state
     const searchOptions = useSearchOptions({
         initialSearchFilter: searchFilter,
@@ -114,15 +125,22 @@ export default function SearchBox({
 
     // Handle embedding generation for multi-vector search
     const handleEmbeddingGenerated = (embedding: number[]) => {
-        // This function receives the COMBINED vector from MultiVectorInput 
+        // This function receives the COMBINED vector from MultiVectorInput
         // Set it as the search query to trigger the search
-        if (embedding && embedding.length > 0 && searchType === "Multi-vector") {
-            console.log("Received combined vector in SearchBox, length:", embedding.length)
+        if (
+            embedding &&
+            embedding.length > 0 &&
+            searchType === "Multi-vector"
+        ) {
+            console.log(
+                "Received combined vector in SearchBox, length:",
+                embedding.length
+            )
             const vectorStr = embedding.map((n) => n.toFixed(4)).join(", ")
             setSearchQuery(vectorStr)
         }
     }
-    
+
     // For single vector search, don't interfere - let useVectorSearch handle it
     const handleSingleVectorEmbedding = () => {
         // The VectorSearchInput will show the embedding visually,
@@ -187,6 +205,8 @@ export default function SearchBox({
                                     searchOptions.setShowSearchOptions
                                 }
                             />
+
+                            
                         </div>
                     </div>
 
@@ -211,6 +231,7 @@ export default function SearchBox({
                             searchType={searchType}
                             lastTextEmbedding={lastTextEmbedding}
                             vectorSetName={vectorSetName}
+                            ref={vectorSearchInputRef}
                         />
                     )}
 
@@ -267,7 +288,9 @@ export default function SearchBox({
                                     executedCommand={executedCommand}
                                     searchQuery={searchQuery}
                                     searchFilter={searchFilter}
-                                    showRedisCommand={searchOptions.showRedisCommand}
+                                    showRedisCommand={
+                                        searchOptions.showRedisCommand
+                                    }
                                 />
                             </div>
                             {searchType === "Multi-vector" && (
@@ -310,7 +333,9 @@ export default function SearchBox({
                 useWithAttribs={searchOptions.useWithAttribs}
                 handleWithAttribsToggle={searchOptions.handleWithAttribsToggle}
                 vectorFormat={searchOptions.vectorFormat}
-                handleVectorFormatChange={searchOptions.handleVectorFormatChange}
+                handleVectorFormatChange={
+                    searchOptions.handleVectorFormatChange
+                }
                 onDone={searchOptions.handleDoneButtonClick}
             />
         </section>
