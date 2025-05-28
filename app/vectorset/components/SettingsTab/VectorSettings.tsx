@@ -39,6 +39,7 @@ import {
 } from "lucide-react"
 import { useEffect, useState } from "react"
 import EmbeddingProcessVisualization from "./EmbeddingProcessVisualization"
+import OllamaInfoPanel from "./OllamaInfoPanel"
 
 interface VectorSettingsProps {
     vectorSetName: string
@@ -527,6 +528,11 @@ export default function VectorSettings({
                                 )}
                             </div>
                         </div>
+                    )}
+
+                    {/* Ollama Info Panel - Show when Ollama is selected */}
+                    {metadata?.embedding?.provider === "ollama" && (
+                        <OllamaInfoPanel config={metadata.embedding} />
                     )}
                 </CardContent>
             </Card>
