@@ -75,7 +75,7 @@ export default function OpenAIKeyManager() {
 
   return (
     <div className="bg-[white] dark:bg-gray-800 p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">OpenAI API Key</h2>
+      <h2 className="text-2xl font-semibold mb-4">OpenAI API Key</h2>
       
       <p className="mb-4 text-gray-600 dark:text-gray-300">
         This API key is used for OpenAI embeddings and the AI Importer. 

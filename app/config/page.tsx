@@ -7,12 +7,12 @@ import { DEFAULT_EMBEDDING_CONFIG } from "../vectorset/utils/constants"
 
 export default function ConfigPage() {
     return (
-        <div className="container mx-auto py-10 space-y-8">
-            <h1 className="text-3xl font-bold">Configuration</h1>
+        <div className="container mx-auto py-4 space-y-4">
+            <h1 className="text-3xl font-bold">Settings</h1>
 
-            <div className="grid grid-cols-1 gap-8">
-                <OpenAIKeyManager />
+            <div className="grid grid-cols-1 gap-4">
                 <OllamaInfoPanel config={DEFAULT_EMBEDDING_CONFIG} />
+                <OpenAIKeyManager />
                 <CacheManager />
 
                 {/* Add more configuration sections here as needed */}

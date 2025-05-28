@@ -89,7 +89,7 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
 
 
     return (
-        <Card className="mt-4">
+        <Card>
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
