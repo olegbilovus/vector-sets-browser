@@ -286,7 +286,7 @@ const ResultsHeader = React.memo(function ResultsHeader({
                                         setShowEmbeddings(checked)
                                     }}
                                 >
-                                    Show Embeddings
+                                    Show Vector Visualization
                                 </DropdownMenuCheckboxItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuLabel>

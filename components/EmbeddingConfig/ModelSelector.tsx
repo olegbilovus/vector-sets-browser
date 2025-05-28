@@ -3,28 +3,80 @@ import {
     EmbeddingProvider,
     getModelsByProvider
 } from "@/lib/embeddings/types/embeddingModels"
+import { defaultOllamaUrl } from "@/lib/embeddings/utils"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { RefreshCw, AlertTriangle } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import * as React from "react"
+
+// Hook to fetch available Ollama models
+function useOllamaModels(apiUrl: string) {
+    const [models, setModels] = React.useState<string[]>([])
+    const [isLoading, setIsLoading] = React.useState(false)
+    const [error, setError] = React.useState<string | null>(null)
+
+    const fetchModels = React.useCallback(async () => {
+        if (!apiUrl) return
+
+        setIsLoading(true)
+        setError(null)
+
+        try {
+            const response = await fetch(`${apiUrl}/api/tags`)
+            if (response.ok) {
+                const data = await response.json()
+                const modelNames = data.models?.map((m: any) => m.name) || []
+                setModels(modelNames)
+            } else {
+                setError("Could not fetch model list from Ollama")
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to connect to Ollama")
+        } finally {
+            setIsLoading(false)
+        }
+    }, [apiUrl])
+
+    React.useEffect(() => {
+        fetchModels()
+    }, [fetchModels])
+
+    return { models, isLoading, error, refetch: fetchModels }
+}
 
 interface ModelSelectorProps {
     provider: EmbeddingProvider
     value: string
     onChange: (value: string) => void
     allowCustom?: boolean
+    ollamaApiUrl?: string // Add this prop for Ollama API URL
 }
 
 export default function ModelSelector({
     provider,
     value,
     onChange,
-    allowCustom = false
+    allowCustom = false,
+    ollamaApiUrl
 }: ModelSelectorProps) {
     const [customModel, setCustomModel] = React.useState("")
     const models = getModelsByProvider(provider)
-    const isCustom = allowCustom && !models.some((model) => model.id === value)
+    
+    // Use dynamic Ollama models if provider is ollama
+    const { 
+        models: ollamaModels, 
+        isLoading: ollamaLoading, 
+        error: ollamaError, 
+        refetch: refetchOllamaModels 
+    } = useOllamaModels(provider === "ollama" ? (ollamaApiUrl || defaultOllamaUrl()) : "")
+
+    // Determine if we should use dynamic models (for Ollama) or static models
+    const availableModels = provider === "ollama" ? ollamaModels : models.map(m => m.id)
+    const isCustom = allowCustom && !availableModels.includes(value)
 
     React.useEffect(() => {
         if (isCustom) {
@@ -37,7 +89,119 @@ export default function ModelSelector({
         return <ImageModelDisplay models={models} value={value} onChange={onChange} />
     }
 
-    // For providers with many options, use a select
+    // For Ollama, show dynamic model selection
+    if (provider === "ollama") {
+        return (
+            <div className="space-y-4">
+                {ollamaError && (
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription className="flex items-center justify-between">
+                            <span>{ollamaError}</span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={refetchOllamaModels}
+                                disabled={ollamaLoading}
+                            >
+                                <RefreshCw className={`h-3 w-3 ${ollamaLoading ? "animate-spin" : ""}`} />
+                            </Button>
+                        </AlertDescription>
+                    </Alert>
+                )}
+
+                <div className="flex items-center gap-2">
+                    <Select
+                        value={isCustom ? "custom" : value}
+                        onValueChange={(val) => {
+                            if (val === "custom") {
+                                onChange(customModel || "")
+                            } else {
+                                onChange(val)
+                            }
+                        }}
+                        disabled={ollamaLoading}
+                    >
+                        <SelectTrigger className="w-full text-left h-12">
+                            <SelectValue placeholder={ollamaLoading ? "Loading models..." : "Select a model"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {ollamaModels.map((modelName) => {
+                                // Extract base model name (everything before the first colon for display)
+                                const baseModelName = modelName.split(':')[0]
+                                const displayName = baseModelName.charAt(0).toUpperCase() + baseModelName.slice(1)
+                                
+                                return (
+                                    <SelectItem key={modelName} value={modelName}>
+                                        <div className="flex flex-col">
+                                            <div className="font-medium">
+                                                {displayName}
+                                                {modelName.includes(':') && (
+                                                    <span className="ml-2 text-xs text-muted-foreground">
+                                                        ({modelName.split(':')[1]})
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">
+                                                Available locally in Ollama
+                                            </p>
+                                        </div>
+                                    </SelectItem>
+                                )
+                            })}
+                            {allowCustom && (
+                                <SelectItem value="custom">
+                                    <div className="flex flex-col py-2">
+                                        <div className="font-medium">Custom Model</div>
+                                        <p className="text-xs text-muted-foreground">
+                                            Use a model not yet pulled locally
+                                        </p>
+                                    </div>
+                                </SelectItem>
+                            )}
+                        </SelectContent>
+                    </Select>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={refetchOllamaModels}
+                        disabled={ollamaLoading}
+                        title="Refresh model list"
+                    >
+                        <RefreshCw className={`h-4 w-4 ${ollamaLoading ? "animate-spin" : ""}`} />
+                    </Button>
+                </div>
+
+                {isCustom && (
+                    <div className="space-y-2">
+                        <Input
+                            value={customModel}
+                            onChange={(e) => {
+                                setCustomModel(e.target.value)
+                                onChange(e.target.value)
+                            }}
+                            placeholder="Enter model name (e.g., mxbai-embed-large)"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Enter the name of a model. If it's not pulled locally, you'll need to run <code className="bg-slate-200 px-1 rounded">ollama pull {customModel}</code>
+                        </p>
+                    </div>
+                )}
+
+                {ollamaModels.length === 0 && !ollamaLoading && !ollamaError && (
+                    <Alert>
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>
+                            No models found. Make sure Ollama is running and you have pulled at least one embedding model.
+                        </AlertDescription>
+                    </Alert>
+                )}
+            </div>
+        )
+    }
+
+    // For other providers with many options, use a select
     return (
         <div className="space-y-4">
             <Select

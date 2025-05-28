@@ -326,6 +326,7 @@ export default function EditEmbeddingConfigModal({
                                     })
                                 }
                                 allowCustom={true}
+                                ollamaApiUrl={ollamaConfig.apiUrl}
                             />
                         </div>
                         <div className="space-y-2">
