@@ -121,15 +121,9 @@ export class ClientEmbeddingService {
             const tensor = await preprocessImage(imageData)
 
             console.log("Generating embedding using TensorFlow MobileNet...")
-            // Get the internal model to access the penultimate layer
-            // @ts-ignore - accessing internal property
-            const internalModel = model.model
-
             // Execute the model up to the penultimate layer
             // This gives us the feature vector (embedding) before classification
-            let activationLayer
-
-            activationLayer = model.infer(tensor, true)
+            const activationLayer = model.infer(tensor, true)
 
             // Convert to array and check values
             const embedding = Array.from(await activationLayer.data()) as number[]

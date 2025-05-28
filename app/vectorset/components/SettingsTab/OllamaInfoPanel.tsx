@@ -60,7 +60,7 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
                             error: "Could not fetch model list",
                         })
                     }
-                } catch (error) {
+                } catch (_error) {
                     setStatus({
                         isAvailable: true,
                         isLoading: false,
@@ -73,7 +73,7 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
                     isLoading: false,
                 })
             }
-        } catch (error) {
+        } catch (_error) {
             setStatus({
                 isAvailable: false,
                 isLoading: false,

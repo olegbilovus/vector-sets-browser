@@ -31,8 +31,7 @@ export default function VectorHeatmap({
         setVisualizationType, 
         isImageBased, 
         resetToDefaults,
-        makeDefault,
-        resetToBuiltInDefaults
+        makeDefault
     } = useVectorSettings(vectorSetName, metadata)
 
     // Force redraw on dialog open or settings change

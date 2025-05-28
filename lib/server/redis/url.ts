@@ -7,11 +7,11 @@ export function sanitizeRedisUrl(url: string): string {
     try {
         const parsedUrl = new URL(url)
         if (parsedUrl.password) {
-            parsedUrl.password = '****'
+            parsedUrl.password = "****"
         }
         return parsedUrl.toString()
-    } catch (error) {
+    } catch (_error) {
         // If URL parsing fails, return the original URL
         return url
     }
-} 
+}

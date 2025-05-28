@@ -20,7 +20,7 @@ export default function VectorHeatmapRenderer({
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [hoveredCell, setHoveredCell] = useState<{ index: number; value: number } | null>(null)
     const [isCanvasReady, setIsCanvasReady] = useState(false)
-    const [forceRender, setForceRender] = useState(0)
+    const [forceRender] = useState(0)
 
     // Calculate optimal grid dimensions based on vector length
     const getGridDimensions = (length: number) => {

@@ -1,6 +1,5 @@
 import { apiClient, ApiResponse } from "@/app/api/client"
 import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
-import { EmbeddingRequestBody } from "@/lib/embeddings/types/response"
 import { userSettings } from "@/lib/storage/userSettings"
 import { clientEmbeddingService } from "./client/embeddingService"
 
