@@ -22,6 +22,7 @@ interface SearchInputProps {
     onTextEmbeddingGenerated?: (embedding: number[]) => void // Add callback for text embeddings
     triggerSearch?: () => void // Optional function to explicitly trigger search
     lastTextEmbedding?: number[] // Add lastTextEmbedding from useVectorSearch
+    vectorSetName?: string | null // Add vectorSetName prop
 }
 
 export default function SearchInput({
@@ -34,7 +35,8 @@ export default function SearchInput({
     onImageEmbeddingGenerated,
     onTextEmbeddingGenerated,
     triggerSearch,
-    lastTextEmbedding
+    lastTextEmbedding,
+    vectorSetName
 }: SearchInputProps) {
     const supportsEmbeddings =
         metadata?.embedding.provider && metadata?.embedding.provider !== "none"
@@ -493,6 +495,8 @@ export default function SearchInput({
                                 : currentVector
                         }
                         isGeneratingEmbedding={isGeneratingEmbedding}
+                        vectorSetName={vectorSetName}
+                        metadata={metadata}
                     />
                 </div>
             )}

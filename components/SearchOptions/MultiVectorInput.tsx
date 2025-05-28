@@ -36,6 +36,7 @@ interface MultiVectorInputProps {
     dim: number | null
     onVectorCombinationGenerated: (combinedVector: number[]) => void
     triggerSearch?: () => void // Optional function to explicitly trigger search
+    vectorSetName?: string | null
 }
 
 export default function MultiVectorInput({
@@ -43,6 +44,7 @@ export default function MultiVectorInput({
     dim,
     onVectorCombinationGenerated,
     triggerSearch,
+    vectorSetName = null,
 }: MultiVectorInputProps) {
     // Initialize with two vector inputs by default
     const [vectorInputs, setVectorInputs] = useState<VectorInput[]>([
@@ -442,6 +444,7 @@ export default function MultiVectorInput({
                         metadata={metadata}
                         dim={dim}
                         searchType="Multi-vector"
+                        vectorSetName={vectorSetName}
                     />
                 </div>
             ))}

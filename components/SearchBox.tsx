@@ -199,6 +199,7 @@ export default function SearchBox({
                                 handleEmbeddingGenerated
                             }
                             triggerSearch={handleSingleVectorEmbedding}
+                            vectorSetName={vectorSetName}
                         />
                     ) : (
                         <VectorSearchInput
@@ -209,6 +210,7 @@ export default function SearchBox({
                             dim={dim}
                             searchType={searchType}
                             lastTextEmbedding={lastTextEmbedding}
+                            vectorSetName={vectorSetName}
                         />
                     )}
 

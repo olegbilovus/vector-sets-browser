@@ -8,7 +8,7 @@ export default function VectorVisualizationExample() {
         Math.sin(i * 0.1) * Math.cos(i * 0.05) + Math.random() * 0.2 - 0.1
     )
     
-    const { settings } = useVectorSettings()
+    const { settings } = useVectorSettings(null, null)
     
     return (
         <div className="p-6 space-y-4">
@@ -28,6 +28,7 @@ export default function VectorVisualizationExample() {
                     <p><strong>Current Settings:</strong></p>
                     <p>Color Scheme: {settings.colorScheme}</p>
                     <p>Scaling Mode: {settings.scalingMode}</p>
+                    <p>Visualization Type: {settings.visualizationType}</p>
                 </div>
             </div>
             

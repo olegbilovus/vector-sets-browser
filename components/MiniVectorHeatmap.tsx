@@ -3,23 +3,28 @@ import VectorVisualizationRenderer from "./VectorVisualizationRenderer"
 import VectorHeatmap from "./VectorHeatmap"
 import { BarChart2 } from "lucide-react"
 import { useVectorSettings } from "@/hooks/useVectorSettings"
+import { VectorSetMetadata } from "@/lib/types/vectors"
 
 interface MiniVectorHeatmapProps {
     vector: number[] | null
     disabled?: boolean
     isGeneratingEmbedding?: boolean
     size?: number // Size in pixels, defaults to 80
+    vectorSetName?: string | null
+    metadata?: VectorSetMetadata | null
 }
 
 export default function MiniVectorHeatmap({ 
     vector, 
     disabled = false, 
     isGeneratingEmbedding = false,
-    size = 80
+    size = 80,
+    vectorSetName = null,
+    metadata = null
 }: MiniVectorHeatmapProps) {
     const [showHeatmap, setShowHeatmap] = useState(false)
     const [isResolving, setIsResolving] = useState(false)
-    const { settings } = useVectorSettings()
+    const { settings } = useVectorSettings(vectorSetName, metadata)
         
     // Check if we have a valid vector to display
     const hasValidVector = vector && vector.length > 0 && vector.every(val => 
@@ -117,6 +122,8 @@ export default function MiniVectorHeatmap({
                 vector={vector}
                 open={showHeatmap}
                 onOpenChange={setShowHeatmap}
+                vectorSetName={vectorSetName}
+                metadata={metadata}
             />
         </>
     )

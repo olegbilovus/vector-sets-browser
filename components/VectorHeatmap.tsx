@@ -5,20 +5,25 @@ import { Download, X } from "lucide-react"
 import VectorVisualizationRenderer from "./VectorVisualizationRenderer"
 import ColorSchemeSelector from "./ColorSchemeSelector"
 import { useVectorSettings } from "@/hooks/useVectorSettings"
+import { VectorSetMetadata } from "@/lib/types/vectors"
 
 interface VectorHeatmapProps {
     vector: number[] | null
     open: boolean
     onOpenChange: (open: boolean) => void
+    vectorSetName?: string | null
+    metadata?: VectorSetMetadata | null
 }
 
 export default function VectorHeatmap({ 
     vector, 
     open, 
-    onOpenChange 
+    onOpenChange,
+    vectorSetName = null,
+    metadata = null
 }: VectorHeatmapProps) {
     const [forceRender, setForceRender] = useState(0)
-    const { settings, setColorScheme, setScalingMode, setVisualizationType } = useVectorSettings()
+    const { settings, setColorScheme, setScalingMode, setVisualizationType, isImageBased, resetToDefaults } = useVectorSettings(vectorSetName, metadata)
 
     // Force redraw on dialog open or settings change
     useEffect(() => {
@@ -133,7 +138,24 @@ export default function VectorHeatmap({
 
                 {/* Always Visible Settings Panel */}
                 <div className="border rounded-lg p-4 bg-gray-50">
-                    <h3 className="font-medium mb-3">Visualization Settings</h3>
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-medium">Visualization Settings</h3>
+                        {vectorSetName && (
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-600">
+                                    {isImageBased ? 'Image/Multimodal' : 'Text'} vectorset
+                                </span>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={resetToDefaults}
+                                    className="text-xs px-2 py-1 h-6"
+                                >
+                                    Reset to defaults
+                                </Button>
+                            </div>
+                        )}
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">Visualization Type:</label>
@@ -165,7 +187,10 @@ export default function VectorHeatmap({
                         </div>
                     </div>
                     <p className="text-xs text-gray-600 mt-2">
-                        Settings are automatically saved and will be used for all vector visualizations.
+                        {vectorSetName 
+                            ? `Settings are saved for "${vectorSetName}" and will be used for this vectorset.`
+                            : "Settings are automatically saved and will be used for all vector visualizations."
+                        }
                     </p>
                 </div>
 

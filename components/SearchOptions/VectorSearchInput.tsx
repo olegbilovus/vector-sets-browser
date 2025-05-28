@@ -30,6 +30,7 @@ export interface VectorSearchInputProps {
     className?: string
     searchType?: "Vector" | "Element" | "Multi-vector" // For compatibility
     lastTextEmbedding?: number[] // From useVectorSearch for single vector mode
+    vectorSetName?: string | null // Add vectorSetName prop
 }
 
 /**
@@ -48,7 +49,8 @@ export default function VectorSearchInput({
     disabled = false,
     className = "",
     searchType = "Vector",
-    lastTextEmbedding
+    lastTextEmbedding,
+    vectorSetName
 }: VectorSearchInputProps) {
     
     const supportsEmbeddings =
@@ -500,6 +502,8 @@ export default function VectorSearchInput({
                                 : (lastTextEmbedding || null)
                         }
                         isGeneratingEmbedding={isGeneratingEmbedding}
+                        vectorSetName={vectorSetName}
+                        metadata={metadata}
                     />
                 </div>
             )}

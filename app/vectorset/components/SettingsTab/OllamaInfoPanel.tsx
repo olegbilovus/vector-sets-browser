@@ -12,7 +12,6 @@ import {
     Terminal,
     RefreshCw,
     AlertTriangle,
-    Info,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -34,7 +33,6 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
     })
 
     const ollamaUrl = config.ollama?.apiUrl || defaultOllamaUrl()
-    const modelName = config.ollama?.modelName || "mxbai-embed-large"
 
     const checkOllamaStatus = async () => {
         setStatus((prev) => ({ ...prev, isLoading: true, error: undefined }))
@@ -88,12 +86,7 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
         checkOllamaStatus()
     }, [ollamaUrl])
 
-    // Check if the model is available, accounting for version tags (e.g., "model:latest")
-    const isModelAvailable = status.models?.some(model => {
-        // Extract base model name (everything before the first colon)
-        const baseModelName = model.split(':')[0]
-        return baseModelName === modelName || model === modelName
-    })
+
 
     return (
         <Card className="mt-4">
@@ -150,6 +143,11 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
                                 ? "default"
                                 : "destructive"
                         }
+                        className={
+                            status.isAvailable && !status.isLoading
+                                ? "bg-green-500 text-white hover:bg-green-600"
+                                : ""
+                        }
                     >
                         {status.isLoading
                             ? "Checking"
@@ -159,36 +157,7 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
                     </Badge>
                 </div>
 
-                {/* Model Status */}
-                {status.isAvailable && (
-                    <div className="p-3 bg-slate-50 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="font-medium">Selected Model</div>
-                            <Badge
-                                variant={
-                                    isModelAvailable ? "default" : "secondary"
-                                }
-                            >
-                                {isModelAvailable ? "Available" : "Not pulled"}
-                            </Badge>
-                        </div>
-                        <div className="text-sm text-slate-600 mb-2">
-                            {modelName}
-                        </div>
-                        {!isModelAvailable && (
-                            <Alert className="mt-2">
-                                <Info className="h-4 w-4" />
-                                <AlertDescription>
-                                    This model is not available locally. Run{" "}
-                                    <code className="bg-slate-200 px-1 rounded">
-                                        ollama pull {modelName}
-                                    </code>{" "}
-                                    to download it.
-                                </AlertDescription>
-                            </Alert>
-                        )}
-                    </div>
-                )}
+
 
                 {/* Error Display */}
                 {status.error && (
@@ -274,7 +243,7 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
                                             Download the required embedding model
                                         </div>
                                         <div className="bg-slate-100 p-2 rounded font-mono text-xs">
-                                            ollama pull {modelName}
+                                            ollama pull mxbai-embed-large
                                         </div>
                                     </div>
                                 </div>
@@ -306,32 +275,14 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
                         <div className="font-medium">Available Models:</div>
                         <div className="max-h-32 overflow-y-auto">
                             <div className="space-y-1">
-                                {status.models.map((model) => {
-                                    // Check if this model matches the selected one (accounting for version tags)
-                                    const baseModelName = model.split(':')[0]
-                                    const isSelected = baseModelName === modelName || model === modelName
-                                    
-                                    return (
-                                        <div
-                                            key={model}
-                                            className={`text-sm p-2 rounded ${
-                                                isSelected
-                                                    ? "bg-blue-100 text-blue-800 font-medium"
-                                                    : "bg-slate-100 text-slate-700"
-                                            }`}
-                                        >
-                                            {model}
-                                            {isSelected && (
-                                                <Badge
-                                                    variant="default"
-                                                    className="ml-2 text-xs"
-                                                >
-                                                    Selected
-                                                </Badge>
-                                            )}
-                                        </div>
-                                    )
-                                })}
+                                {status.models.map((model) => (
+                                    <div
+                                        key={model}
+                                        className="text-sm p-2 rounded bg-slate-100 text-slate-700"
+                                    >
+                                        {model}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
