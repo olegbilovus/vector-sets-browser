@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Download, X } from "lucide-react"
+import { toast } from "sonner"
 import VectorVisualizationRenderer from "./VectorVisualizationRenderer"
 import ColorSchemeSelector from "./ColorSchemeSelector"
 import { useVectorSettings } from "@/hooks/useVectorSettings"
@@ -23,7 +24,16 @@ export default function VectorHeatmap({
     metadata = null
 }: VectorHeatmapProps) {
     const [forceRender, setForceRender] = useState(0)
-    const { settings, setColorScheme, setScalingMode, setVisualizationType, isImageBased, resetToDefaults } = useVectorSettings(vectorSetName, metadata)
+    const { 
+        settings, 
+        setColorScheme, 
+        setScalingMode, 
+        setVisualizationType, 
+        isImageBased, 
+        resetToDefaults,
+        makeDefault,
+        resetToBuiltInDefaults
+    } = useVectorSettings(vectorSetName, metadata)
 
     // Force redraw on dialog open or settings change
     useEffect(() => {
@@ -35,6 +45,17 @@ export default function VectorHeatmap({
             return () => clearTimeout(timer)
         }
     }, [open, settings.colorScheme, settings.scalingMode, settings.visualizationType])
+
+    // Handle making current settings the default
+    const handleMakeDefault = () => {
+        const success = makeDefault()
+        if (success) {
+            const vectorType = isImageBased ? 'image/multimodal' : 'text'
+            toast.success(`Settings saved as default for all ${vectorType} vectorsets`)
+        } else {
+            toast.error("Failed to save settings as default")
+        }
+    }
 
     // Download visualization as image
     const downloadVisualization = () => {
@@ -148,6 +169,15 @@ export default function VectorHeatmap({
                                 <Button 
                                     variant="outline" 
                                     size="sm" 
+                                    onClick={handleMakeDefault}
+                                    className="text-xs px-2 py-1 h-6"
+                                    title={`Make these settings the default for all ${isImageBased ? 'image/multimodal' : 'text'} vectorsets`}
+                                >
+                                    Make Default
+                                </Button>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
                                     onClick={resetToDefaults}
                                     className="text-xs px-2 py-1 h-6"
                                 >
@@ -188,7 +218,7 @@ export default function VectorHeatmap({
                     </div>
                     <p className="text-xs text-gray-600 mt-2">
                         {vectorSetName 
-                            ? `Settings are saved for "${vectorSetName}" and will be used for this vectorset.`
+                            ? `Settings are saved for "${vectorSetName}". Use "Make Default" to apply these settings to all new ${isImageBased ? 'image/multimodal' : 'text'} vectorsets.`
                             : "Settings are automatically saved and will be used for all vector visualizations."
                         }
                     </p>

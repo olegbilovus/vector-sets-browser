@@ -28,6 +28,7 @@ const DEFAULT_IMAGE_SETTINGS: VectorSettings = {
 
 const GLOBAL_STORAGE_KEY = 'vector-visualization-settings'
 const VECTORSET_STORAGE_PREFIX = 'vector-visualization-settings-'
+const DEFAULT_SETTINGS_KEY = 'vector-visualization-default-settings'
 
 // Helper function to determine if a vectorset is image/multimodal based
 function isImageBasedVectorSet(metadata: VectorSetMetadata | null): boolean {
@@ -60,7 +61,24 @@ export function useVectorSettings(vectorSetName?: string | null, metadata?: Vect
                 const parsed = JSON.parse(stored)
                 setSettings({ ...defaultSettings, ...parsed })
             } else {
-                // No stored settings for this vectorset, use defaults based on type
+                // Check for custom default settings
+                const customDefaults = localStorage.getItem(DEFAULT_SETTINGS_KEY)
+                if (customDefaults) {
+                    try {
+                        const parsedDefaults = JSON.parse(customDefaults)
+                        const isImageBased = isImageBasedVectorSet(metadata)
+                        const typeKey = isImageBased ? 'image' : 'text'
+                        
+                        if (parsedDefaults[typeKey]) {
+                            setSettings({ ...defaultSettings, ...parsedDefaults[typeKey] })
+                            return
+                        }
+                    } catch (e) {
+                        console.warn('Failed to parse custom default settings:', e)
+                    }
+                }
+                
+                // Fall back to built-in defaults
                 setSettings(defaultSettings)
             }
         } catch (error) {
@@ -124,10 +142,79 @@ export function useVectorSettings(vectorSetName?: string | null, metadata?: Vect
         }
     }
 
+    // Make current settings the default for all vectorsets of this type
+    const makeDefault = () => {
+        try {
+            const isImageBased = isImageBasedVectorSet(metadata)
+            const typeKey = isImageBased ? 'image' : 'text'
+            
+            // Get existing custom defaults or create new object
+            let customDefaults = {}
+            try {
+                const existing = localStorage.getItem(DEFAULT_SETTINGS_KEY)
+                if (existing) {
+                    customDefaults = JSON.parse(existing)
+                }
+            } catch (e) {
+                console.warn('Failed to parse existing default settings:', e)
+            }
+            
+            // Update the defaults for this type
+            customDefaults = {
+                ...customDefaults,
+                [typeKey]: settings
+            }
+            
+            localStorage.setItem(DEFAULT_SETTINGS_KEY, JSON.stringify(customDefaults))
+            window.dispatchEvent(new Event('vector-settings-changed'))
+            
+            return true
+        } catch (error) {
+            console.warn('Failed to save default vector settings:', error)
+            return false
+        }
+    }
+
+    // Reset to built-in defaults and clear custom defaults
+    const resetToBuiltInDefaults = () => {
+        try {
+            const isImageBased = isImageBasedVectorSet(metadata)
+            const typeKey = isImageBased ? 'image' : 'text'
+            
+            // Clear custom defaults for this type
+            let customDefaults = {}
+            try {
+                const existing = localStorage.getItem(DEFAULT_SETTINGS_KEY)
+                if (existing) {
+                    customDefaults = JSON.parse(existing)
+                    delete customDefaults[typeKey]
+                    
+                    if (Object.keys(customDefaults).length === 0) {
+                        localStorage.removeItem(DEFAULT_SETTINGS_KEY)
+                    } else {
+                        localStorage.setItem(DEFAULT_SETTINGS_KEY, JSON.stringify(customDefaults))
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to clear custom defaults:', e)
+            }
+            
+            // Clear vectorset-specific settings and reset to built-in defaults
+            const storageKey = getStorageKey()
+            localStorage.removeItem(storageKey)
+            setSettings(defaultSettings)
+            window.dispatchEvent(new Event('vector-settings-changed'))
+        } catch (error) {
+            console.warn('Failed to reset vector settings:', error)
+        }
+    }
+
     return {
         settings,
         updateSettings,
         resetToDefaults,
+        makeDefault,
+        resetToBuiltInDefaults,
         isImageBased: isImageBasedVectorSet(metadata),
         setColorScheme: (colorScheme: ColorScheme) => updateSettings({ colorScheme }),
         setScalingMode: (scalingMode: ScalingMode) => updateSettings({ scalingMode }),

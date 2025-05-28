@@ -21,6 +21,7 @@ interface CompactResultRowProps {
     setEditingAttributes: (element: string) => void
     onDeleteClick: (e: React.MouseEvent, element: string) => void
     metadata?: VectorSetMetadata | null
+    vectorSetName?: string | null
     showEmbeddings?: boolean
     embeddingsCache?: Record<string, number[] | null>
     isLoadingEmbeddings?: boolean
@@ -39,6 +40,7 @@ const CompactResultRow = React.memo(function CompactResultRow({
     setEditingAttributes,
     onDeleteClick,
     metadata,
+    vectorSetName,
     showEmbeddings,
     embeddingsCache,
     isLoadingEmbeddings,
@@ -100,6 +102,7 @@ const CompactResultRow = React.memo(function CompactResultRow({
                                                         isLoadingEmbeddings
                                                     }
                                                     size={40}
+                                                    vectorSetName={vectorSetName}
                                                 />
                                             </div>
                                         ) : (

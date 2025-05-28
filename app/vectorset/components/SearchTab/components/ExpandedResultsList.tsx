@@ -1,4 +1,5 @@
 import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorSetMetadata } from "@/lib/types/vectors"
 import ExpandedResultRow from "./ExpandedResultRow"
 
 interface ExpandedResultsListProps {
@@ -17,6 +18,8 @@ interface ExpandedResultsListProps {
     onShowVectorClick: (e: React.MouseEvent, element: string) => void
     setEditingAttributes: (element: string) => void
     onDeleteClick: (e: React.MouseEvent, element: string) => void
+    metadata?: VectorSetMetadata | null
+    vectorSetName?: string | null
     showEmbeddings?: boolean
     embeddingsCache?: Record<string, number[] | null>
     isLoadingEmbeddings?: boolean
@@ -38,6 +41,8 @@ export default function ExpandedResultsList({
     onShowVectorClick,
     setEditingAttributes,
     onDeleteClick,
+    metadata,
+    vectorSetName,
     showEmbeddings,
     embeddingsCache,
     isLoadingEmbeddings
@@ -63,6 +68,8 @@ export default function ExpandedResultsList({
                     onShowVectorClick={onShowVectorClick}
                     setEditingAttributes={setEditingAttributes}
                     onDeleteClick={onDeleteClick}
+                    metadata={metadata}
+                    vectorSetName={vectorSetName}
                     showEmbeddings={showEmbeddings}
                     embeddingsCache={embeddingsCache}
                     isLoadingEmbeddings={isLoadingEmbeddings}

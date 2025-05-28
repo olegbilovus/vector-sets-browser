@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorSetMetadata } from "@/lib/types/vectors"
 import {
     TextEmbeddingIcon,
     ImageEmbeddingIcon,
@@ -24,6 +25,8 @@ interface ExpandedResultRowProps {
     onShowVectorClick: (e: React.MouseEvent, element: string) => void
     setEditingAttributes: (element: string) => void
     onDeleteClick: (e: React.MouseEvent, element: string) => void
+    metadata?: VectorSetMetadata | null
+    vectorSetName?: string | null
     showEmbeddings?: boolean
     embeddingsCache?: Record<string, number[] | null>
     isLoadingEmbeddings?: boolean
@@ -46,6 +49,8 @@ export default function ExpandedResultRow({
     onShowVectorClick,
     setEditingAttributes,
     onDeleteClick,
+    metadata,
+    vectorSetName,
     showEmbeddings,
     embeddingsCache,
     isLoadingEmbeddings,
@@ -121,6 +126,8 @@ export default function ExpandedResultRow({
                                 disabled={!showEmbeddings}
                                 isGeneratingEmbedding={isLoadingEmbeddings}
                                 size={80}
+                                metadata={metadata}
+                                vectorSetName={vectorSetName}
                             />
                         </div>
                     )}

@@ -97,6 +97,7 @@ const DropzoneResultsTable = React.memo(function DropzoneResultsTable({
                 <CompactResultsTable 
                     {...compactResultsTableProps} 
                     metadata={metadata}
+                    vectorSetName={vectorSetName}
                     showEmbeddings={showEmbeddings}
                     embeddingsCache={embeddingsCache}
                     isLoadingEmbeddings={isLoadingEmbeddings}

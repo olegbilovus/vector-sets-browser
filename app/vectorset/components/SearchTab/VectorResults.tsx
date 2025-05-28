@@ -785,6 +785,8 @@ export default function VectorResults({
                     onShowVectorClick={onShowVectorClick}
                     setEditingAttributes={setEditingAttributes}
                     onDeleteClick={onDeleteClick}
+                    metadata={metadata}
+                    vectorSetName={keyName}
                     showEmbeddings={showEmbeddings}
                     embeddingsCache={embeddingsCache}
                     isLoadingEmbeddings={isLoadingEmbeddings}

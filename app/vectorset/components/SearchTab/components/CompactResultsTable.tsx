@@ -25,6 +25,7 @@ export interface CompactResultsTableProps {
     setEditingAttributes: (element: string) => void
     onDeleteClick: (e: React.MouseEvent, element: string) => void
     metadata?: VectorSetMetadata | null
+    vectorSetName?: string | null
     showEmbeddings?: boolean
     embeddingsCache?: Record<string, number[] | null>
     isLoadingEmbeddings?: boolean
@@ -48,6 +49,7 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
     setEditingAttributes,
     onDeleteClick,
     metadata,
+    vectorSetName,
     showEmbeddings,
     embeddingsCache,
     isLoadingEmbeddings
@@ -82,6 +84,7 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
                         setEditingAttributes={setEditingAttributes}
                         onDeleteClick={onDeleteClick}
                         metadata={metadata}
+                        vectorSetName={vectorSetName}
                         showEmbeddings={showEmbeddings}
                         embeddingsCache={embeddingsCache}
                         isLoadingEmbeddings={isLoadingEmbeddings}
