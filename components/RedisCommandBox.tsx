@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { BorderBeam } from "@stianlarsen/border-beam"
 import { Copy } from "lucide-react"
 import { useState } from "react"
+import { useTypingAnimation } from "@/hooks/useTypingAnimation"
 
 interface RedisCommandBoxProps {
     vectorSetName: string
@@ -107,28 +108,68 @@ export default function RedisCommandBox({
         };
     }
 
+    // Get the command data for display
+    const commandData = getRedisCommand(false);
+    
+    // Determine what text to animate
+    const textToAnimate = (() => {
+        if (!commandData) {
+            return "Enter search parameters to see the Redis command";
+        }
+        
+        if (typeof commandData === "string") {
+            return commandData;
+        }
+        
+        if (commandData.type === "simple") {
+            return commandData.text || "";
+        }
+        
+        // For structured commands, animate the prefix and suffix, keep vectors separate
+        if (commandData.type === "structured") {
+            return (commandData.prefix || "") + (commandData.suffix || "");
+        }
+        
+        return "";
+    })();
+
+    // Use typing animation for the command text
+    const { displayedText, isTyping, skipAnimation } = useTypingAnimation({
+        text: textToAnimate,
+        speed: 30,
+        enabled: !!executedCommand && showRedisCommand
+    });
+
     if (!showRedisCommand) return null;
 
     return (
         <div className="flex gap-2 items-center w-full bg-gray-100 rounded-md">
             {/* Animated border beam effect */}
 
-            <div className="text-muted-foreground p-1 font-mono overflow-x-scroll text-sm grow">
+            <div 
+                className="text-muted-foreground p-1 font-mono overflow-x-scroll text-sm grow cursor-pointer"
+                onClick={isTyping ? skipAnimation : undefined}
+                title={isTyping ? "Click to skip animation" : undefined}
+            >
                 {(() => {
-                    const commandData = getRedisCommand(false)
                     if (!commandData) {
-                        return "Enter search parameters to see the Redis command"
+                        return displayedText;
                     }
 
                     if (typeof commandData === "string") {
-                        return commandData
+                        return displayedText;
                     }
 
                     if (commandData.type === "simple") {
-                        return commandData.text
+                        return displayedText;
                     }
 
-                    // Render structured command
+                    // For structured commands with typing animation
+                    if (isTyping || !executedCommand) {
+                        return displayedText;
+                    }
+
+                    // Render structured command (after animation is complete)
                     return (
                         <div className="text-muted-foreground font-mono text-xs">
                             {commandData.prefix}

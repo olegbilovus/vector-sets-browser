@@ -48,9 +48,6 @@ export default function NoResults({
     if (searchQuery === "" && !searchFilter) {
         return (
             <div className="flex flex-col items-center justify-center py-12 space-y-4 text-gray-500">
-                <p className="">
-                    No results to display
-                </p>
             </div>
         )
     } else {
