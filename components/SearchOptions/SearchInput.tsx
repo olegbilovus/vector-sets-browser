@@ -202,7 +202,7 @@ export default function SearchInput({
         if (!dim) return
 
         const randomVector = Array.from({ length: dim }, () =>
-            Math.random()
+            Math.random() * 2 - 1
         ).map((n) => n.toFixed(4))
 
         const vectorString = randomVector.join(", ")

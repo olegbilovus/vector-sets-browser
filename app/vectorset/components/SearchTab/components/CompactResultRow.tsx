@@ -103,6 +103,7 @@ const CompactResultRow = React.memo(function CompactResultRow({
                                                     }
                                                     size={40}
                                                     vectorSetName={vectorSetName}
+                                                    metadata={metadata}
                                                 />
                                             </div>
                                         ) : (
