@@ -3,7 +3,6 @@
 import { useVectorSearch } from "@/app/vectorset/hooks/useVectorSearch"
 import SearchBox from "@/components/SearchBox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { isImageEmbedding, isMultiModalEmbedding, isTextEmbedding } from "@/lib/embeddings/types/embeddingModels"
 import { VectorTuple, vlinks, vsim } from "@/lib/redis-server/api"
 import { VectorSetMetadata, VectorSetSearchOptions } from "@/lib/types/vectors"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -162,7 +161,7 @@ export default function VectorSearchTab({
         searchFilter,
         setSearchFilter,
         error,
-        clearError: hookClearError,
+        clearError: _hookClearError,
         searchExplorationFactor,
         setSearchExplorationFactor,
         filterExplorationFactor,
@@ -198,9 +197,7 @@ export default function VectorSearchTab({
         setTimeout(() => {
             // Reset the search type only if we have a new vector set
             if (metadata.embedding.provider && metadata.embedding.provider !== "none") {
-                let newSearchType: SearchType;
-
-                newSearchType = "Vector";
+                const newSearchType: SearchType = "Vector";
                 
                 // Only update search type if it's different
                 if (searchType !== newSearchType) {

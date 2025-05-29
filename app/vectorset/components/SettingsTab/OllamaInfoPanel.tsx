@@ -77,7 +77,7 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
             setStatus({
                 isAvailable: false,
                 isLoading: false,
-                error: error instanceof Error ? error.message : "Unknown error",
+                error: _error instanceof Error ? _error.message : "Unknown error",
             })
         }
     }
@@ -260,7 +260,7 @@ export default function OllamaInfoPanel({ config }: OllamaInfoPanelProps) {
                                     <code className="bg-blue-100 px-1 rounded">
                                         {defaultOllamaUrl()}
                                     </code>{" "}
-                                    by default. If you're running it on a
+                                    by default. If you&apos;re running it on a
                                     different port or host, you can change the
                                     API URL in the embedding configuration.
                                 </div>

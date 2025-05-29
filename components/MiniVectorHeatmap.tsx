@@ -56,7 +56,7 @@ export default function MiniVectorHeatmap({
     if (isGeneratingEmbedding || (hasValidVector && !isResolving)) {
         return (
             <div 
-                className={`mini-vector-heatmap flex ${sizeClass} items-center justify-center rounded bg-gray-50 relative overflow-hidden`}
+                className={`mini-vector-heatmap flex ${sizeClass} items-center justify-center rounded relative overflow-hidden`}
                 title="Generating embedding..."
             >
                 {/* Blurred placeholder - generate a simple noise pattern */}
@@ -94,7 +94,7 @@ export default function MiniVectorHeatmap({
     return (
         <>
             <div 
-                className={`mini-vector-heatmap cursor-pointer flex ${sizeClass} items-center justify-center rounded bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden`}
+                className={`mini-vector-heatmap cursor-pointer flex ${sizeClass} items-center justify-center rounded hover:bg-gray-100 transition-colors relative overflow-hidden`}
                 onClick={() => setShowHeatmap(true)}
                 title="View vector visualization"
             >

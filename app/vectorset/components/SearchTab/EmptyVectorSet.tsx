@@ -16,7 +16,7 @@ export default function EmptyVectorSet({
     onAddVector, 
     onChangeTab, 
     handleAddVector,
-    vectorSetName,
+    vectorSetName: _vectorSetName,
     metadata
 }: EmptyVectorSetProps) {
     // Handler to change to import tab and automatically open sample data dialog

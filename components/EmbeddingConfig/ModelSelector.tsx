@@ -184,7 +184,7 @@ export default function ModelSelector({
                             placeholder="Enter model name (e.g., mxbai-embed-large)"
                         />
                         <p className="text-xs text-muted-foreground">
-                            Enter the name of a model. If it's not pulled locally, you'll need to run <code className="bg-slate-200 px-1 rounded">ollama pull {customModel}</code>
+                            Enter the name of a model. If it&apos;s not pulled locally, you&apos;ll need to run <code className="bg-slate-200 px-1 rounded">ollama pull {customModel}</code>
                         </p>
                     </div>
                 )}

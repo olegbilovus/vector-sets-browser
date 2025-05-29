@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +24,7 @@ export function DeleteVectorDialog({
   isOpen,
   onOpenChange,
   onConfirm,
-  vectorName,
+  vectorName: _vectorName,
   isMultiDelete = false,
   vectorCount = 0,
 }: DeleteVectorDialogProps) {

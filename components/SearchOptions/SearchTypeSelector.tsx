@@ -1,4 +1,3 @@
-import { isImageEmbedding, isMultiModalEmbedding, isTextEmbedding } from "@/lib/embeddings/types/embeddingModels"
 import { type VectorSetMetadata } from "@/lib/types/vectors"
 import {
     Select,
@@ -42,7 +41,7 @@ interface SearchTypeSelectorProps {
 export default function SearchTypeSelector({
     searchType,
     setSearchType,
-    metadata,
+    metadata: _metadata,
     setSearchQuery,
     searchCount,
     setSearchCount,
