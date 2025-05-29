@@ -98,17 +98,25 @@ export function useForceSimulator(
                 node.mesh.position.y += node.velocity.y * TIMESTEP
             })
 
-            // Update edge geometries
+            // Update edge geometries without recreating them
             edgesRef.current.forEach((edge) => {
-                const points = [
-                    edge.source.mesh.position.clone(),
-                    edge.target.mesh.position.clone(),
-                ]
-                const geometry = new THREE.BufferGeometry().setFromPoints(
-                    points
-                )
-                edge.line.geometry.dispose()
-                edge.line.geometry = geometry
+                const geometry = edge.line.geometry as THREE.BufferGeometry
+                const positionAttr = geometry.getAttribute(
+                    "position"
+                ) as THREE.BufferAttribute
+
+                const src = edge.source.mesh.position
+                const tgt = edge.target.mesh.position
+
+                const array = positionAttr.array as Float32Array
+                array[0] = src.x
+                array[1] = src.y
+                array[2] = src.z
+                array[3] = tgt.x
+                array[4] = tgt.y
+                array[5] = tgt.z
+
+                positionAttr.needsUpdate = true
             })
         }
 
