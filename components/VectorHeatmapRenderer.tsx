@@ -18,7 +18,7 @@ export default function VectorHeatmapRenderer({
     colorScheme = 'thermal'
 }: VectorHeatmapRendererProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const [hoveredCell, setHoveredCell] = useState<{ index: number; value: number } | null>(null)
+    const [hoveredCell, setHoveredCell] = useState<{ index: number; value: number; x: number; y: number } | null>(null)
     const [isCanvasReady, setIsCanvasReady] = useState(false)
     const [forceRender] = useState(0)
 
@@ -204,7 +204,13 @@ export default function VectorHeatmapRenderer({
                 const index = row * cols + col
                 
                 if (index >= 0 && index < vector.length) {
-                    setHoveredCell({ index, value: vector[index] })
+                    // Use coordinates relative to canvas for tooltip positioning
+                    setHoveredCell({ 
+                        index, 
+                        value: vector[index], 
+                        x: e.clientX - rect.left + 10, // Position relative to canvas
+                        y: e.clientY - rect.top - 5   // Position relative to canvas
+                    })
                 } else {
                     setHoveredCell(null)
                 }
@@ -264,22 +270,24 @@ export default function VectorHeatmapRenderer({
         const scalingParams = getScalingParams(vector)
 
         return (
-            <div className="mt-2 text-xs text-gray-600">
-                <div className="mb-1 p-1 bg-slate-50 rounded text-center">
-                    <p><strong>Length:</strong> {vector.length} | <strong>Mode:</strong> {scalingMode}</p>
-                    <p><strong>Range:</strong> {scalingParams.min.toFixed(4)} to {scalingParams.max.toFixed(4)}</p>
-                </div>
+            <>
                 {hoveredCell && (
-                    <div className="p-1 bg-slate-100 rounded text-center">
+                    <div 
+                        className="absolute z-50 p-2 bg-slate-800 text-white text-xs rounded shadow-lg pointer-events-none"
+                        style={{
+                            left: `${hoveredCell.x}px`,
+                            top: `${hoveredCell.y}px`,
+                        }}
+                    >
                         <p><strong>Dim {hoveredCell.index}:</strong> {hoveredCell.value.toFixed(4)}</p>
                     </div>
                 )}
-            </div>
+            </>
         )
     }
 
     return (
-        <div className={className}>
+        <div className={`relative ${className}`}>
             <canvas 
                 ref={canvasRef} 
                 style={{ 

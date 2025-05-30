@@ -18,7 +18,7 @@ export default function VectorDistributionRenderer({
     colorScheme = 'thermal'
 }: VectorDistributionRendererProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const [hoveredBin, setHoveredBin] = useState<{ index: number; count: number; range: string } | null>(null)
+    const [hoveredBin, setHoveredBin] = useState<{ index: number; count: number; range: string; x: number; y: number } | null>(null)
     const [isCanvasReady, setIsCanvasReady] = useState(false)
 
     // Determine if this is a mini view (simplified rendering)
@@ -269,10 +269,13 @@ export default function VectorDistributionRenderer({
                 const binIndex = Math.floor(x / (chartWidth / bins.length))
                 if (binIndex >= 0 && binIndex < bins.length) {
                     const bin = bins[binIndex]
+                    
                     setHoveredBin({
                         index: binIndex,
                         count: bin.count,
-                        range: `${bin.start.toFixed(3)} to ${bin.end.toFixed(3)}`
+                        range: `${bin.start.toFixed(3)} to ${bin.end.toFixed(3)}`,
+                        x: e.clientX - rect.left + 10,
+                        y: e.clientY - rect.top - 5
                     })
                 } else {
                     setHoveredBin(null)
@@ -301,23 +304,25 @@ export default function VectorDistributionRenderer({
         if (!stats) return null
 
         return (
-            <div className="mt-2 text-xs text-gray-600">
-                <div className="mb-1 p-1 bg-slate-50 rounded text-center">
-                    <p><strong>Values:</strong> {stats.total} | <strong>Mode:</strong> {scalingMode}</p>
-                    <p><strong>Range:</strong> {stats.min.toFixed(4)} to {stats.max.toFixed(4)}</p>
-                </div>
+            <>
                 {hoveredBin && (
-                    <div className="p-1 bg-slate-100 rounded text-center">
+                    <div 
+                        className="absolute z-50 p-2 bg-slate-800 text-white text-xs rounded shadow-lg pointer-events-none"
+                        style={{
+                            left: `${hoveredBin.x}px`,
+                            top: `${hoveredBin.y}px`,
+                        }}
+                    >
                         <p><strong>Bin {hoveredBin.index + 1}:</strong> {hoveredBin.count} values</p>
                         <p><strong>Range:</strong> {hoveredBin.range}</p>
                     </div>
                 )}
-            </div>
+            </>
         )
     }
 
     return (
-        <div className={className}>
+        <div className={`relative ${className}`}>
             <canvas
                 ref={canvasRef}
                 style={{

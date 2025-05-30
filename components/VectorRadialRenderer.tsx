@@ -242,24 +242,11 @@ export default function VectorRadialRenderer({
         })
 
         if (closestDimension >= 0) {
-            // Find the display index for position calculation
-            const displayIndex = displayDimensions.findIndex(d => d.index === closestDimension)
-            const angle = (displayIndex / totalDisplayCount) * 2 * Math.PI - Math.PI / 2
-            
-            const normalizedAbs = Math.abs(closestValue) / absMax
-            const minRadius = maxRadius * 0.2
-            const availableRadius = maxRadius - minRadius
-            const scaledRadius = Math.sqrt(normalizedAbs) * availableRadius
-            const radius = minRadius + scaledRadius
-            
-            const x = centerX + Math.cos(angle) * radius
-            const y = centerY + Math.sin(angle) * radius
-
             setHoverInfo({
                 dimension: closestDimension,
                 value: closestValue,
-                x: x,
-                y: y
+                x: event.clientX, // Use viewport coordinates
+                y: event.clientY   // Use viewport coordinates
             })
         } else {
             setHoverInfo(null)
@@ -292,10 +279,10 @@ export default function VectorRadialRenderer({
             {/* Hover tooltip - only show in non-mini mode */}
             {!isMiniMode && hoverInfo && (
                 <div 
-                    className="absolute bg-black text-white text-xs p-2 rounded shadow-lg pointer-events-none z-10"
+                    className="fixed bg-black text-white text-xs p-2 rounded shadow-lg pointer-events-none z-50"
                     style={{
-                        left: Math.min(hoverInfo.x + 10, size - 100),
-                        top: Math.max(hoverInfo.y - 30, 10)
+                        left: hoverInfo.x + 10,
+                        top: hoverInfo.y - 30
                     }}
                 >
                     <div>Dim {hoverInfo.dimension}: {hoverInfo.value.toFixed(4)}</div>
