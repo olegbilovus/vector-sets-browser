@@ -16,6 +16,9 @@ import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
 import { debounce } from "lodash"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+import { useSidebarToggle } from "@/hooks/useSidebarToggle"
+import { useAnimationSettings } from "@/app/config/AnimationSettings"
+import { PanelLeft, PanelRight } from "lucide-react"
 
 interface VectorSetNavProps {
     redisUrl: string | null
@@ -102,6 +105,9 @@ export default function VectorSetNav({
     onBack,
     isConnected,
 }: VectorSetNavProps) {
+    const { isCollapsed, toggleSidebar } = useSidebarToggle()
+    const { animationsDisabled } = useAnimationSettings()
+
     const [vectorSetState, setVectorSetState] = useState<VectorSetState>({
         list: [],
         info: {},
@@ -342,56 +348,141 @@ export default function VectorSetNav({
         }
     }
 
+    const sidebarWidth = isCollapsed ? 60 : 300
+    const transitionClass = animationsDisabled ? '' : 'transition-all duration-300 ease-in-out'
+
     return (
-        <Sidebar
-            defaultWidth={300}
-            minWidth={200}
-            maxWidth={500}
-            className="sidebar-with-visible-handle"
+        <div
+            className={`relative flex-none bg-sidebar border-r h-screen flex flex-col ${transitionClass}`}
+            style={{ width: sidebarWidth }}
         >
-            <SidebarHeader>
-                <div className="flex items-center -ml-4 truncate">
-                    <Button variant="ghost" onClick={onBack}>
-                        <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                            />
-                        </svg>
-                        <div className="flex flex-col items-start ml-2">
-                            <span className="font-medium">{redisName || 'Redis Server'}</span>
-                            {redisUrl && (
-                                <span className="text-xs text-gray-500">
-                                    {sanitizeRedisUrl(redisUrl)}
-                                </span>
-                            )}
-                        </div>
+            <div className="p-4 border-b border-sidebar-border">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center -ml-4 truncate flex-1 min-w-0">
+                        {!isCollapsed && (
+                            <Button variant="ghost" onClick={onBack}>
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                                    />
+                                </svg>
+                                <div className="flex flex-col items-start ml-2">
+                                    <span className="font-medium">{redisName || 'Redis Server'}</span>
+                                    {redisUrl && (
+                                        <span className="text-xs text-gray-500">
+                                            {sanitizeRedisUrl(redisUrl)}
+                                        </span>
+                                    )}
+                                </div>
+                            </Button>
+                        )}
+                        {isCollapsed && (
+                            <Button
+                                variant="ghost"
+                                onClick={onBack}
+                                className="p-2 w-8 h-8"
+                                title={`${redisName || 'Redis Server'} - Click to go back`}
+                            >
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                                    />
+                                </svg>
+                            </Button>
+                        )}
+                    </div>
+                    <Button
+                        variant="ghost"
+                        onClick={toggleSidebar}
+                        className="p-2 w-8 h-8 flex-shrink-0"
+                        title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    >
+                        {isCollapsed ? (
+                            <PanelRight className="w-4 h-4" />
+                        ) : (
+                            <PanelLeft className="w-4 h-4" />
+                        )}
                     </Button>
                 </div>
-            </SidebarHeader>
+            </div>
 
-            <SidebarContent>
+            <div className="flex-1 overflow-auto p-4">
                 <div className="list-container flex flex-col h-full space-y-0">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-sm font-semibold uppercase text-gray-600">
-                            Vector Sets
-                        </h2>
-                        <div className="flex gap-1">
+                    {!isCollapsed && (
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-sm font-semibold uppercase text-gray-600">
+                                Vector Sets
+                            </h2>
+                            <div className="flex gap-1">
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => loadVectorSets()}
+                                    title="Refresh Vector Sets"
+                                    className="p-1"
+                                >
+                                    <svg
+                                        className="w-5 h-5 text-gray-500"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                        />
+                                    </svg>
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setIsCreateModalOpen(true)}
+                                    title="Quick Create Vector Set"
+                                    className="p-1"
+                                >
+                                    <svg
+                                        className="w-5 h-5 text-gray-500"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 4v16m8-8H4"
+                                        />
+                                    </svg>
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                    {isCollapsed && (
+                        <div className="flex flex-col items-center gap-2 mb-4">
                             <Button
                                 variant="ghost"
                                 onClick={() => loadVectorSets()}
                                 title="Refresh Vector Sets"
-                                className="p-1"
+                                className="p-2 w-8 h-8"
                             >
                                 <svg
-                                    className="w-5 h-5 text-gray-500"
+                                    className="w-4 h-4 text-gray-500"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -408,10 +499,10 @@ export default function VectorSetNav({
                                 variant="ghost"
                                 onClick={() => setIsCreateModalOpen(true)}
                                 title="Quick Create Vector Set"
-                                className="p-1"
+                                className="p-2 w-8 h-8"
                             >
                                 <svg
-                                    className="w-5 h-5 text-gray-500"
+                                    className="w-4 h-4 text-gray-500"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -425,14 +516,14 @@ export default function VectorSetNav({
                                 </svg>
                             </Button>
                         </div>
-                    </div>
+                    )}
                     {vectorSetState.error && (
                         <div className="text-sm text-red-500 mb-4 p-2 bg-red-50 rounded border border-red-200">
                             {vectorSetState.error}
                         </div>
                     )}
-                    {vectorSetState.hasLoadedOnce && !vectorSetState.loading && vectorSetState.list.length === 0 && (
-                        <div 
+                    {vectorSetState.hasLoadedOnce && !vectorSetState.loading && vectorSetState.list.length === 0 && !isCollapsed && (
+                        <div
                             onClick={() => setIsCreateModalOpen(true)}
                             className="p-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 cursor-pointer transition-all duration-200 flex flex-col items-center justify-center space-y-2"
                         >
@@ -459,10 +550,34 @@ export default function VectorSetNav({
                     )}
                     {vectorSetState.list.map((setName, index) => {
                         const info = vectorSetState.info[setName]
+                        const isSelected = selectedVectorSet === setName
+
+                        if (isCollapsed) {
+                            return (
+                                <div
+                                    key={setName}
+                                    className={`group relative mb-1 ${isSelected ? "bg-blue-100" : "hover:bg-gray-100"}`}
+                                    title={`${setName} - ${info ? info.vectorCount.toLocaleString() : 0} vectors`}
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => onVectorSetSelect(setName)}
+                                        className={`w-full h-8 p-1 justify-center ${isSelected ? "bg-blue-200 hover:bg-blue-200" : ""}`}
+                                    >
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                                            isSelected ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700"
+                                        }`}>
+                                            {setName.charAt(0).toUpperCase()}
+                                        </div>
+                                    </Button>
+                                </div>
+                            )
+                        }
+
                         return (
                             <div
                                 key={setName}
-                                className={`group list-item relative ${selectedVectorSet === setName
+                                className={`group list-item relative ${isSelected
                                     ? "list-item-selected"
                                     : index % 2 === 0
                                         ? "list-item-alt"
@@ -527,15 +642,17 @@ export default function VectorSetNav({
                     })}
                     <div className="grow"></div>
                     {vectorSetState.loading && (
-                        <div className="text-sm text-gray-500">Loading...</div>
+                        <div className={`text-sm text-gray-500 ${isCollapsed ? "text-center" : ""}`}>
+                            {isCollapsed ? "..." : "Loading..."}
+                        </div>
                     )}
-                    {statusMessage && (
+                    {statusMessage && !isCollapsed && (
                         <div className="text-sm text-green-600 mb-4 p-2 bg-green-50 rounded border border-green-200">
                             {statusMessage}
                         </div>
                     )}
                 </div>
-            </SidebarContent>
+            </div>
 
             {isCreateModalOpen && (
                 <CreateVectorSetModal
@@ -572,6 +689,6 @@ export default function VectorSetNav({
                     vectorSetName={vectorSetToDelete}
                 />
             )}
-        </Sidebar>
+        </div>
     )
 }

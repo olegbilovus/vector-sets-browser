@@ -4,6 +4,7 @@ export interface UserSettingsResponse<T = any> {
 
 // Configuration constants
 export const WITHATTRIBS_SETTING_KEY = 'vsim-use-withattribs'
+export const SIDEBAR_COLLAPSED_KEY = 'sidebar-collapsed'
 
 export const userSettings = {
     get<T = any>(key: string): T | null {
@@ -54,5 +55,15 @@ export const userSettings = {
     // Helper function to set WITHATTRIBS setting
     setUseWithAttribs(value: boolean): void {
         this.set(WITHATTRIBS_SETTING_KEY, value)
+    },
+
+    // Helper function to get sidebar collapsed state with default
+    getSidebarCollapsed(): boolean {
+        return this.get<boolean>(SIDEBAR_COLLAPSED_KEY) ?? false // Default to expanded
+    },
+
+    // Helper function to set sidebar collapsed state
+    setSidebarCollapsed(value: boolean): void {
+        this.set(SIDEBAR_COLLAPSED_KEY, value)
     },
 }
