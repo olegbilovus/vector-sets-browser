@@ -1,4 +1,5 @@
 import { ColorScheme } from "@/hooks/useVectorSettings"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface ColorSchemeSelectorProps {
     value: ColorScheme
@@ -69,17 +70,27 @@ export default function ColorSchemeSelector({
     return (
         <div className={className}>
             <label className="block text-sm font-medium mb-1">Color Scheme:</label>
-            <select 
-                value={value} 
-                onChange={(e) => onChange(e.target.value as ColorScheme)}
-                className="border rounded px-2 py-1 w-full"
-            >
-                {colorSchemes.map((scheme) => (
-                    <option key={scheme.value} value={scheme.value}>
-                        {scheme.label} ({scheme.description})
-                    </option>
-                ))}
-            </select>
+            <Select value={value} onValueChange={(value) => onChange(value as ColorScheme)}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a color scheme" />
+                </SelectTrigger>
+                <SelectContent>
+                    {colorSchemes.map((scheme) => (
+                        <SelectItem key={scheme.value} value={scheme.value}>
+                            <div className="flex items-center space-x-3">
+                                <div
+                                    className="w-8 h-4 rounded border"
+                                    style={{ background: scheme.gradient }}
+                                />
+                                <div className="flex space-x-2 items-center">
+                                    <div className="font-medium">{scheme.label}</div>
+                                    <div className="text-xs text-muted-foreground">{scheme.description}</div>
+                                </div>
+                            </div>
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
         </div>
     )
 } 

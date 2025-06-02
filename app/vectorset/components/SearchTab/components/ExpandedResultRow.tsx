@@ -122,18 +122,23 @@ export default function ExpandedResultRow({
                         />
                     </div>
                 )}
-                <div className="flex items-start space-x-4 w-full">
+                <div className="flex items-start space-x-4 w-full shrink-0">
                     {/* Show thumbnail alongside vector visualization if both are enabled */}
                     {vectorSetName && showEmbeddings && metadata?.embedding && (isImageEmbedding(metadata.embedding) || isMultiModalEmbedding(metadata.embedding)) && (
-                        <ThumbnailDisplay
+                        <div>
+                        <div className="text-sm text-gray-500">
+                            THUMBNAIL
+                        </div><ThumbnailDisplay
                             vectorSetName={vectorSetName}
                             elementId={row[0]}
-                            size="medium"
+                            size="large"
                             showFallback={false}
-                        />
+                            className="flex-shrink-0"
+                            />
+                            </div>
                     )}
                     {/* Vector heatmap or thumbnail (when vector viz is off) or embedding icon */}
-                    <div className="bg-gray-100 rounded-lg text-gray-600">
+                    <div className=" rounded-lg text-gray-600">
                         {showEmbeddings ? (
                             <div>
                                 <div className="text-sm text-gray-500">
@@ -156,7 +161,7 @@ export default function ExpandedResultRow({
                             <ThumbnailDisplay
                                 vectorSetName={vectorSetName}
                                 elementId={row[0]}
-                                size="medium"
+                                size="large"
                                 showFallback={true}
                             />
                         ) : (

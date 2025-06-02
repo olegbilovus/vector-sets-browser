@@ -6,6 +6,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useVectorSettings } from "@/hooks/useVectorSettings"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import { Download, Info, X } from "lucide-react"
@@ -416,22 +417,24 @@ export default function VectorHeatmap({
                                         <label className="block text-sm font-medium mb-2">
                                             Scaling Mode:
                                         </label>
-                                        <select
+                                        <Select
                                             value={settings.scalingMode}
-                                            onChange={(e) =>
-                                                setScalingMode(
-                                                    e.target.value as any
-                                                )
+                                            onValueChange={(value) =>
+                                                setScalingMode(value as any)
                                             }
-                                            className="border rounded px-2 py-1 w-full text-sm"
                                         >
-                                            <option value="relative">
-                                                Relative (min/max)
-                                            </option>
-                                            <option value="absolute">
-                                                Absolute (-1 to 1)
-                                            </option>
-                                        </select>
+                                            <SelectTrigger className="w-full text-sm">
+                                                <SelectValue placeholder="Select scaling mode" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="relative">
+                                                    Relative (min/max)
+                                                </SelectItem>
+                                                <SelectItem value="absolute">
+                                                    Absolute (-1 to 1)
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
                             </div>
@@ -522,22 +525,24 @@ export default function VectorHeatmap({
                                             <label className="block text-sm font-medium mb-2">
                                                 Scaling Mode:
                                             </label>
-                                            <select
+                                            <Select
                                                 value={settings.scalingMode}
-                                                onChange={(e) =>
-                                                    setScalingMode(
-                                                        e.target.value as any
-                                                    )
+                                                onValueChange={(value) =>
+                                                    setScalingMode(value as any)
                                                 }
-                                                className="border rounded px-2 py-1 w-full text-sm"
                                             >
-                                                <option value="relative">
-                                                    Relative (min/max)
-                                                </option>
-                                                <option value="absolute">
-                                                    Absolute (-1 to 1)
-                                                </option>
-                                            </select>
+                                                <SelectTrigger className="w-full text-sm">
+                                                    <SelectValue placeholder="Select scaling mode" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="relative">
+                                                        Relative (min/max)
+                                                    </SelectItem>
+                                                    <SelectItem value="absolute">
+                                                        Absolute (-1 to 1)
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
                                 )}
