@@ -38,6 +38,7 @@ export default function VectorResults({
     changeTab,
     handleAddVectorWithImage,
     metadata,
+    searchVector,
 }: VectorResultsProps) {
     const [isCompact, setIsCompact] = useState(true)
     const {
@@ -767,6 +768,8 @@ export default function VectorResults({
                     showEmbeddings={showEmbeddings}
                     embeddingsCache={embeddingsCache}
                     isLoadingEmbeddings={isLoadingEmbeddings}
+                    searchVector={searchVector}
+                    searchQuery={searchQuery}
                 />
             ) : (
                 <ExpandedResultsList
@@ -790,6 +793,8 @@ export default function VectorResults({
                     showEmbeddings={showEmbeddings}
                     embeddingsCache={embeddingsCache}
                     isLoadingEmbeddings={isLoadingEmbeddings}
+                    searchVector={searchVector}
+                    searchQuery={searchQuery}
                 />
             )}
         </div>

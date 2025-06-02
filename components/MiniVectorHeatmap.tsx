@@ -12,6 +12,9 @@ interface MiniVectorHeatmapProps {
     size?: number // Size in pixels, defaults to 80
     vectorSetName?: string | null
     metadata?: VectorSetMetadata | null
+    searchVector?: number[] | null
+    elementName?: string | null
+    searchQuery?: string | null
 }
 
 export default function MiniVectorHeatmap({ 
@@ -20,7 +23,10 @@ export default function MiniVectorHeatmap({
     isGeneratingEmbedding = false,
     size = 80,
     vectorSetName = null,
-    metadata = null
+    metadata = null,
+    searchVector = null,
+    elementName = null,
+    searchQuery = null
 }: MiniVectorHeatmapProps) {
     const [showHeatmap, setShowHeatmap] = useState(false)
     const [isResolving, setIsResolving] = useState(false)
@@ -124,6 +130,9 @@ export default function MiniVectorHeatmap({
                 onOpenChange={setShowHeatmap}
                 vectorSetName={vectorSetName}
                 metadata={metadata}
+                searchVector={searchVector}
+                elementName={elementName}
+                searchQuery={searchQuery}
             />
         </>
     )

@@ -23,6 +23,8 @@ interface ExpandedResultsListProps {
     showEmbeddings?: boolean
     embeddingsCache?: Record<string, number[] | null>
     isLoadingEmbeddings?: boolean
+    searchVector?: number[] | null
+    searchQuery?: string | null
 }
 
 export default function ExpandedResultsList({
@@ -45,7 +47,9 @@ export default function ExpandedResultsList({
     vectorSetName,
     showEmbeddings,
     embeddingsCache,
-    isLoadingEmbeddings
+    isLoadingEmbeddings,
+    searchVector,
+    searchQuery
 }: ExpandedResultsListProps) {
     return (
         <div className="space-y-4 mb-8">
@@ -73,6 +77,8 @@ export default function ExpandedResultsList({
                     showEmbeddings={showEmbeddings}
                     embeddingsCache={embeddingsCache}
                     isLoadingEmbeddings={isLoadingEmbeddings}
+                    searchVector={searchVector}
+                    searchQuery={searchQuery}
                 />
             ))}
         </div>

@@ -35,6 +35,7 @@ export interface VectorResultsProps {
     changeTab?: (tab: string, options?: { openSampleData?: boolean }) => void
     handleAddVectorWithImage?: (element: string, embedding: number[]) => Promise<void>
     metadata?: VectorSetMetadata | null
+    searchVector?: number[] | null
 }
 
 export interface AttributeColumnsDialogProps {

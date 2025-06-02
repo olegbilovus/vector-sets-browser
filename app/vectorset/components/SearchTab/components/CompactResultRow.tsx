@@ -25,6 +25,8 @@ interface CompactResultRowProps {
     showEmbeddings?: boolean
     embeddingsCache?: Record<string, number[] | null>
     isLoadingEmbeddings?: boolean
+    searchVector?: number[] | null
+    searchQuery?: string | null
 }
 
 const CompactResultRow = React.memo(function CompactResultRow({
@@ -44,6 +46,8 @@ const CompactResultRow = React.memo(function CompactResultRow({
     showEmbeddings,
     embeddingsCache,
     isLoadingEmbeddings,
+    searchVector,
+    searchQuery,
 }: CompactResultRowProps) {
     // Helper to format different attribute value types
     const formatAttributeValue = (value: any): string => {
@@ -104,6 +108,9 @@ const CompactResultRow = React.memo(function CompactResultRow({
                                                     size={40}
                                                     vectorSetName={vectorSetName}
                                                     metadata={metadata}
+                                                    searchVector={searchVector}
+                                                    elementName={element}
+                                                    searchQuery={searchQuery}
                                                 />
                                             </div>
                                         ) : (

@@ -64,6 +64,7 @@ interface SearchBoxProps {
     lastTextEmbedding?: number[]
     vectorFormat?: "FP32" | "VALUES"
     setVectorFormat?: (format: "FP32" | "VALUES") => void
+    onTextEmbeddingGenerated?: (embedding: number[]) => void
 }
 
 export default function SearchBox({
@@ -93,6 +94,7 @@ export default function SearchBox({
     lastTextEmbedding,
     vectorFormat,
     setVectorFormat,
+    onTextEmbeddingGenerated,
 }: SearchBoxProps) {
     // Create ref for the VectorSearchInput
     const vectorSearchInputRef = useRef<HTMLTextAreaElement>(null)
@@ -141,11 +143,12 @@ export default function SearchBox({
         }
     }
 
-    // For single vector search, don't interfere - let useVectorSearch handle it
-    const handleSingleVectorEmbedding = () => {
-        // The VectorSearchInput will show the embedding visually,
-        // but useVectorSearch will generate its own embedding from the text
-        // This function should NOT receive individual text embeddings from VectorSearchInput
+    // Handle embedding generation for single vector search (both text and image)
+    const handleSingleVectorEmbedding = (embedding: number[]) => {
+        // Pass embedding up to useVectorSearch for comparison functionality
+        if (onTextEmbeddingGenerated && embedding && embedding.length > 0) {
+            onTextEmbeddingGenerated(embedding)
+        }
     }
 
     // Determine if we should show the image uploader - always show for Vector searches

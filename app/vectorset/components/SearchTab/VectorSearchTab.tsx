@@ -12,7 +12,7 @@ import HNSW2dViz from "../VisualizationTab/vizualizer/HNSW2dViz"
 import { DeleteVectorDialog } from "./DeleteVectorDialog"
 import VectorResults from "./VectorResults"
 import { SearchType } from "@/components/SearchOptions/SearchTypeSelector"
-    
+
 interface VectorSearchTabProps {
     vectorSetName: string
     dim: number | null
@@ -53,7 +53,7 @@ export default function VectorSearchTab({
     const [vectorsToDelete, setVectorsToDelete] = useState<string[]>([])
     const [isBulkDelete, setIsBulkDelete] = useState(false)
     const [resultsWithVectors, setResultsWithVectors] = useState<VectorTuple[]>([])
-
+    
     // Initialize with basic search state - advanced options will be loaded from userSettings by useVectorSearch
     const [searchState, setSearchState] = useState<VectorSetSearchOptions>({
         searchType: "Vector" as SearchType,
@@ -172,6 +172,7 @@ export default function VectorSearchTab({
         setNoThread,
         executedCommand,
         lastTextEmbedding,
+        setLastTextEmbedding,
         vectorFormat,
         setVectorFormat,
     } = useVectorSearch({
@@ -295,6 +296,7 @@ export default function VectorSearchTab({
                 isMultiDelete={isBulkDelete}
                 vectorCount={vectorsToDelete.length}
             />
+            
             <SearchBox
                 vectorSetName={vectorSetName}
                 searchType={searchType}
@@ -321,6 +323,7 @@ export default function VectorSearchTab({
                 lastTextEmbedding={lastTextEmbedding}
                 vectorFormat={vectorFormat}
                 setVectorFormat={setVectorFormat}
+                onTextEmbeddingGenerated={setLastTextEmbedding}
             />
             <div className="bg-[white] p-4 rounded shadow-md">
                 <Tabs
@@ -358,6 +361,7 @@ export default function VectorSearchTab({
                             changeTab={changeTab}
                             handleAddVectorWithImage={handleAddVector}
                             metadata={metadata}
+                            searchVector={lastTextEmbedding}
                         />
                     </TabsContent>
 

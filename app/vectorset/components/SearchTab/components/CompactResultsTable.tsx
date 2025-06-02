@@ -29,6 +29,8 @@ export interface CompactResultsTableProps {
     showEmbeddings?: boolean
     embeddingsCache?: Record<string, number[] | null>
     isLoadingEmbeddings?: boolean
+    searchVector?: number[] | null
+    searchQuery?: string | null
 }
 
 const CompactResultsTable = React.memo(function CompactResultsTable({
@@ -52,7 +54,9 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
     vectorSetName,
     showEmbeddings,
     embeddingsCache,
-    isLoadingEmbeddings
+    isLoadingEmbeddings,
+    searchVector,
+    searchQuery
 }: CompactResultsTableProps) {
     return (
         <Table>
@@ -88,6 +92,8 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
                         showEmbeddings={showEmbeddings}
                         embeddingsCache={embeddingsCache}
                         isLoadingEmbeddings={isLoadingEmbeddings}
+                        searchVector={searchVector}
+                        searchQuery={searchQuery}
                     />
                 ))}
             </TableBody>

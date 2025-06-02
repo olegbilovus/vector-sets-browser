@@ -46,6 +46,7 @@ interface UseVectorSearchReturn {
     noThread: boolean
     setNoThread: (value: boolean) => void
     lastTextEmbedding?: number[] // Add lastTextEmbedding to the return type
+    setLastTextEmbedding: (embedding: number[] | undefined) => void // Add function to manually set lastTextEmbedding
     executedCommand?: string
     vectorFormat?: 'FP32' | 'VALUES'
     setVectorFormat: (format: 'FP32' | 'VALUES') => void
@@ -831,6 +832,7 @@ export function useVectorSearch({
             updateSearchState({ noThread: value })
         },
         lastTextEmbedding: internalSearchState.lastTextEmbedding, // Expose the last text embedding
+        setLastTextEmbedding: (embedding) => updateSearchState({ lastTextEmbedding: embedding }),
         executedCommand: internalSearchState.executedCommand,
         vectorFormat: internalSearchState.vectorFormat,
         setVectorFormat: (format) => {

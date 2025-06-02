@@ -13,6 +13,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import ColorSchemeSelector from "./ColorSchemeSelector"
 import VectorVisualizationRenderer from "./VectorVisualizationRenderer"
+import { userSettings } from "@/lib/storage/userSettings"
 
 interface VectorHeatmapProps {
     vector: number[] | null
@@ -20,6 +21,9 @@ interface VectorHeatmapProps {
     onOpenChange: (open: boolean) => void
     vectorSetName?: string | null
     metadata?: VectorSetMetadata | null
+    searchVector?: number[] | null
+    elementName?: string | null
+    searchQuery?: string | null
 }
 
 export default function VectorHeatmap({
@@ -28,9 +32,13 @@ export default function VectorHeatmap({
     onOpenChange,
     vectorSetName = null,
     metadata = null,
+    searchVector = null,
+    elementName = null,
+    searchQuery = null,
 }: VectorHeatmapProps) {
     const [forceRender, setForceRender] = useState(0)
     const [descriptionOpen, setDescriptionOpen] = useState(false)
+    const [showComparison, setShowComparison] = useState(false)
     const {
         settings,
         setColorScheme,
@@ -41,10 +49,10 @@ export default function VectorHeatmap({
         makeDefault,
     } = useVectorSettings(vectorSetName, metadata)
 
-    // Force redraw on dialog open or settings change
+    const canCompare = vector && searchVector && vector.length === searchVector.length
+
     useEffect(() => {
         if (open) {
-            // Small delay to ensure DOM is ready
             const timer = setTimeout(() => {
                 setForceRender((prev) => prev + 1)
             }, 100)
@@ -55,9 +63,18 @@ export default function VectorHeatmap({
         settings.colorScheme,
         settings.scalingMode,
         settings.visualizationType,
+        showComparison,
     ])
 
-    // Handle making current settings the default
+    useEffect(() => {
+        if (open && canCompare) {
+            const stickyComparison = userSettings.get("vectorComparisonMode") === true
+            setShowComparison(stickyComparison)
+        } else if (open) {
+            setShowComparison(false)
+        }
+    }, [open, canCompare])
+
     const handleMakeDefault = () => {
         const success = makeDefault()
         if (success) {
@@ -70,25 +87,67 @@ export default function VectorHeatmap({
         }
     }
 
-    // Download visualization as image
     const downloadVisualization = () => {
-        const canvas = document.querySelector(
+        const canvases = document.querySelectorAll(
             ".vector-visualization canvas"
-        ) as HTMLCanvasElement
-        if (!canvas) return
+        ) as NodeListOf<HTMLCanvasElement>
+        
+        if (canvases.length === 0) return
 
-        const link = document.createElement("a")
-        link.download = `vector-${settings.visualizationType}.png`
-        link.href = canvas.toDataURL("image/png")
-        link.click()
+        if (showComparison && canvases.length >= 2) {
+            const searchCanvas = canvases[0]
+            const resultCanvas = canvases[1]
+            
+            const searchLink = document.createElement("a")
+            searchLink.download = `search-vector-${settings.visualizationType}.png`
+            searchLink.href = searchCanvas.toDataURL("image/png")
+            searchLink.click()
+            
+            setTimeout(() => {
+                const resultLink = document.createElement("a")
+                resultLink.download = `${elementName || 'result'}-vector-${settings.visualizationType}.png`
+                resultLink.href = resultCanvas.toDataURL("image/png")
+                resultLink.click()
+            }, 100)
+        } else {
+            const canvas = canvases[0]
+            const link = document.createElement("a")
+            link.download = `vector-${settings.visualizationType}.png`
+            link.href = canvas.toDataURL("image/png")
+            link.click()
+        }
+    }
+
+    const handleComparisonToggle = () => {
+        const newValue = !showComparison
+        setShowComparison(newValue)
+        userSettings.set("vectorComparisonMode", newValue)
     }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader className="flex flex-row items-center justify-between">
-                    <DialogTitle>Vector Visualization</DialogTitle>
+                    <DialogTitle>
+                        Vector Visualization
+                        {showComparison && canCompare && (
+                            <span className="text-sm font-normal text-gray-600 ml-2">
+                                - Comparison View
+                            </span>
+                        )}
+                    </DialogTitle>
                     <div className="flex gap-2">
+                        {canCompare && (
+                            <Button
+                                variant={showComparison ? "default" : "outline"}
+                                size="sm"
+                                onClick={handleComparisonToggle}
+                                className="text-xs px-3 py-1"
+                                title={`${showComparison ? "Hide" : "Show"} side-by-side comparison`}
+                            >
+                                {showComparison ? "Hide Comparison" : "Compare Side by Side"}
+                            </Button>
+                        )}
                         {vectorSetName && (
                             <Button
                                 variant="outline"
@@ -123,7 +182,6 @@ export default function VectorHeatmap({
                     </div>
                 </DialogHeader>
 
-                {/* Tabs for Visualization Type */}
                 <Tabs
                     value={settings.visualizationType}
                     onValueChange={(value) =>
@@ -140,233 +198,284 @@ export default function VectorHeatmap({
                             </TabsTrigger>
                             <TabsTrigger value="radial">⭕ Radial</TabsTrigger>
                         </TabsList>
-
                     </div>
 
-                    {/* Main Content */}
-                    <div className="flex gap-6">
-                        {/* Visualization Area - Takes up most space */}
-                        <div className="flex-1">
-                            <div
-                                className="vector-visualization w-full flex justify-center items-center border rounded-lg"
-                                style={{
-                                    minWidth: "500px",
-                                    height: "500px",
-                                }}
-                                key={`${settings.colorScheme}-${settings.scalingMode}-${settings.visualizationType}-${forceRender}`}
-                            >
-                                <VectorVisualizationRenderer
-                                    vector={vector}
-                                    showStats={true}
-                                    size={425}
-                                    colorScheme={settings.colorScheme}
-                                    scalingMode={settings.scalingMode}
-                                    visualizationType={
-                                        settings.visualizationType
-                                    }
-                                />
-                            </div>
-                        </div>
-
-                        {/* Right Panel - Compact Stats and Settings */}
-                        <div className="w-72 space-y-4">
-                            {/* Vector Statistics */}
-                            {vector && vector.length > 0 && (
-                                <div className="border rounded-lg p-3 bg-slate-50">
-                                    <h4 className="font-medium mb-3">
-                                        Vector Statistics
-                                    </h4>
-                                    <div className="text-sm space-y-2">
-                                        <div className="flex justify-between">
-                                            <span>Dimensions:</span>
-                                            <span className="font-mono">
-                                                {vector.length}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Range:</span>
-                                            <span className="font-mono">
-                                                {Math.min(...vector).toFixed(4)}{" "}
-                                                to{" "}
-                                                {Math.max(...vector).toFixed(4)}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Average:</span>
-                                            <span className="font-mono">
-                                                {(
-                                                    vector.reduce(
-                                                        (sum, val) => sum + val,
-                                                        0
-                                                    ) / vector.length
-                                                ).toFixed(4)}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Non-zero:</span>
-                                            <span className="font-mono">
-                                                {
-                                                    vector.filter(
-                                                        (v) => v !== 0
-                                                    ).length
-                                                }{" "}
-                                                (
-                                                {(
-                                                    (vector.filter(
-                                                        (v) => v !== 0
-                                                    ).length /
-                                                        vector.length) *
-                                                    100
-                                                ).toFixed(1)}
-                                                %)
-                                            </span>
-                                        </div>
+                    {showComparison && canCompare ? (
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-center">
+                                        Search Vector
+                                        {searchQuery && (
+                                            <div className="text-sm font-normal text-gray-600 mt-1">
+                                                "{searchQuery}"
+                                            </div>
+                                        )}
+                                    </h3>
+                                    <div
+                                        className="vector-visualization w-full flex justify-center items-center border rounded-lg"
+                                        style={{
+                                            height: "400px",
+                                        }}
+                                        key={`search-${settings.colorScheme}-${settings.scalingMode}-${settings.visualizationType}-${forceRender}`}
+                                    >
+                                        <VectorVisualizationRenderer
+                                            vector={searchVector}
+                                            showStats={false}
+                                            size={350}
+                                            colorScheme={settings.colorScheme}
+                                            scalingMode={settings.scalingMode}
+                                            visualizationType={settings.visualizationType}
+                                        />
                                     </div>
+                                    {searchVector && searchVector.length > 0 && (
+                                        <div className="border rounded-lg p-3 bg-slate-50">
+                                            <h4 className="font-medium mb-3">Statistics</h4>
+                                            <div className="text-sm space-y-2">
+                                                <div className="flex justify-between">
+                                                    <span>Dimensions:</span>
+                                                    <span className="font-mono">{searchVector.length}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Range:</span>
+                                                    <span className="font-mono">
+                                                        {Math.min(...searchVector).toFixed(4)} to {Math.max(...searchVector).toFixed(4)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Average:</span>
+                                                    <span className="font-mono">
+                                                        {(searchVector.reduce((sum, val) => sum + val, 0) / searchVector.length).toFixed(4)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Non-zero:</span>
+                                                    <span className="font-mono">
+                                                        {searchVector.filter((v) => v !== 0).length}{" "}
+                                                        ({((searchVector.filter((v) => v !== 0).length / searchVector.length) * 100).toFixed(1)}%)
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
-                                    {/* Scaling Mode under stats */}
-                                    <div className="mt-4 pt-3 border-t border-gray-300">
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-center">
+                                        Result Vector
+                                        {elementName && (
+                                            <div className="text-sm font-normal text-gray-600 mt-1">
+                                                {elementName}
+                                            </div>
+                                        )}
+                                    </h3>
+                                    <div
+                                        className="vector-visualization w-full flex justify-center items-center border rounded-lg"
+                                        style={{
+                                            height: "400px",
+                                        }}
+                                        key={`result-${settings.colorScheme}-${settings.scalingMode}-${settings.visualizationType}-${forceRender}`}
+                                    >
+                                        <VectorVisualizationRenderer
+                                            vector={vector}
+                                            showStats={false}
+                                            size={350}
+                                            colorScheme={settings.colorScheme}
+                                            scalingMode={settings.scalingMode}
+                                            visualizationType={settings.visualizationType}
+                                        />
+                                    </div>
+                                    {vector && vector.length > 0 && (
+                                        <div className="border rounded-lg p-3 bg-slate-50">
+                                            <h4 className="font-medium mb-3">Statistics</h4>
+                                            <div className="text-sm space-y-2">
+                                                <div className="flex justify-between">
+                                                    <span>Dimensions:</span>
+                                                    <span className="font-mono">{vector.length}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Range:</span>
+                                                    <span className="font-mono">
+                                                        {Math.min(...vector).toFixed(4)} to {Math.max(...vector).toFixed(4)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Average:</span>
+                                                    <span className="font-mono">
+                                                        {(vector.reduce((sum, val) => sum + val, 0) / vector.length).toFixed(4)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Non-zero:</span>
+                                                    <span className="font-mono">
+                                                        {vector.filter((v) => v !== 0).length}{" "}
+                                                        ({((vector.filter((v) => v !== 0).length / vector.length) * 100).toFixed(1)}%)
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="border rounded-lg p-4 bg-slate-50">
+                                <h4 className="font-medium mb-3">Visualization Controls</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <ColorSchemeSelector
+                                            value={settings.colorScheme}
+                                            onChange={setColorScheme}
+                                            showPreview={false}
+                                        />
+                                    </div>
+                                    <div>
                                         <label className="block text-sm font-medium mb-2">
                                             Scaling Mode:
                                         </label>
                                         <select
                                             value={settings.scalingMode}
                                             onChange={(e) =>
-                                                setScalingMode(
-                                                    e.target.value as any
-                                                )
+                                                setScalingMode(e.target.value as any)
                                             }
                                             className="border rounded px-2 py-1 w-full text-sm"
                                         >
-                                            <option value="relative">
-                                                Relative (min/max)
-                                            </option>
-                                            <option value="absolute">
-                                                Absolute (-1 to 1)
-                                            </option>
+                                            <option value="relative">Relative (min/max)</option>
+                                            <option value="absolute">Absolute (-1 to 1)</option>
                                         </select>
                                     </div>
                                 </div>
-                            )}
-
-                            {/* Color Legend and Color Scheme - Shows for all visualization types */}
-                            <div className="border rounded-lg p-3 bg-slate-50">
-                                <h4 className="font-medium mb-3">
-                                    Legend & Colors
-                                </h4>
-
-                                {/* Color Scheme Selector */}
-                                <div className="mb-4">
-                                    <ColorSchemeSelector
-                                        value={settings.colorScheme}
-                                        onChange={setColorScheme}
-                                        showPreview={false}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex gap-6">
+                            <div className="flex-1">
+                                <div
+                                    className="vector-visualization w-full flex justify-center items-center border rounded-lg"
+                                    style={{
+                                        minWidth: "500px",
+                                        height: "500px",
+                                    }}
+                                    key={`${settings.colorScheme}-${settings.scalingMode}-${settings.visualizationType}-${forceRender}`}
+                                >
+                                    <VectorVisualizationRenderer
+                                        vector={vector}
+                                        showStats={true}
+                                        size={425}
+                                        colorScheme={settings.colorScheme}
+                                        scalingMode={settings.scalingMode}
+                                        visualizationType={settings.visualizationType}
                                     />
                                 </div>
+                            </div>
 
-                                {/* Color Legend */}
-                                <div className="space-y-2">
-                                    {(() => {
-                                        type LegendItem = {
-                                            color: string
-                                            label: string
-                                            border?: boolean
-                                        }
+                            <div className="w-72 space-y-4">
+                                {vector && vector.length > 0 && (
+                                    <div className="border rounded-lg p-3 bg-slate-50">
+                                        <h4 className="font-medium mb-3">Vector Statistics</h4>
+                                        <div className="text-sm space-y-2">
+                                            <div className="flex justify-between">
+                                                <span>Dimensions:</span>
+                                                <span className="font-mono">{vector.length}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Range:</span>
+                                                <span className="font-mono">
+                                                    {Math.min(...vector).toFixed(4)} to {Math.max(...vector).toFixed(4)}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Average:</span>
+                                                <span className="font-mono">
+                                                    {(vector.reduce((sum, val) => sum + val, 0) / vector.length).toFixed(4)}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Non-zero:</span>
+                                                <span className="font-mono">
+                                                    {vector.filter((v) => v !== 0).length}{" "}
+                                                    ({((vector.filter((v) => v !== 0).length / vector.length) * 100).toFixed(1)}%)
+                                                </span>
+                                            </div>
+                                        </div>
 
-                                        const legends: Record<
-                                            string,
-                                            LegendItem[]
-                                        > = {
-                                            thermal: [
-                                                {
-                                                    color: "#000000",
-                                                    label: "Lowest",
-                                                },
-                                                {
-                                                    color: "#400080",
-                                                    label: "Low",
-                                                },
-                                                {
-                                                    color: "#ff0000",
-                                                    label: "Medium",
-                                                },
-                                                {
-                                                    color: "#ffa500",
-                                                    label: "High",
-                                                },
-                                                {
-                                                    color: "#ffffff",
-                                                    label: "Highest",
-                                                    border: true,
-                                                },
-                                            ],
-                                            viridis: [
-                                                {
-                                                    color: "#440154",
-                                                    label: "Lowest",
-                                                },
-                                                {
-                                                    color: "#31688e",
-                                                    label: "Low",
-                                                },
-                                                {
-                                                    color: "#35b779",
-                                                    label: "Medium",
-                                                },
-                                                {
-                                                    color: "#fde725",
-                                                    label: "Highest",
-                                                },
-                                            ],
-                                            classic: [
-                                                {
-                                                    color: "#6495ed",
-                                                    label: "Lowest",
-                                                },
-                                                {
-                                                    color: "#ffffff",
-                                                    label: "Medium",
-                                                    border: true,
-                                                },
-                                                {
-                                                    color: "#dc1426",
-                                                    label: "Highest",
-                                                },
-                                            ],
-                                        }
+                                        <div className="mt-4 pt-3 border-t border-gray-300">
+                                            <label className="block text-sm font-medium mb-2">
+                                                Scaling Mode:
+                                            </label>
+                                            <select
+                                                value={settings.scalingMode}
+                                                onChange={(e) =>
+                                                    setScalingMode(e.target.value as any)
+                                                }
+                                                className="border rounded px-2 py-1 w-full text-sm"
+                                            >
+                                                <option value="relative">Relative (min/max)</option>
+                                                <option value="absolute">Absolute (-1 to 1)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                )}
 
-                                        const currentLegend =
-                                            legends[settings.colorScheme]
-                                        return currentLegend.map(
-                                            (item, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="flex items-center gap-2"
-                                                >
+                                <div className="border rounded-lg p-3 bg-slate-50">
+                                    <h4 className="font-medium mb-3">Legend & Colors</h4>
+
+                                    <div className="mb-4">
+                                        <ColorSchemeSelector
+                                            value={settings.colorScheme}
+                                            onChange={setColorScheme}
+                                            showPreview={false}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        {(() => {
+                                            type LegendItem = {
+                                                color: string
+                                                label: string
+                                                border?: boolean
+                                            }
+
+                                            const legends: Record<string, LegendItem[]> = {
+                                                thermal: [
+                                                    { color: "#000000", label: "Lowest" },
+                                                    { color: "#400080", label: "Low" },
+                                                    { color: "#ff0000", label: "Medium" },
+                                                    { color: "#ffa500", label: "High" },
+                                                    { color: "#ffffff", label: "Highest", border: true },
+                                                ],
+                                                viridis: [
+                                                    { color: "#440154", label: "Lowest" },
+                                                    { color: "#31688e", label: "Low" },
+                                                    { color: "#35b779", label: "Medium" },
+                                                    { color: "#fde725", label: "Highest" },
+                                                ],
+                                                classic: [
+                                                    { color: "#6495ed", label: "Lowest" },
+                                                    { color: "#ffffff", label: "Medium", border: true },
+                                                    { color: "#dc1426", label: "Highest" },
+                                                ],
+                                            }
+
+                                            const currentLegend = legends[settings.colorScheme]
+                                            return currentLegend.map((item, index) => (
+                                                <div key={index} className="flex items-center gap-2">
                                                     <div
                                                         className={`w-3 h-3 rounded-sm ${
-                                                            item.border
-                                                                ? "border border-gray-300"
-                                                                : ""
+                                                            item.border ? "border border-gray-300" : ""
                                                         }`}
-                                                        style={{
-                                                            backgroundColor:
-                                                                item.color,
-                                                        }}
+                                                        style={{ backgroundColor: item.color }}
                                                     />
-                                                    <span className="text-sm">
-                                                        {item.label}
-                                                    </span>
+                                                    <span className="text-sm">{item.label}</span>
                                                 </div>
-                                            )
-                                        )
-                                    })()}
+                                            ))
+                                        })()}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </Tabs>
 
-                {/* Compact Description with Learn More */}
                 <div className="mt-4 flex items-center justify-between bg-blue-50 rounded-lg px-4 py-2">
                     <p className="text-sm text-gray-800">
                         {settings.visualizationType === "heatmap" &&
@@ -375,6 +484,11 @@ export default function VectorHeatmap({
                             "Bar chart showing how vector values are distributed across different ranges."}
                         {settings.visualizationType === "radial" &&
                             "Circular plot with distance from center showing dimension magnitudes."}
+                        {canCompare && !showComparison && (
+                            <span className="text-blue-700 font-medium ml-2">
+                                • Use "Compare Side by Side" to compare vectors
+                            </span>
+                        )}
                     </p>
                     <Button
                         variant="ghost"
@@ -388,7 +502,6 @@ export default function VectorHeatmap({
                 </div>
             </DialogContent>
 
-            {/* Learn More Description Dialog */}
             <Dialog open={descriptionOpen} onOpenChange={setDescriptionOpen}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
