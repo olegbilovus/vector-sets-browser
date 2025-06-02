@@ -21,6 +21,9 @@ export interface VectorSearchInputProps {
     // Generated embedding (called when embedding is ready)
     onEmbeddingGenerated?: (embedding: number[]) => void
     
+    // Display name change (called when we have a human-readable name for the search)
+    onDisplayNameChange?: (name: string) => void
+    
     // Metadata for embedding generation
     metadata: VectorSetMetadata | null
     dim: number | null
@@ -44,6 +47,7 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
     displayText,
     onDisplayTextChange,
     onEmbeddingGenerated,
+    onDisplayNameChange,
     metadata,
     dim,
     placeholder,
@@ -334,8 +338,8 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
                                     metadata.embedding,
                                     true
                                 )
-                            // Pass the embedding to our handler
-                            handleImageEmbeddingGenerated(embedding)
+                            // Pass the embedding to our handler with filename
+                            handleImageEmbeddingGenerated(embedding, file.name)
                             
                             // Update current vector for visualization
                             setCurrentVector(embedding)
@@ -353,7 +357,7 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
     }
 
     // Modified handler for image embedding generation
-    const handleImageEmbeddingGenerated = (embedding: number[]) => {
+    const handleImageEmbeddingGenerated = (embedding: number[], filename: string) => {
         // For single vector mode, set search query to vector representation
         // For multi-vector mode, keep the original text and store embedding separately
         if (searchType === "Vector") {
@@ -362,6 +366,11 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
         
         // Update the current vector for visualization
         setCurrentVector(embedding)
+        
+        // Set the display name to the image filename
+        if (onDisplayNameChange) {
+            onDisplayNameChange(filename)
+        }
         
         // Notify parent of embedding
         if (onEmbeddingGenerated) {
@@ -458,7 +467,8 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
                                                         )
                                                     // Pass the embedding to our handler
                                                     handleImageEmbeddingGenerated(
-                                                        embedding
+                                                        embedding,
+                                                        file.name
                                                     )
 
                                                     // Update current vector for visualization

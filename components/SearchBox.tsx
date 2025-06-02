@@ -65,6 +65,7 @@ interface SearchBoxProps {
     vectorFormat?: "FP32" | "VALUES"
     setVectorFormat?: (format: "FP32" | "VALUES") => void
     onTextEmbeddingGenerated?: (embedding: number[]) => void
+    onDisplayNameChange?: (name: string) => void
 }
 
 export default function SearchBox({
@@ -95,6 +96,7 @@ export default function SearchBox({
     vectorFormat,
     setVectorFormat,
     onTextEmbeddingGenerated,
+    onDisplayNameChange,
 }: SearchBoxProps) {
     // Create ref for the VectorSearchInput
     const vectorSearchInputRef = useRef<HTMLTextAreaElement>(null)
@@ -229,6 +231,7 @@ export default function SearchBox({
                             displayText={searchQuery}
                             onDisplayTextChange={setSearchQuery}
                             onEmbeddingGenerated={handleSingleVectorEmbedding}
+                            onDisplayNameChange={onDisplayNameChange}
                             metadata={metadata}
                             dim={dim}
                             searchType={searchType}

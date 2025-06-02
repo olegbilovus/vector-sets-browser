@@ -32,6 +32,7 @@ interface ExpandedResultRowProps {
     isLoadingEmbeddings?: boolean
     searchVector?: number[] | null
     searchQuery?: string | null
+    lastSearchDisplayName?: string | null
 }
 
 export default function ExpandedResultRow({
@@ -58,6 +59,7 @@ export default function ExpandedResultRow({
     isLoadingEmbeddings,
     searchVector,
     searchQuery,
+    lastSearchDisplayName,
 }: ExpandedResultRowProps) {
     // Helper to format different attribute value types
     const formatAttributeValue = (value: any): string => {
@@ -135,6 +137,7 @@ export default function ExpandedResultRow({
                                 searchVector={searchVector}
                                 elementName={row[0]}
                                 searchQuery={searchQuery}
+                                lastSearchDisplayName={lastSearchDisplayName}
                             />
                         </div>
                     )}

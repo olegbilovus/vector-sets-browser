@@ -32,6 +32,7 @@ export interface VectorSetSearchOptions {
     forceLinearScan: boolean
     noThread: boolean
     lastTextEmbedding?: number[]
+    lastSearchDisplayName?: string // Human-readable search name for display (text query or image filename)
     executedCommand?: string
     vectorFormat?: 'FP32' | 'VALUES'
 }

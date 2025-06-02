@@ -25,6 +25,7 @@ interface ExpandedResultsListProps {
     isLoadingEmbeddings?: boolean
     searchVector?: number[] | null
     searchQuery?: string | null
+    lastSearchDisplayName?: string | null
 }
 
 export default function ExpandedResultsList({
@@ -49,7 +50,8 @@ export default function ExpandedResultsList({
     embeddingsCache,
     isLoadingEmbeddings,
     searchVector,
-    searchQuery
+    searchQuery,
+    lastSearchDisplayName
 }: ExpandedResultsListProps) {
     return (
         <div className="space-y-4 mb-8">
@@ -79,6 +81,7 @@ export default function ExpandedResultsList({
                     isLoadingEmbeddings={isLoadingEmbeddings}
                     searchVector={searchVector}
                     searchQuery={searchQuery}
+                    lastSearchDisplayName={lastSearchDisplayName}
                 />
             ))}
         </div>

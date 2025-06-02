@@ -173,6 +173,8 @@ export default function VectorSearchTab({
         executedCommand,
         lastTextEmbedding,
         setLastTextEmbedding,
+        lastSearchDisplayName,
+        setLastSearchDisplayName,
         vectorFormat,
         setVectorFormat,
     } = useVectorSearch({
@@ -324,6 +326,7 @@ export default function VectorSearchTab({
                 vectorFormat={vectorFormat}
                 setVectorFormat={setVectorFormat}
                 onTextEmbeddingGenerated={setLastTextEmbedding}
+                onDisplayNameChange={setLastSearchDisplayName}
             />
             <div className="bg-[white] p-4 rounded shadow-md">
                 <Tabs
@@ -362,6 +365,7 @@ export default function VectorSearchTab({
                             handleAddVectorWithImage={handleAddVector}
                             metadata={metadata}
                             searchVector={lastTextEmbedding}
+                            lastSearchDisplayName={lastSearchDisplayName}
                         />
                     </TabsContent>
 

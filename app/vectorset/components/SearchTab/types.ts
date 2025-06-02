@@ -36,6 +36,7 @@ export interface VectorResultsProps {
     handleAddVectorWithImage?: (element: string, embedding: number[]) => Promise<void>
     metadata?: VectorSetMetadata | null
     searchVector?: number[] | null
+    lastSearchDisplayName?: string | null
 }
 
 export interface AttributeColumnsDialogProps {

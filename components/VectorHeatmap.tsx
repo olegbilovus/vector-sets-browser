@@ -24,6 +24,7 @@ interface VectorHeatmapProps {
     searchVector?: number[] | null
     elementName?: string | null
     searchQuery?: string | null
+    lastSearchDisplayName?: string | null
 }
 
 export default function VectorHeatmap({
@@ -35,6 +36,7 @@ export default function VectorHeatmap({
     searchVector = null,
     elementName = null,
     searchQuery = null,
+    lastSearchDisplayName = null,
 }: VectorHeatmapProps) {
     const [forceRender, setForceRender] = useState(0)
     const [descriptionOpen, setDescriptionOpen] = useState(false)
@@ -49,7 +51,8 @@ export default function VectorHeatmap({
         makeDefault,
     } = useVectorSettings(vectorSetName, metadata)
 
-    const canCompare = vector && searchVector && vector.length === searchVector.length
+    const canCompare =
+        vector && searchVector && vector.length === searchVector.length
 
     useEffect(() => {
         if (open) {
@@ -68,7 +71,8 @@ export default function VectorHeatmap({
 
     useEffect(() => {
         if (open && canCompare) {
-            const stickyComparison = userSettings.get("vectorComparisonMode") === true
+            const stickyComparison =
+                userSettings.get("vectorComparisonMode") === true
             setShowComparison(stickyComparison)
         } else if (open) {
             setShowComparison(false)
@@ -91,21 +95,23 @@ export default function VectorHeatmap({
         const canvases = document.querySelectorAll(
             ".vector-visualization canvas"
         ) as NodeListOf<HTMLCanvasElement>
-        
+
         if (canvases.length === 0) return
 
         if (showComparison && canvases.length >= 2) {
             const searchCanvas = canvases[0]
             const resultCanvas = canvases[1]
-            
+
             const searchLink = document.createElement("a")
             searchLink.download = `search-vector-${settings.visualizationType}.png`
             searchLink.href = searchCanvas.toDataURL("image/png")
             searchLink.click()
-            
+
             setTimeout(() => {
                 const resultLink = document.createElement("a")
-                resultLink.download = `${elementName || 'result'}-vector-${settings.visualizationType}.png`
+                resultLink.download = `${elementName || "result"}-vector-${
+                    settings.visualizationType
+                }.png`
                 resultLink.href = resultCanvas.toDataURL("image/png")
                 resultLink.click()
             }, 100)
@@ -143,9 +149,13 @@ export default function VectorHeatmap({
                                 size="sm"
                                 onClick={handleComparisonToggle}
                                 className="text-xs px-3 py-1"
-                                title={`${showComparison ? "Hide" : "Show"} side-by-side comparison`}
+                                title={`${
+                                    showComparison ? "Hide" : "Show"
+                                } side-by-side comparison`}
                             >
-                                {showComparison ? "Hide Comparison" : "Compare Side by Side"}
+                                {showComparison
+                                    ? "Hide Comparison"
+                                    : "Compare Side by Side"}
                             </Button>
                         )}
                         {vectorSetName && (
@@ -155,9 +165,7 @@ export default function VectorHeatmap({
                                 onClick={handleMakeDefault}
                                 className="text-xs px-2 py-1"
                                 title={`Make these settings the default for all ${
-                                    isImageBased
-                                        ? "image/multimodal"
-                                        : "text"
+                                    isImageBased ? "image/multimodal" : "text"
                                 } vectorsets`}
                             >
                                 Set as Default
@@ -204,11 +212,13 @@ export default function VectorHeatmap({
                         <div className="space-y-6">
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-4">
-                                    <h3 className="text-lg font-semibold text-center">
-                                        Search Vector
-                                        {searchQuery && (
-                                            <div className="text-sm font-normal text-gray-600 mt-1">
-                                                "{searchQuery}"
+                                    <h3 className="flex space-x-2 justify-center items-center text-lg">
+                                        <div className="text-gray-600 whitespace-nowrap">
+                                            Search Vector:{" "}
+                                        </div>
+                                        {(lastSearchDisplayName || searchQuery) && (
+                                            <div className="text-black font-semibold text-ellipsis line-clamp-1">
+                                                "{lastSearchDisplayName || searchQuery}"
                                             </div>
                                         )}
                                     </h3>
@@ -225,46 +235,88 @@ export default function VectorHeatmap({
                                             size={350}
                                             colorScheme={settings.colorScheme}
                                             scalingMode={settings.scalingMode}
-                                            visualizationType={settings.visualizationType}
+                                            visualizationType={
+                                                settings.visualizationType
+                                            }
                                         />
                                     </div>
-                                    {searchVector && searchVector.length > 0 && (
-                                        <div className="border rounded-lg p-3 bg-slate-50">
-                                            <h4 className="font-medium mb-3">Statistics</h4>
-                                            <div className="text-sm space-y-2">
-                                                <div className="flex justify-between">
-                                                    <span>Dimensions:</span>
-                                                    <span className="font-mono">{searchVector.length}</span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span>Range:</span>
-                                                    <span className="font-mono">
-                                                        {Math.min(...searchVector).toFixed(4)} to {Math.max(...searchVector).toFixed(4)}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span>Average:</span>
-                                                    <span className="font-mono">
-                                                        {(searchVector.reduce((sum, val) => sum + val, 0) / searchVector.length).toFixed(4)}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span>Non-zero:</span>
-                                                    <span className="font-mono">
-                                                        {searchVector.filter((v) => v !== 0).length}{" "}
-                                                        ({((searchVector.filter((v) => v !== 0).length / searchVector.length) * 100).toFixed(1)}%)
-                                                    </span>
+                                    {searchVector &&
+                                        searchVector.length > 0 && (
+                                            <div className="border rounded-lg p-3 bg-slate-50">
+                                                <h4 className="font-medium mb-3">
+                                                    Statistics
+                                                </h4>
+                                                <div className="text-sm space-y-2">
+                                                    <div className="flex justify-between">
+                                                        <span>Dimensions:</span>
+                                                        <span className="font-mono">
+                                                            {
+                                                                searchVector.length
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span>Range:</span>
+                                                        <span className="font-mono">
+                                                            {Math.min(
+                                                                ...searchVector
+                                                            ).toFixed(4)}{" "}
+                                                            to{" "}
+                                                            {Math.max(
+                                                                ...searchVector
+                                                            ).toFixed(4)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span>Average:</span>
+                                                        <span className="font-mono">
+                                                            {(
+                                                                searchVector.reduce(
+                                                                    (
+                                                                        sum,
+                                                                        val
+                                                                    ) =>
+                                                                        sum +
+                                                                        val,
+                                                                    0
+                                                                ) /
+                                                                searchVector.length
+                                                            ).toFixed(4)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span>Non-zero:</span>
+                                                        <span className="font-mono">
+                                                            {
+                                                                searchVector.filter(
+                                                                    (v) =>
+                                                                        v !== 0
+                                                                ).length
+                                                            }{" "}
+                                                            (
+                                                            {(
+                                                                (searchVector.filter(
+                                                                    (v) =>
+                                                                        v !== 0
+                                                                ).length /
+                                                                    searchVector.length) *
+                                                                100
+                                                            ).toFixed(1)}
+                                                            %)
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h3 className="text-lg font-semibold text-center">
-                                        Result Vector
+                                    <h3 className="flex space-x-2 justify-center items-center text-lg">
+                                        <div className="text-gray-600 whitespace-nowrap">
+                                            Selected Vector:{" "}
+                                        </div>
                                         {elementName && (
-                                            <div className="text-sm font-normal text-gray-600 mt-1">
+                                            <div className=" text-black font-semibold text-ellipsis line-clamp-1">
                                                 {elementName}
                                             </div>
                                         )}
@@ -282,34 +334,64 @@ export default function VectorHeatmap({
                                             size={350}
                                             colorScheme={settings.colorScheme}
                                             scalingMode={settings.scalingMode}
-                                            visualizationType={settings.visualizationType}
+                                            visualizationType={
+                                                settings.visualizationType
+                                            }
                                         />
                                     </div>
                                     {vector && vector.length > 0 && (
                                         <div className="border rounded-lg p-3 bg-slate-50">
-                                            <h4 className="font-medium mb-3">Statistics</h4>
+                                            <h4 className="font-medium mb-3">
+                                                Statistics
+                                            </h4>
                                             <div className="text-sm space-y-2">
                                                 <div className="flex justify-between">
                                                     <span>Dimensions:</span>
-                                                    <span className="font-mono">{vector.length}</span>
+                                                    <span className="font-mono">
+                                                        {vector.length}
+                                                    </span>
                                                 </div>
                                                 <div className="flex justify-between">
                                                     <span>Range:</span>
                                                     <span className="font-mono">
-                                                        {Math.min(...vector).toFixed(4)} to {Math.max(...vector).toFixed(4)}
+                                                        {Math.min(
+                                                            ...vector
+                                                        ).toFixed(4)}{" "}
+                                                        to{" "}
+                                                        {Math.max(
+                                                            ...vector
+                                                        ).toFixed(4)}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between">
                                                     <span>Average:</span>
                                                     <span className="font-mono">
-                                                        {(vector.reduce((sum, val) => sum + val, 0) / vector.length).toFixed(4)}
+                                                        {(
+                                                            vector.reduce(
+                                                                (sum, val) =>
+                                                                    sum + val,
+                                                            0
+                                                        ) / vector.length
+                                                    ).toFixed(4)}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between">
                                                     <span>Non-zero:</span>
                                                     <span className="font-mono">
-                                                        {vector.filter((v) => v !== 0).length}{" "}
-                                                        ({((vector.filter((v) => v !== 0).length / vector.length) * 100).toFixed(1)}%)
+                                                        {
+                                                            vector.filter(
+                                                                (v) => v !== 0
+                                                            ).length
+                                                        }{" "}
+                                                        (
+                                                        {(
+                                                            (vector.filter(
+                                                                (v) => v !== 0
+                                                            ).length /
+                                                                vector.length) *
+                                                            100
+                                                        ).toFixed(1)}
+                                                        %)
                                                     </span>
                                                 </div>
                                             </div>
@@ -319,7 +401,9 @@ export default function VectorHeatmap({
                             </div>
 
                             <div className="border rounded-lg p-4 bg-slate-50">
-                                <h4 className="font-medium mb-3">Visualization Controls</h4>
+                                <h4 className="font-medium mb-3">
+                                    Visualization Controls
+                                </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <ColorSchemeSelector
@@ -335,12 +419,18 @@ export default function VectorHeatmap({
                                         <select
                                             value={settings.scalingMode}
                                             onChange={(e) =>
-                                                setScalingMode(e.target.value as any)
+                                                setScalingMode(
+                                                    e.target.value as any
+                                                )
                                             }
                                             className="border rounded px-2 py-1 w-full text-sm"
                                         >
-                                            <option value="relative">Relative (min/max)</option>
-                                            <option value="absolute">Absolute (-1 to 1)</option>
+                                            <option value="relative">
+                                                Relative (min/max)
+                                            </option>
+                                            <option value="absolute">
+                                                Absolute (-1 to 1)
+                                            </option>
                                         </select>
                                     </div>
                                 </div>
@@ -363,7 +453,9 @@ export default function VectorHeatmap({
                                         size={425}
                                         colorScheme={settings.colorScheme}
                                         scalingMode={settings.scalingMode}
-                                        visualizationType={settings.visualizationType}
+                                        visualizationType={
+                                            settings.visualizationType
+                                        }
                                     />
                                 </div>
                             </div>
@@ -371,29 +463,57 @@ export default function VectorHeatmap({
                             <div className="w-72 space-y-4">
                                 {vector && vector.length > 0 && (
                                     <div className="border rounded-lg p-3 bg-slate-50">
-                                        <h4 className="font-medium mb-3">Vector Statistics</h4>
+                                        <h4 className="font-medium mb-3">
+                                            Vector Statistics
+                                        </h4>
                                         <div className="text-sm space-y-2">
                                             <div className="flex justify-between">
                                                 <span>Dimensions:</span>
-                                                <span className="font-mono">{vector.length}</span>
+                                                <span className="font-mono">
+                                                    {vector.length}
+                                                </span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span>Range:</span>
                                                 <span className="font-mono">
-                                                    {Math.min(...vector).toFixed(4)} to {Math.max(...vector).toFixed(4)}
+                                                    {Math.min(
+                                                        ...vector
+                                                    ).toFixed(4)}{" "}
+                                                    to{" "}
+                                                    {Math.max(
+                                                        ...vector
+                                                    ).toFixed(4)}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span>Average:</span>
                                                 <span className="font-mono">
-                                                    {(vector.reduce((sum, val) => sum + val, 0) / vector.length).toFixed(4)}
+                                                    {(
+                                                        vector.reduce(
+                                                            (sum, val) =>
+                                                                sum + val,
+                                                            0
+                                                        ) / vector.length
+                                                    ).toFixed(4)}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span>Non-zero:</span>
                                                 <span className="font-mono">
-                                                    {vector.filter((v) => v !== 0).length}{" "}
-                                                    ({((vector.filter((v) => v !== 0).length / vector.length) * 100).toFixed(1)}%)
+                                                    {
+                                                        vector.filter(
+                                                            (v) => v !== 0
+                                                        ).length
+                                                    }{" "}
+                                                    (
+                                                    {(
+                                                        (vector.filter(
+                                                            (v) => v !== 0
+                                                        ).length /
+                                                            vector.length) *
+                                                        100
+                                                    ).toFixed(1)}
+                                                    %)
                                                 </span>
                                             </div>
                                         </div>
@@ -405,19 +525,27 @@ export default function VectorHeatmap({
                                             <select
                                                 value={settings.scalingMode}
                                                 onChange={(e) =>
-                                                    setScalingMode(e.target.value as any)
+                                                    setScalingMode(
+                                                        e.target.value as any
+                                                    )
                                                 }
                                                 className="border rounded px-2 py-1 w-full text-sm"
                                             >
-                                                <option value="relative">Relative (min/max)</option>
-                                                <option value="absolute">Absolute (-1 to 1)</option>
+                                                <option value="relative">
+                                                    Relative (min/max)
+                                                </option>
+                                                <option value="absolute">
+                                                    Absolute (-1 to 1)
+                                                </option>
                                             </select>
                                         </div>
                                     </div>
                                 )}
 
                                 <div className="border rounded-lg p-3 bg-slate-50">
-                                    <h4 className="font-medium mb-3">Legend & Colors</h4>
+                                    <h4 className="font-medium mb-3">
+                                        Legend & Colors
+                                    </h4>
 
                                     <div className="mb-4">
                                         <ColorSchemeSelector
@@ -435,39 +563,93 @@ export default function VectorHeatmap({
                                                 border?: boolean
                                             }
 
-                                            const legends: Record<string, LegendItem[]> = {
+                                            const legends: Record<
+                                                string,
+                                                LegendItem[]
+                                            > = {
                                                 thermal: [
-                                                    { color: "#000000", label: "Lowest" },
-                                                    { color: "#400080", label: "Low" },
-                                                    { color: "#ff0000", label: "Medium" },
-                                                    { color: "#ffa500", label: "High" },
-                                                    { color: "#ffffff", label: "Highest", border: true },
+                                                    {
+                                                        color: "#000000",
+                                                        label: "Lowest",
+                                                    },
+                                                    {
+                                                        color: "#400080",
+                                                        label: "Low",
+                                                    },
+                                                    {
+                                                        color: "#ff0000",
+                                                        label: "Medium",
+                                                    },
+                                                    {
+                                                        color: "#ffa500",
+                                                        label: "High",
+                                                    },
+                                                    {
+                                                        color: "#ffffff",
+                                                        label: "Highest",
+                                                        border: true,
+                                                    },
                                                 ],
                                                 viridis: [
-                                                    { color: "#440154", label: "Lowest" },
-                                                    { color: "#31688e", label: "Low" },
-                                                    { color: "#35b779", label: "Medium" },
-                                                    { color: "#fde725", label: "Highest" },
+                                                    {
+                                                        color: "#440154",
+                                                        label: "Lowest",
+                                                    },
+                                                    {
+                                                        color: "#31688e",
+                                                        label: "Low",
+                                                    },
+                                                    {
+                                                        color: "#35b779",
+                                                        label: "Medium",
+                                                    },
+                                                    {
+                                                        color: "#fde725",
+                                                        label: "Highest",
+                                                    },
                                                 ],
                                                 classic: [
-                                                    { color: "#6495ed", label: "Lowest" },
-                                                    { color: "#ffffff", label: "Medium", border: true },
-                                                    { color: "#dc1426", label: "Highest" },
+                                                    {
+                                                        color: "#6495ed",
+                                                        label: "Lowest",
+                                                    },
+                                                    {
+                                                        color: "#ffffff",
+                                                        label: "Medium",
+                                                        border: true,
+                                                    },
+                                                    {
+                                                        color: "#dc1426",
+                                                        label: "Highest",
+                                                    },
                                                 ],
                                             }
 
-                                            const currentLegend = legends[settings.colorScheme]
-                                            return currentLegend.map((item, index) => (
-                                                <div key={index} className="flex items-center gap-2">
+                                            const currentLegend =
+                                                legends[settings.colorScheme]
+                                            return currentLegend.map(
+                                                (item, index) => (
                                                     <div
-                                                        className={`w-3 h-3 rounded-sm ${
-                                                            item.border ? "border border-gray-300" : ""
-                                                        }`}
-                                                        style={{ backgroundColor: item.color }}
-                                                    />
-                                                    <span className="text-sm">{item.label}</span>
-                                                </div>
-                                            ))
+                                                        key={index}
+                                                        className="flex items-center gap-2"
+                                                    >
+                                                        <div
+                                                            className={`w-3 h-3 rounded-sm ${
+                                                                item.border
+                                                                    ? "border border-gray-300"
+                                                                    : ""
+                                                            }`}
+                                                            style={{
+                                                                backgroundColor:
+                                                                    item.color,
+                                                            }}
+                                                        />
+                                                        <span className="text-sm">
+                                                            {item.label}
+                                                        </span>
+                                                    </div>
+                                                )
+                                            )
                                         })()}
                                     </div>
                                 </div>

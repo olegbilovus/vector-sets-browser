@@ -39,6 +39,7 @@ export default function VectorResults({
     handleAddVectorWithImage,
     metadata,
     searchVector,
+    lastSearchDisplayName,
 }: VectorResultsProps) {
     const [isCompact, setIsCompact] = useState(true)
     const {
@@ -770,6 +771,7 @@ export default function VectorResults({
                     isLoadingEmbeddings={isLoadingEmbeddings}
                     searchVector={searchVector}
                     searchQuery={searchQuery}
+                    lastSearchDisplayName={lastSearchDisplayName}
                 />
             ) : (
                 <ExpandedResultsList
@@ -795,6 +797,7 @@ export default function VectorResults({
                     isLoadingEmbeddings={isLoadingEmbeddings}
                     searchVector={searchVector}
                     searchQuery={searchQuery}
+                    lastSearchDisplayName={lastSearchDisplayName}
                 />
             )}
         </div>

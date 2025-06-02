@@ -47,6 +47,8 @@ interface UseVectorSearchReturn {
     setNoThread: (value: boolean) => void
     lastTextEmbedding?: number[] // Add lastTextEmbedding to the return type
     setLastTextEmbedding: (embedding: number[] | undefined) => void // Add function to manually set lastTextEmbedding
+    lastSearchDisplayName?: string // Add lastSearchDisplayName to track human-readable search names
+    setLastSearchDisplayName: (name: string | undefined) => void // Add function to set lastSearchDisplayName
     executedCommand?: string
     vectorFormat?: 'FP32' | 'VALUES'
     setVectorFormat: (format: 'FP32' | 'VALUES') => void
@@ -120,6 +122,7 @@ export function useVectorSearch({
                 forceLinearScan: userSettingsOptions.forceLinearScan,
                 noThread: userSettingsOptions.noThread,
                 lastTextEmbedding: undefined,
+                lastSearchDisplayName: undefined,
                 vectorFormat: userSettingsOptions.vectorFormat,
             };
         });
@@ -275,6 +278,7 @@ export function useVectorSearch({
             resultsTitle: "Search Results",
             searchTime: undefined,
             lastTextEmbedding: undefined,
+            lastSearchDisplayName: undefined,
             // Initialize search options from userSettings
             searchExplorationFactor: userSettingsOptions.searchExplorationFactor,
             filterExplorationFactor: userSettingsOptions.filterExplorationFactor,
@@ -494,8 +498,18 @@ export function useVectorSearch({
                         }]`
                 }
 
-                // Clear any previous text embedding since this is a raw vector search
-                updateSearchState({ lastTextEmbedding: undefined })
+                // Only clear lastTextEmbedding if we don't already have one that matches this vector
+                // This preserves embeddings from images or text that were converted to vectors
+                const currentEmbedding = internalSearchState.lastTextEmbedding
+                const vectorsMatch = currentEmbedding && 
+                    currentEmbedding.length === searchVector.length &&
+                    currentEmbedding.every((val, idx) => Math.abs(val - searchVector[idx]) < 0.0001)
+                
+                if (!vectorsMatch) {
+                    // This is a manually entered vector, clear the embedding
+                    updateSearchState({ lastTextEmbedding: undefined })
+                }
+                // If vectors match, keep the existing lastTextEmbedding for comparison
             } else {
                 // Not a valid vector, try to convert text to vector
                 updateSearchState({ resultsTitle: "Getting embedding..." })
@@ -509,7 +523,10 @@ export function useVectorSearch({
                     length: searchVector.length,
                     firstFew: searchVector.slice(0, 5)
                 });
-                updateSearchState({ lastTextEmbedding: searchVector })
+                updateSearchState({ 
+                    lastTextEmbedding: searchVector,
+                    lastSearchDisplayName: internalSearchState.searchQuery // Set display name to the search text
+                })
             }
 
             console.log("=============================================");
@@ -517,6 +534,7 @@ export function useVectorSearch({
             console.log(`Search type: ${internalSearchState.searchType}`);
             console.log(`Vector length: ${searchVector.length}`);
             console.log(`First 10 values: [${searchVector.slice(0, 10).join(", ")}${searchVector.length > 10 ? '...' : ''}]`);
+            console.log(`Has lastTextEmbedding: ${!!internalSearchState.lastTextEmbedding}`);
             console.log("=============================================");
 
             // Perform vector-based search and measure time
@@ -562,6 +580,7 @@ export function useVectorSearch({
             internalSearchState.searchExplorationFactor,
             internalSearchState.forceLinearScan,
             internalSearchState.noThread,
+            internalSearchState.lastTextEmbedding,
             getVectorFromText,
             onSearchResults,
             onStatusChange,
@@ -833,6 +852,8 @@ export function useVectorSearch({
         },
         lastTextEmbedding: internalSearchState.lastTextEmbedding, // Expose the last text embedding
         setLastTextEmbedding: (embedding) => updateSearchState({ lastTextEmbedding: embedding }),
+        lastSearchDisplayName: internalSearchState.lastSearchDisplayName,
+        setLastSearchDisplayName: (name) => updateSearchState({ lastSearchDisplayName: name }),
         executedCommand: internalSearchState.executedCommand,
         vectorFormat: internalSearchState.vectorFormat,
         setVectorFormat: (format) => {

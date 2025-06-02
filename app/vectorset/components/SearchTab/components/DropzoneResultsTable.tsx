@@ -22,6 +22,7 @@ interface DropzoneResultsTableProps extends CompactResultsTableProps {
     isLoadingEmbeddings?: boolean
     searchVector?: number[] | null
     searchQuery?: string | null
+    lastSearchDisplayName?: string | null
 }
 
 const DropzoneResultsTable = React.memo(function DropzoneResultsTable({
@@ -33,6 +34,7 @@ const DropzoneResultsTable = React.memo(function DropzoneResultsTable({
     isLoadingEmbeddings,
     searchVector,
     searchQuery,
+    lastSearchDisplayName,
     ...compactResultsTableProps
 }: DropzoneResultsTableProps) {
     const [isDragging, setIsDragging] = useState(false)
@@ -107,6 +109,7 @@ const DropzoneResultsTable = React.memo(function DropzoneResultsTable({
                     isLoadingEmbeddings={isLoadingEmbeddings}
                     searchVector={searchVector}
                     searchQuery={searchQuery}
+                    lastSearchDisplayName={lastSearchDisplayName}
                 />
                 <DropzoneFooter 
                     isDragging={isDragging} 

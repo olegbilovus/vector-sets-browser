@@ -15,6 +15,7 @@ interface MiniVectorHeatmapProps {
     searchVector?: number[] | null
     elementName?: string | null
     searchQuery?: string | null
+    lastSearchDisplayName?: string | null
 }
 
 export default function MiniVectorHeatmap({ 
@@ -26,7 +27,8 @@ export default function MiniVectorHeatmap({
     metadata = null,
     searchVector = null,
     elementName = null,
-    searchQuery = null
+    searchQuery = null,
+    lastSearchDisplayName = null
 }: MiniVectorHeatmapProps) {
     const [showHeatmap, setShowHeatmap] = useState(false)
     const [isResolving, setIsResolving] = useState(false)
@@ -133,6 +135,7 @@ export default function MiniVectorHeatmap({
                 searchVector={searchVector}
                 elementName={elementName}
                 searchQuery={searchQuery}
+                lastSearchDisplayName={lastSearchDisplayName}
             />
         </>
     )
