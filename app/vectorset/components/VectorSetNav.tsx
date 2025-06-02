@@ -384,39 +384,18 @@ export default function VectorSetNav({
                                 </div>
                             </Button>
                         )}
-                        {isCollapsed && (
-                            <Button
-                                variant="ghost"
-                                onClick={onBack}
-                                className="p-2 w-8 h-8"
-                                title={`${redisName || 'Redis Server'} - Click to go back`}
-                            >
-                                <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                                    />
-                                </svg>
-                            </Button>
-                        )}
+                        
                     </div>
                     <Button
                         variant="ghost"
                         onClick={toggleSidebar}
-                        className="p-2 w-8 h-8 flex-shrink-0"
+                        className="w-8 h-8 flex-shrink-0"
                         title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                     >
                         {isCollapsed ? (
-                            <PanelRight className="w-4 h-4" />
+                            <PanelRight className="w-6 h-6" />
                         ) : (
-                            <PanelLeft className="w-4 h-4" />
+                            <PanelLeft className="w-6 h-6" />
                         )}
                     </Button>
                 </div>
@@ -475,26 +454,6 @@ export default function VectorSetNav({
                     )}
                     {isCollapsed && (
                         <div className="flex flex-col items-center gap-2 mb-4">
-                            <Button
-                                variant="ghost"
-                                onClick={() => loadVectorSets()}
-                                title="Refresh Vector Sets"
-                                className="p-2 w-8 h-8"
-                            >
-                                <svg
-                                    className="w-4 h-4 text-gray-500"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                                    />
-                                </svg>
-                            </Button>
                             <Button
                                 variant="ghost"
                                 onClick={() => setIsCreateModalOpen(true)}
@@ -556,16 +515,16 @@ export default function VectorSetNav({
                             return (
                                 <div
                                     key={setName}
-                                    className={`group relative mb-1 ${isSelected ? "bg-blue-100" : "hover:bg-gray-100"}`}
+                                    className={`group relative mb-1 ${isSelected ? "" : "hover:bg-gray-100"}`}
                                     title={`${setName} - ${info ? info.vectorCount.toLocaleString() : 0} vectors`}
                                 >
                                     <Button
                                         variant="ghost"
                                         onClick={() => onVectorSetSelect(setName)}
-                                        className={`w-full h-8 p-1 justify-center ${isSelected ? "bg-blue-200 hover:bg-blue-200" : ""}`}
+                                        className="w-full h-10 pl-3 pr-2 py-2 justify-center"
                                     >
-                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                                            isSelected ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700"
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${
+                                            isSelected ? "bg-red-500 text-white " : "bg-gray-300 text-gray-700"
                                         }`}>
                                             {setName.charAt(0).toUpperCase()}
                                         </div>
