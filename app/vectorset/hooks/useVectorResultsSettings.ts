@@ -92,6 +92,8 @@ export function useVectorResultsSettings() {
         []
     )
 
+
+
     // Function to update a single attribute column's visibility
     const updateAttributeColumnVisibility = useCallback(
         (columnName: string, visible: boolean) => {

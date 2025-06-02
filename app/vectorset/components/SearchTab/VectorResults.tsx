@@ -500,6 +500,8 @@ export default function VectorResults({
         filteredFields,
     ])
 
+
+
     // Fetch field values when filtered fields change - optimized
     useEffect(() => {
         if (

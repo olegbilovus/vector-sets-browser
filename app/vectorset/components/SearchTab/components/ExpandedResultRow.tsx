@@ -5,8 +5,12 @@ import {
     TextEmbeddingIcon,
     ImageEmbeddingIcon,
     MultiModalEmbeddingIcon,
+    getEmbeddingIcon,
 } from "@/components/EmbeddingConfig/EmbeddingIcons"
+import { getEmbeddingDataFormat, isImageEmbedding, isMultiModalEmbedding } from "@/lib/embeddings/types/embeddingModels"
 import MiniVectorHeatmap from "@/components/MiniVectorHeatmap"
+import ThumbnailDisplay from "@/components/ThumbnailDisplay/ThumbnailDisplay"
+import React from "react"
 
 interface ExpandedResultRowProps {
     row: VectorTuple
@@ -119,28 +123,52 @@ export default function ExpandedResultRow({
                     </div>
                 )}
                 <div className="flex items-start space-x-4 w-full">
-                    <div className="bg-gray-100 rounded-lg text-gray-600">
-                        {getVectorTypeIcon(row[0])}
-                    </div>
-                    {showEmbeddings && (
-                        <div>
-                            <div className="text-sm text-gray-500">
-                                EMBEDDING
-                            </div>
-                            <MiniVectorHeatmap
-                                vector={embeddingsCache?.[row[0]] || null}
-                                disabled={!showEmbeddings}
-                                isGeneratingEmbedding={isLoadingEmbeddings}
-                                size={80}
-                                metadata={metadata}
-                                vectorSetName={vectorSetName}
-                                searchVector={searchVector}
-                                elementName={row[0]}
-                                searchQuery={searchQuery}
-                                lastSearchDisplayName={lastSearchDisplayName}
-                            />
-                        </div>
+                    {/* Show thumbnail alongside vector visualization if both are enabled */}
+                    {vectorSetName && showEmbeddings && metadata?.embedding && (isImageEmbedding(metadata.embedding) || isMultiModalEmbedding(metadata.embedding)) && (
+                        <ThumbnailDisplay
+                            vectorSetName={vectorSetName}
+                            elementId={row[0]}
+                            size="medium"
+                            showFallback={false}
+                        />
                     )}
+                    {/* Vector heatmap or thumbnail (when vector viz is off) or embedding icon */}
+                    <div className="bg-gray-100 rounded-lg text-gray-600">
+                        {showEmbeddings ? (
+                            <div>
+                                <div className="text-sm text-gray-500">
+                                    EMBEDDING
+                                </div>
+                                <MiniVectorHeatmap
+                                    vector={embeddingsCache?.[row[0]] || null}
+                                    disabled={!showEmbeddings}
+                                    isGeneratingEmbedding={isLoadingEmbeddings}
+                                    size={80}
+                                    metadata={metadata}
+                                    vectorSetName={vectorSetName}
+                                    searchVector={searchVector}
+                                    elementName={row[0]}
+                                    searchQuery={searchQuery}
+                                    lastSearchDisplayName={lastSearchDisplayName}
+                                />
+                            </div>
+                        ) : vectorSetName && metadata?.embedding && (isImageEmbedding(metadata.embedding) || isMultiModalEmbedding(metadata.embedding)) ? (
+                            <ThumbnailDisplay
+                                vectorSetName={vectorSetName}
+                                elementId={row[0]}
+                                size="medium"
+                                showFallback={true}
+                            />
+                        ) : (
+                            React.createElement(
+                                getEmbeddingIcon(
+                                    getEmbeddingDataFormat(
+                                        metadata?.embedding
+                                    )
+                                )
+                            )
+                        )}
+                    </div>
                     <div className="flex flex-col gap-2 w-full">
                         <div className="grow">
                             <div className="text-sm text-gray-500 uppercase">

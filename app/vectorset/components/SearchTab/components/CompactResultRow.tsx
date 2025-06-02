@@ -3,9 +3,10 @@ import { getEmbeddingIcon } from "@/components/EmbeddingConfig/EmbeddingIcons"
 import MiniVectorHeatmap from "@/components/MiniVectorHeatmap"
 import { Button } from "@/components/ui/button"
 import { TableCell, TableRow } from "@/components/ui/table"
-import { getEmbeddingDataFormat } from "@/lib/embeddings/types/embeddingModels"
+import { getEmbeddingDataFormat, isImageEmbedding, isMultiModalEmbedding } from "@/lib/embeddings/types/embeddingModels"
 import { VectorTuple } from "@/lib/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
+import ThumbnailDisplay from "@/components/ThumbnailDisplay/ThumbnailDisplay"
 import React from "react"
 
 interface CompactResultRowProps {
@@ -94,6 +95,17 @@ const CompactResultRow = React.memo(function CompactResultRow({
                         {col.type === "system" ? (
                             col.name === "element" ? (
                                 <div className="line-clamp-2 break-words flex items-center gap-2">
+                                    {/* Show thumbnail alongside vector visualization if both are enabled */}
+                                    {vectorSetName && showEmbeddings && (
+                                        <ThumbnailDisplay
+                                            vectorSetName={vectorSetName}
+                                            elementId={element}
+                                            size="medium"
+                                            className="flex-shrink-0"
+                                            showFallback={false}
+                                        />
+                                    )}
+                                    {/* Vector heatmap or thumbnail (when vector viz is off) or embedding icon */}
                                     <span className="flex-shrink-0">
                                         {showEmbeddings ? (
                                             <div>
@@ -116,6 +128,14 @@ const CompactResultRow = React.memo(function CompactResultRow({
                                                     lastSearchDisplayName={lastSearchDisplayName}
                                                 />
                                             </div>
+                                        ) : vectorSetName && metadata?.embedding && (isImageEmbedding(metadata.embedding) || isMultiModalEmbedding(metadata.embedding)) ? (
+                                            <ThumbnailDisplay
+                                                vectorSetName={vectorSetName}
+                                                elementId={element}
+                                                size="medium"
+                                                className="flex-shrink-0"
+                                                showFallback={true}
+                                            />
                                         ) : (
                                             React.createElement(
                                                 getEmbeddingIcon(

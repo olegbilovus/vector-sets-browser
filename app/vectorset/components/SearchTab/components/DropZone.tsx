@@ -10,6 +10,7 @@ export interface DropZoneProps {
     children?: ReactNode
     onAddVector?: (element: string, embedding: number[]) => Promise<void>
     metadata?: VectorSetMetadata | null
+    vectorSetName?: string
     renderDropOverlay?: (isDragging: boolean) => ReactNode
     className?: string
     showProgressBar?: boolean
@@ -25,6 +26,7 @@ export default function DropZone({
     children,
     onAddVector,
     metadata,
+    vectorSetName,
     renderDropOverlay,
     className = "",
     showProgressBar = true,
@@ -42,7 +44,7 @@ export default function DropZone({
         handleDragLeave,
         handleDrop,
         setIsDragging
-    } = useDropZone({ onAddVector, metadata })
+    } = useDropZone({ onAddVector, metadata, vectorSetName })
 
     // Ref to track the dropzone element
     const dropzoneRef = useRef<HTMLDivElement>(null);

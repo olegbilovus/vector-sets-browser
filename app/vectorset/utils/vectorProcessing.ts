@@ -1,6 +1,9 @@
 import { clientEmbeddingService } from "@/lib/embeddings/client/embeddingService";
 import { fileToBase64 } from "@/lib/embeddings/client/imageProcessingService";
 import { VectorSetMetadata } from "@/lib/types/vectors";
+import { generateThumbnail, isSupportedImageType } from "@/lib/thumbnails/thumbnailUtils";
+import { storeThumbnail } from "@/lib/thumbnails/thumbnailStorage";
+import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter";
 
 // Helper function to get element ID from text content
 export const getElementIdFromText = (text: string): string => {
@@ -119,7 +122,8 @@ export const processImageFile = async (
     file: File,
     metadata: VectorSetMetadata,
     onAddVector?: (element: string, embedding: number[]) => Promise<void>,
-    onError?: (message: string) => void
+    onError?: (message: string) => void,
+    vectorSetName?: string
 ): Promise<void> => {
     if (!onAddVector) {
         console.error("onAddVector function not provided");
@@ -169,32 +173,42 @@ export const processImageFile = async (
 
             // Add the vector
             await onAddVector(elementId, embedding);
+
+            // Generate and store thumbnail if vectorSetName is provided
+            if (vectorSetName) {
+                try {
+                    await generateAndStoreThumbnail(file, vectorSetName, elementId);
+                } catch (thumbnailError) {
+                    // Don't fail the entire operation if thumbnail generation fails
+                    console.warn(`Failed to generate thumbnail for ${file.name}:`, thumbnailError);
+                }
+            }
         } catch (processingError) {
-            let errorMessage = processingError instanceof Error 
-                ? processingError.message 
+            let errorMessage = processingError instanceof Error
+                ? processingError.message
                 : `Unknown error processing image ${file.name}`;
-            
+
             // Provide more specific guidance for common errors
-            if (errorMessage.includes("offset is out of bounds") || 
+            if (errorMessage.includes("offset is out of bounds") ||
                 errorMessage.includes("memory limitations")) {
                 errorMessage = `Image ${file.name} could not be processed. The image may be too large or complex. Try using a smaller or simpler image.`;
             }
-            
+
             console.error(`Error processing image ${file.name}:`, processingError);
-            
+
             if (onError) {
                 onError(errorMessage);
             }
-            
+
             throw new Error(errorMessage); // re-throw to signal failure to caller
         }
     } catch (error) {
-        const errorMessage = error instanceof Error 
-            ? error.message 
+        const errorMessage = error instanceof Error
+            ? error.message
             : `Unknown error processing image ${file.name}`;
-            
+
         console.error(`Error processing image ${file.name}:`, error);
-        
+
         if (onError) {
             onError(errorMessage);
         }
@@ -210,4 +224,56 @@ export const containsValidItems = (items: DataTransferItemList): boolean => {
                     item.type === "text/plain")) ||
             (item.kind === "string" && item.type === "text/plain")
     );
-}; 
+};
+
+// Generate and store thumbnail for an image file
+export const generateAndStoreThumbnail = async (
+    file: File,
+    vectorSetName: string,
+    elementId: string
+): Promise<void> => {
+    try {
+        // Check if the file is a supported image type
+        if (!isSupportedImageType(file)) {
+            console.warn(`File ${file.name} is not a supported image type for thumbnail generation`);
+            return;
+        }
+
+        // Generate thumbnail
+        const thumbnailDataUrl = await generateThumbnail(file, {
+            width: 150,
+            height: 150,
+            quality: 0.8,
+            format: 'jpeg'
+        });
+
+        // Store thumbnail in Redis
+        const result = await storeThumbnail(vectorSetName, elementId, thumbnailDataUrl);
+
+        if (!result.success) {
+            console.error(`Failed to store thumbnail for ${elementId}:`, result.error);
+        } else {
+            console.log(`Successfully stored thumbnail for ${elementId}`);
+
+            // Emit event to notify components that a thumbnail has been generated
+            eventBus.emit(AppEvents.THUMBNAIL_GENERATED, {
+                vectorSetName,
+                elementId,
+                thumbnailUrl: thumbnailDataUrl
+            });
+        }
+    } catch (error) {
+        console.error(`Error generating/storing thumbnail for ${file.name}:`, error);
+
+        // Log more details about the error
+        if (error instanceof Error) {
+            console.error(`Error name: ${error.name}, message: ${error.message}`);
+            if (error.stack) {
+                console.error(`Stack trace: ${error.stack}`);
+            }
+        }
+
+        // Don't re-throw the error to prevent it from breaking the main upload process
+        // The thumbnail generation is optional and shouldn't fail the entire operation
+    }
+};

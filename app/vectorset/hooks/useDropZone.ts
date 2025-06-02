@@ -11,6 +11,7 @@ import { toast } from "sonner";
 interface UseDropZoneOptions {
     onAddVector?: (element: string, embedding: number[]) => Promise<void>;
     metadata?: VectorSetMetadata | null;
+    vectorSetName?: string;
 }
 
 interface UseDropZoneResult {
@@ -27,7 +28,8 @@ interface UseDropZoneResult {
 
 export function useDropZone({
     onAddVector,
-    metadata
+    metadata,
+    vectorSetName
 }: UseDropZoneOptions): UseDropZoneResult {
     const [isDragging, setIsDragging] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -224,14 +226,15 @@ export function useDropZone({
                 const file = imageFiles[i];
                 try {
                     await processImageFile(
-                        file, 
+                        file,
                         metadata,
                         onAddVector,
                         (errorMessage) => {
                             toast.error(errorMessage);
-                        }
+                        },
+                        vectorSetName
                     );
-                } catch (error) {
+                } catch (_error) {
                     // Error already logged and reported by processImageFile
                     // Just continue with next file
                 } finally {
@@ -266,7 +269,7 @@ export function useDropZone({
 
             setIsProcessing(false);
         },
-        [onAddVector, metadata]
+        [onAddVector, metadata, vectorSetName]
     );
 
     return {

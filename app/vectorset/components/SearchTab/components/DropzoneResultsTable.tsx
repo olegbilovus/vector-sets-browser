@@ -94,6 +94,7 @@ const DropzoneResultsTable = React.memo(function DropzoneResultsTable({
         <DropZone
             onAddVector={handleAddVectorWrapper}
             metadata={metadata}
+            vectorSetName={vectorSetName}
             className="w-full"
             renderDropOverlay={customDropOverlay}
             onDragStateChange={setIsDragging}
