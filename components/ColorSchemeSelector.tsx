@@ -68,29 +68,34 @@ export default function ColorSchemeSelector({
     }
 
     return (
-        <div className={className}>
-            <label className="block text-sm font-medium mb-1">Color Scheme:</label>
-            <Select value={value} onValueChange={(value) => onChange(value as ColorScheme)}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a color scheme" />
-                </SelectTrigger>
-                <SelectContent>
-                    {colorSchemes.map((scheme) => (
-                        <SelectItem key={scheme.value} value={scheme.value}>
-                            <div className="flex items-center space-x-3">
-                                <div
-                                    className="w-8 h-4 rounded border"
-                                    style={{ background: scheme.gradient }}
-                                />
-                                <div className="flex space-x-2 items-center">
-                                    <div className="font-medium">{scheme.label}</div>
-                                    <div className="text-xs text-muted-foreground">{scheme.description}</div>
-                                </div>
-                            </div>
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </div>
-    )
+      <div className={className}>
+        <label className="block text-sm font-medium mb-1">Color Scheme:</label>
+        <Select
+          value={value}
+          onValueChange={(value) => onChange(value as ColorScheme)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a color scheme" />
+          </SelectTrigger>
+          <SelectContent>
+            {colorSchemes.map((scheme) => (
+              <SelectItem key={scheme.value} value={scheme.value}>
+                <div className="flex items-center space-x-2 shrink-0">
+                  <div
+                    className="w-8 h-4 rounded border shrink-0"
+                    style={{ background: scheme.gradient }}
+                  />
+                  <div className="flex space-x-2 items-center">
+                    <div className="font-medium">{scheme.label}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {scheme.description}
+                    </div>
+                  </div>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
 } 
