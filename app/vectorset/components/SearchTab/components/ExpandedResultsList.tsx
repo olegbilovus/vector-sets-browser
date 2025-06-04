@@ -1,6 +1,9 @@
+import React from "react"
 import { VectorTuple } from "@/lib/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import ExpandedResultRow from "./ExpandedResultRow"
+import { useThumbnailPreloader } from "@/components/ThumbnailDisplay/ThumbnailProvider"
+import { isImageEmbedding, isMultiModalEmbedding } from "@/lib/embeddings/types/embeddingModels"
 
 interface ExpandedResultsListProps {
     filteredAndSortedResults: VectorTuple[]
@@ -53,6 +56,18 @@ export default function ExpandedResultsList({
     searchQuery,
     lastSearchDisplayName
 }: ExpandedResultsListProps) {
+    const { preload } = useThumbnailPreloader()
+
+    // Preload thumbnails for image/multimodal vector sets
+    React.useEffect(() => {
+        if (vectorSetName && metadata?.embedding &&
+            (isImageEmbedding(metadata.embedding) || isMultiModalEmbedding(metadata.embedding))) {
+            const elementIds = filteredAndSortedResults.map(row => row[0])
+            if (elementIds.length > 0) {
+                preload(vectorSetName, elementIds)
+            }
+        }
+    }, [vectorSetName, metadata, filteredAndSortedResults, preload])
     return (
         <div className="space-y-4 mb-8">
             {filteredAndSortedResults.map((row, index) => (

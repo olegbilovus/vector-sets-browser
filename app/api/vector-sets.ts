@@ -39,7 +39,7 @@ export const vectorSets = {
 
     async delete(name: string): Promise<void> {
         const encodedName = encodeURIComponent(name)
-        apiClient.delete(`/api/vectorset/${encodedName}`)
+        await apiClient.delete(`/api/vectorset/${encodedName}`)
     },
 
     async getMetadata(

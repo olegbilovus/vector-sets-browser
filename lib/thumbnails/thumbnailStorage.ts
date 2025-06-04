@@ -3,7 +3,7 @@
  */
 
 import { thumbnailSet, thumbnailGet, thumbnailDelete } from '@/lib/redis-server/api'
-import { generateThumbnailKey, extractBase64FromDataUrl } from './thumbnailUtils'
+import { extractBase64FromDataUrl } from './thumbnailUtils'
 
 export interface ThumbnailStorageResult {
     success: boolean
@@ -25,18 +25,27 @@ export async function storeThumbnail(
     thumbnailDataUrl: string
 ): Promise<ThumbnailStorageResult> {
     try {
-        const key = generateThumbnailKey(vectorSetName, elementId)
+        console.log(`[DEBUG] Storing thumbnail for ${vectorSetName}:${elementId}`)
         const base64Data = extractBase64FromDataUrl(thumbnailDataUrl)
+        console.log(`[DEBUG] Extracted base64 data length: ${base64Data.length}`)
+
+        const mimeType = getThumbnailMimeType(thumbnailDataUrl)
+        console.log(`[DEBUG] MIME type: ${mimeType}`)
 
         const response = await thumbnailSet({
-            key,
+            vectorSetName,
+            elementId,
             data: base64Data,
-            mimeType: getThumbnailMimeType(thumbnailDataUrl)
+            mimeType
         })
 
+        console.log(`[DEBUG] thumbnailSet response:`, JSON.stringify(response, null, 2))
+
         if (response.success) {
+            console.log(`[DEBUG] Successfully stored thumbnail for ${vectorSetName}:${elementId}`)
             return { success: true }
         } else {
+            console.error(`[DEBUG] Failed to store thumbnail:`, response.error)
             return { success: false, error: response.error || 'Failed to store thumbnail' }
         }
     } catch (error) {
@@ -56,17 +65,19 @@ export async function retrieveThumbnail(
     elementId: string
 ): Promise<ThumbnailRetrievalResult> {
     try {
-        const key = generateThumbnailKey(vectorSetName, elementId)
-
-        const response = await thumbnailGet(key)
+        console.log(`[DEBUG] Retrieving thumbnail for ${vectorSetName}:${elementId}`)
+        const response = await thumbnailGet(vectorSetName, elementId)
+        console.log(`[DEBUG] thumbnailGet response:`, JSON.stringify(response, null, 2))
 
         if (response.success && response.data) {
             const { data: base64Data, mimeType } = response.data
             const dataUrl = `data:${mimeType};base64,${base64Data}`
+            console.log(`[DEBUG] Successfully retrieved thumbnail for ${vectorSetName}:${elementId}, dataUrl length: ${dataUrl.length}`)
             return { success: true, thumbnail: dataUrl }
         } else {
             // Distinguish between "not found" (normal) and actual errors
             const errorMsg = response.error || 'Thumbnail not found'
+            console.log(`[DEBUG] Thumbnail not found for ${vectorSetName}:${elementId}: ${errorMsg}`)
             return { success: false, error: errorMsg }
         }
     } catch (error) {
@@ -87,9 +98,7 @@ export async function deleteThumbnail(
     elementId: string
 ): Promise<ThumbnailStorageResult> {
     try {
-        const key = generateThumbnailKey(vectorSetName, elementId)
-
-        const response = await thumbnailDelete({ key })
+        const response = await thumbnailDelete({ vectorSetName, elementId })
 
         if (response.success) {
             return { success: true }
@@ -106,31 +115,47 @@ export async function deleteThumbnail(
 }
 
 /**
- * Batch retrieve thumbnails for multiple elements
+ * Batch retrieve thumbnails for multiple elements using new batch API
  */
 export async function retrieveThumbnailsBatch(
     vectorSetName: string,
     elementIds: string[]
 ): Promise<Record<string, string | null>> {
-    const results: Record<string, string | null> = {}
-    
-    // Process in parallel but limit concurrency to avoid overwhelming the server
-    const batchSize = 10
-    for (let i = 0; i < elementIds.length; i += batchSize) {
-        const batch = elementIds.slice(i, i + batchSize)
-        const promises = batch.map(async (elementId) => {
-            const result = await retrieveThumbnail(vectorSetName, elementId)
-            return { elementId, thumbnail: result.success ? result.thumbnail || null : null }
-        })
-        
-        const batchResults = await Promise.all(promises)
-        batchResults.forEach(({ elementId, thumbnail }) => {
-            results[elementId] = thumbnail
-        })
+    if (elementIds.length === 0) {
+        return {}
     }
-    
-    return results
+
+    try {
+        const response = await fetch('/api/thumbnails/batch', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                vectorSetName,
+                elementIds
+            })
+        })
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const result = await response.json()
+
+        if (result.success) {
+            return result.thumbnails || {}
+        } else {
+            console.error('Batch thumbnail retrieval failed:', result.error)
+            return {}
+        }
+    } catch (error) {
+        console.error('Error in batch thumbnail retrieval:', error)
+        return {}
+    }
 }
+
+
 
 /**
  * Extract MIME type from data URL
@@ -152,6 +177,82 @@ export async function thumbnailExists(
         return result.success
     } catch {
         return false
+    }
+}
+
+/**
+ * Delete all thumbnails for a vector set
+ */
+export async function deleteVectorSetThumbnails(
+    vectorSetName: string
+): Promise<ThumbnailStorageResult> {
+    try {
+        const response = await fetch('/api/thumbnails/vectorset', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                vectorSetName
+            })
+        })
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const result = await response.json()
+
+        if (result.success) {
+            return { success: true }
+        } else {
+            return { success: false, error: result.error || 'Failed to delete vectorset thumbnails' }
+        }
+    } catch (error) {
+        console.error('Error deleting vectorset thumbnails:', error)
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error deleting vectorset thumbnails'
+        }
+    }
+}
+
+/**
+ * Delete thumbnails for specific elements
+ */
+export async function deleteElementThumbnails(
+    vectorSetName: string,
+    elementIds: string[]
+): Promise<ThumbnailStorageResult> {
+    try {
+        const response = await fetch('/api/thumbnails/elements', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                vectorSetName,
+                elementIds
+            })
+        })
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const result = await response.json()
+
+        if (result.success) {
+            return { success: true }
+        } else {
+            return { success: false, error: result.error || 'Failed to delete element thumbnails' }
+        }
+    } catch (error) {
+        console.error('Error deleting element thumbnails:', error)
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error deleting element thumbnails'
+        }
     }
 }
 

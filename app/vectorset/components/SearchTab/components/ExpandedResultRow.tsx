@@ -134,6 +134,7 @@ export default function ExpandedResultRow({
                             size="large"
                             showFallback={false}
                             className="flex-shrink-0"
+                            metadata={metadata}
                             />
                             </div>
                     )}
@@ -163,6 +164,7 @@ export default function ExpandedResultRow({
                                 elementId={row[0]}
                                 size="large"
                                 showFallback={true}
+                                metadata={metadata}
                             />
                         ) : (
                             React.createElement(

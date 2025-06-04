@@ -296,7 +296,8 @@ export async function vsetattr(
 
 // Thumbnail API functions
 export interface ThumbnailSetRequest {
-    key: string
+    vectorSetName: string
+    elementId: string
     data: string // base64 encoded image data
     mimeType: string
 }
@@ -309,28 +310,41 @@ export interface ThumbnailGetResponse {
 }
 
 export interface ThumbnailDeleteRequest {
-    key: string
+    vectorSetName: string
+    elementId: string
 }
 
 export async function thumbnailSet(
     request: ThumbnailSetRequest
 ): Promise<ApiResponse<{ message: string }>> {
     try {
-        return await apiClient.post<{ message: string }, ThumbnailSetRequest>(
-            "/api/redis/command/thumbnail/set",
+        console.log(`[DEBUG] thumbnailSet making API call to /api/thumbnails with:`, {
+            vectorSetName: request.vectorSetName,
+            elementId: request.elementId,
+            mimeType: request.mimeType,
+            dataLength: request.data.length
+        })
+
+        const result = await apiClient.post<{ message: string }, ThumbnailSetRequest>(
+            "/api/thumbnails",
             request
         )
+
+        console.log(`[DEBUG] thumbnailSet API response:`, result)
+        return result
     } catch (error) {
+        console.error(`[DEBUG] thumbnailSet API error:`, error)
         return { success: false, error: String(error) }
     }
 }
 
 export async function thumbnailGet(
-    key: string
+    vectorSetName: string,
+    elementId: string
 ): Promise<ApiResponse<ThumbnailGetResponse>> {
     try {
         // Use direct fetch to handle 404s gracefully without console errors
-        const url = `/api/redis/command/thumbnail/get?key=${encodeURIComponent(key)}`
+        const url = `/api/thumbnails?vectorSetName=${encodeURIComponent(vectorSetName)}&elementId=${encodeURIComponent(elementId)}`
         const resolvedUrl = typeof window !== 'undefined'
             ? new URL(url, window.location.origin)
             : new URL(url, 'http://localhost:3000')
@@ -369,7 +383,7 @@ export async function thumbnailDelete(
 ): Promise<ApiResponse<{ deleted: boolean; message: string }>> {
     try {
         return await apiClient.delete<{ deleted: boolean; message: string }, ThumbnailDeleteRequest>(
-            "/api/redis/command/thumbnail/delete",
+            "/api/thumbnails",
             request
         )
     } catch (error) {

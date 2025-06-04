@@ -1,24 +1,24 @@
 import { ApiError } from "@/app/api/client"
 import { vectorSets } from "@/app/api/vector-sets"
+import { useAnimationSettings } from "@/app/config/AnimationSettings"
+import CreateVectorSetModal from "@/app/vectorset/components/CreateVectorSetDialog"
+import DeleteVectorSetDialog from "@/app/vectorset/components/DeleteVectorSetDialog"
 import EditEmbeddingConfigModal from "@/components/EmbeddingConfig/EditEmbeddingConfigDialog"
-import { vinfo_multi } from "@/lib/redis-server/api"
-import { VectorSetMetadata } from "@/lib/types/vectors"
+import { Button } from "@/components/ui/button"
+import { useSidebarToggle } from "@/hooks/useSidebarToggle"
 import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter"
+import { vinfo_multi } from "@/lib/redis-server/api"
 import { sanitizeRedisUrl } from "@/lib/server/redis/url"
 import {
     estimateVectorSetMemoryUsage,
     formatBytes,
 } from "@/lib/storage/vectorSetMemory"
-import CreateVectorSetModal from "@/app/vectorset/components/CreateVectorSetDialog"
-import DeleteVectorSetDialog from "@/app/vectorset/components/DeleteVectorSetDialog"
-import { Button } from "@/components/ui/button"
-import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
+import { thumbnailCache } from "@/lib/thumbnails/thumbnailCache"
+import { VectorSetMetadata } from "@/lib/types/vectors"
 import { debounce } from "lodash"
+import { PanelLeft, PanelRight } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
-import { useSidebarToggle } from "@/hooks/useSidebarToggle"
-import { useAnimationSettings } from "@/app/config/AnimationSettings"
-import { PanelLeft, PanelRight } from "lucide-react"
 
 interface VectorSetNavProps {
     redisUrl: string | null
@@ -302,6 +302,10 @@ export default function VectorSetNav({
     const handleDeleteVectorSet = async (name: string) => {
         try {
             await vectorSets.delete(name)
+
+            // Clean up thumbnail cache for the entire vector set
+            thumbnailCache.clearVectorSet(name)
+
             if (selectedVectorSet === name) {
                 onVectorSetSelect(null)
             }

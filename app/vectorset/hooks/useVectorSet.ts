@@ -17,6 +17,7 @@ import { VectorSetMetadata } from "@/lib/types/vectors"
 
 import { validateVector } from "@/lib/embeddings/utils/validation"
 import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter"
+import { thumbnailCache } from "@/lib/thumbnails/thumbnailCache"
 import { useEffect, useRef, useState, useCallback } from "react"
 import { array } from "zod"
 import { debounce } from "lodash"
@@ -376,6 +377,11 @@ const useVectorSet = (): UseVectorSetReturn => {
                 vectorSetCacheRef.current[vectorSetName].recordCount = newRecordCountResponse.result
             }
 
+            // Clean up thumbnail cache for deleted element
+            if (vectorSetName) {
+                thumbnailCache.remove(vectorSetName, element)
+            }
+
             // Emit event to notify other components
             eventBus.emit(AppEvents.VECTOR_DELETED, {
                 vectorSetName,
@@ -468,6 +474,13 @@ const useVectorSet = (): UseVectorSetReturn => {
             // Update the cache
             if (vectorSetCacheRef.current[vectorSetName]) {
                 vectorSetCacheRef.current[vectorSetName].recordCount = newRecordCountResponse.result
+            }
+
+            // Clean up thumbnail cache for deleted elements
+            if (vectorSetName) {
+                elements.forEach(element => {
+                    thumbnailCache.remove(vectorSetName, element)
+                })
             }
 
             // Emit event to notify other components

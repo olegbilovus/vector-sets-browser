@@ -41,10 +41,51 @@ export async function POST(request: Request) {
                 for (const command of commands) {
                     multi.addCommand(command)
                 }
-                return await multi.exec()
+                const result = await multi.exec()
+
+                // TODO: Clean up thumbnails for successfully removed elements
+                // Temporarily disabled to debug the main issue
+                /*
+                if (result && Array.isArray(result)) {
+                    try {
+                        const elementsToCleanup = validatedRequest.elements!.filter((_, index) => result[index] === 1)
+                        if (elementsToCleanup.length > 0) {
+                            const hashKey = `${validatedRequest.keyName}:thumbnails`
+                            // Use individual hDel calls to avoid potential issues with array parameter
+                            for (const element of elementsToCleanup) {
+                                try {
+                                    await client.hDel(hashKey, element)
+                                } catch (individualError) {
+                                    console.warn(`Failed to clean up thumbnail for element ${element}:`, individualError)
+                                }
+                            }
+                        }
+                    } catch (thumbnailError) {
+                        console.error('Failed to clean up thumbnails after VREM:', thumbnailError)
+                    }
+                }
+                */
+
+                return result
             } else {
                 // Single element removal
-                return await client.sendCommand(commands[0])
+                const result = await client.sendCommand(commands[0])
+
+                // TODO: Clean up thumbnail for successfully removed element
+                // Temporarily disabled to debug the main issue
+                /*
+                if (result === 1 && validatedRequest.element) {
+                    try {
+                        const hashKey = `${validatedRequest.keyName}:thumbnails`
+                        await client.hDel(hashKey, validatedRequest.element)
+                    } catch (thumbnailError) {
+                        console.warn(`Failed to clean up thumbnail for element ${validatedRequest.element}:`, thumbnailError)
+                        // Don't let thumbnail cleanup failure affect the main operation
+                    }
+                }
+                */
+
+                return result
             }
         })
 

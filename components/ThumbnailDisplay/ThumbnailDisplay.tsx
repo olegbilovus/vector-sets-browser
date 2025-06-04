@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import { retrieveThumbnail } from '@/lib/thumbnails/thumbnailStorage'
+import React from 'react'
 import { ImageOff } from 'lucide-react'
-import eventBus, { AppEvents } from '@/lib/client/events/eventEmitter'
+import { useThumbnail } from './ThumbnailProvider'
+import { VectorSetMetadata } from '@/lib/types/vectors'
+import { isImageEmbedding, isMultiModalEmbedding } from '@/lib/embeddings/types/embeddingModels'
 
 interface ThumbnailDisplayProps {
     vectorSetName: string
@@ -10,6 +11,7 @@ interface ThumbnailDisplayProps {
     className?: string
     showFallback?: boolean
     onError?: (error: string) => void
+    metadata?: VectorSetMetadata | null
 }
 
 const sizeClasses = {
@@ -30,77 +32,21 @@ function ThumbnailDisplayCore({
     size = 'medium',
     className = '',
     showFallback = true,
-    onError
+    onError,
+    metadata
 }: ThumbnailDisplayProps) {
-    const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
-    const [isLoading, setIsLoading] = useState(false) // Start as false to avoid initial flicker
-    const [hasError, setHasError] = useState(false)
+    // Early return if this vector set doesn't support images
+    if (metadata && !isImageEmbedding(metadata.embedding) && !isMultiModalEmbedding(metadata.embedding)) {
+        return null
+    }
+    const { thumbnail, isLoading, error } = useThumbnail(vectorSetName, elementId)
 
-    useEffect(() => {
-        // Don't attempt to load if we don't have the required parameters
-        if (!vectorSetName || !elementId) {
-            setHasError(true)
-            setIsLoading(false)
-            return
+    // Call onError callback when there's an actual error (not just missing thumbnail)
+    React.useEffect(() => {
+        if (error && onError && !error.includes('not found') && !error.includes('404')) {
+            onError(error)
         }
-
-        let isMounted = true
-
-        const loadThumbnail = async () => {
-            try {
-                setIsLoading(true)
-                setHasError(false)
-
-                const result = await retrieveThumbnail(vectorSetName, elementId)
-
-                if (!isMounted) return
-
-                if (result.success && result.thumbnail) {
-                    setThumbnailUrl(result.thumbnail)
-                } else {
-                    // Not finding a thumbnail is not an error - it's expected for many vectors
-                    setHasError(true)
-                    // Only call onError for actual errors, not for missing thumbnails
-                    if (onError && result.error && !result.error.includes('not found')) {
-                        onError(result.error)
-                    }
-                }
-            } catch (error) {
-                if (!isMounted) return
-
-                setHasError(true)
-                // Only report actual errors, not network errors for missing thumbnails
-                const errorMessage = error instanceof Error ? error.message : 'Failed to load thumbnail'
-                if (onError && !errorMessage.includes('404') && !errorMessage.includes('not found')) {
-                    onError(errorMessage)
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false)
-                }
-            }
-        }
-
-        // Initial load
-        loadThumbnail()
-
-        // Listen for thumbnail generation events
-        const unsubscribe = eventBus.on(AppEvents.THUMBNAIL_GENERATED, (data: {
-            vectorSetName: string;
-            elementId: string;
-            thumbnailUrl: string;
-        }) => {
-            // If this event is for our specific thumbnail, refresh it
-            if (data.vectorSetName === vectorSetName && data.elementId === elementId) {
-                loadThumbnail()
-            }
-        })
-
-        return () => {
-            isMounted = false
-            unsubscribe()
-        }
-    }, [vectorSetName, elementId, onError])
+    }, [error, onError])
 
     const baseClasses = `${sizeClasses[size]} rounded overflow-hidden flex items-center justify-center ${className}`
 
@@ -114,11 +60,11 @@ function ThumbnailDisplayCore({
     }
 
     // Error state or no thumbnail
-    if (hasError || !thumbnailUrl) {
+    if (error || !thumbnail) {
         if (!showFallback) {
             return null
         }
-        
+
         return (
             <div className={`${baseClasses} bg-gray-100 text-gray-400`}>
                 <ImageOff className={iconSizeClasses[size]} />
@@ -130,86 +76,20 @@ function ThumbnailDisplayCore({
     return (
         <div className={`${baseClasses} bg-gray-100`}>
             <img
-                src={thumbnailUrl}
+                src={thumbnail}
                 alt={`Thumbnail for ${elementId}`}
                 className="w-full h-full object-cover"
                 onError={() => {
-                    setHasError(true)
-                    setThumbnailUrl(null)
+                    // Note: We can't easily update the cache from here in the new system
+                    // The error will be handled by the service layer on next request
                 }}
             />
         </div>
     )
 }
 
-// Hook for batch loading thumbnails
-export function useThumbnailBatch(vectorSetName: string, elementIds: string[]) {
-    const [thumbnails, setThumbnails] = useState<Record<string, string | null>>({})
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-
-    useEffect(() => {
-        if (elementIds.length === 0) {
-            setThumbnails({})
-            return
-        }
-
-        let isMounted = true
-
-        const loadThumbnails = async () => {
-            try {
-                setIsLoading(true)
-                setError(null)
-
-                // Load thumbnails in batches to avoid overwhelming the server
-                const batchSize = 10
-                const results: Record<string, string | null> = {}
-
-                for (let i = 0; i < elementIds.length; i += batchSize) {
-                    const batch = elementIds.slice(i, i + batchSize)
-                    const promises = batch.map(async (elementId) => {
-                        try {
-                            const result = await retrieveThumbnail(vectorSetName, elementId)
-                            return {
-                                elementId,
-                                thumbnail: result.success ? result.thumbnail || null : null
-                            }
-                        } catch {
-                            return { elementId, thumbnail: null }
-                        }
-                    })
-
-                    const batchResults = await Promise.all(promises)
-                    batchResults.forEach(({ elementId, thumbnail }) => {
-                        results[elementId] = thumbnail
-                    })
-
-                    if (!isMounted) return
-                }
-
-                if (isMounted) {
-                    setThumbnails(results)
-                }
-            } catch (error) {
-                if (isMounted) {
-                    setError(error instanceof Error ? error.message : 'Failed to load thumbnails')
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false)
-                }
-            }
-        }
-
-        loadThumbnails()
-
-        return () => {
-            isMounted = false
-        }
-    }, [vectorSetName, elementIds])
-
-    return { thumbnails, isLoading, error }
-}
+// Hook for batch loading thumbnails (deprecated - use useThumbnails from ThumbnailProvider instead)
+export { useThumbnails as useThumbnailBatch } from './ThumbnailProvider'
 
 // Main export with validation
 export default function ThumbnailDisplay(props: ThumbnailDisplayProps) {

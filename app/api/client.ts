@@ -115,9 +115,14 @@ export const apiClient = {
         });
     },
 
-    async delete<TResponse>(url: string, headers?: Record<string, string>) {
-        return this.request<TResponse>(url, {
+    async delete<TResponse, TRequest = undefined>(
+        url: string,
+        data?: TRequest,
+        headers?: Record<string, string>
+    ) {
+        return this.request<TResponse, TRequest>(url, {
             method: 'DELETE',
+            data,
             headers,
         });
     },

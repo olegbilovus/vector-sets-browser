@@ -2,6 +2,7 @@
 
 import { Toaster } from "sonner"
 import TopNav from "@/components/navigation/TopNav"
+import { ThumbnailProvider } from "@/components/ThumbnailDisplay/ThumbnailProvider"
 
 export default function ClientLayout({
     children,
@@ -10,12 +11,14 @@ export default function ClientLayout({
 }) {
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col">
-            <TopNav/>
-            <div className="flex-1">
-                {children}
+        <ThumbnailProvider>
+            <div className="min-h-screen bg-gray-100 flex flex-col">
+                <TopNav/>
+                <div className="flex-1">
+                    {children}
+                </div>
+                <Toaster />
             </div>
-            <Toaster />
-        </div>
+        </ThumbnailProvider>
     )
 } 

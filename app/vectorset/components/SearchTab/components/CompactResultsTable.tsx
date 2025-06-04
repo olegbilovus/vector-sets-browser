@@ -6,6 +6,8 @@ import { FilterField, SortColumn, SortDirection } from "../types"
 import ResultsTableHeader from "./ResultsTableHeader"
 import CompactResultRow from "./CompactResultRow"
 import { VectorSetMetadata } from "@/lib/types/vectors"
+import { useThumbnailPreloader } from "@/components/ThumbnailDisplay/ThumbnailProvider"
+import { isImageEmbedding, isMultiModalEmbedding } from "@/lib/embeddings/types/embeddingModels"
 
 export interface CompactResultsTableProps {
     filteredAndSortedResults: VectorTuple[]
@@ -60,6 +62,18 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
     searchQuery,
     lastSearchDisplayName
 }: CompactResultsTableProps) {
+    const { preload } = useThumbnailPreloader()
+
+    // Preload thumbnails for image/multimodal vector sets
+    React.useEffect(() => {
+        if (vectorSetName && metadata?.embedding &&
+            (isImageEmbedding(metadata.embedding) || isMultiModalEmbedding(metadata.embedding))) {
+            const elementIds = filteredAndSortedResults.map(row => row[0])
+            if (elementIds.length > 0) {
+                preload(vectorSetName, elementIds)
+            }
+        }
+    }, [vectorSetName, metadata, filteredAndSortedResults, preload])
     return (
         <Table>
             <ResultsTableHeader 

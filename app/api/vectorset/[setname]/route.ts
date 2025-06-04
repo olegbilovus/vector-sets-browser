@@ -272,8 +272,20 @@ export async function DELETE(
                 // Also delete metadata from the consolidated config
                 const configKey = "vector-set-browser:config"
                 const hashKey = `vset:${keyName}:metadata`
-                
+
                 await client.hDel(configKey, hashKey)
+
+                // Clean up all thumbnails for this vector set
+                try {
+                    const thumbnailHashKey = `${keyName}:thumbnails`
+                    const deleteResult = await client.del(thumbnailHashKey)
+                    if (deleteResult > 0) {
+                        console.log(`Deleted thumbnail hash for vector set '${keyName}'`)
+                    }
+                } catch (thumbnailError) {
+                    // Log but don't fail the entire operation if thumbnail cleanup fails
+                    console.error(`Failed to clean up thumbnails for vector set '${keyName}':`, thumbnailError)
+                }
 
                 return "deleted"
             }
