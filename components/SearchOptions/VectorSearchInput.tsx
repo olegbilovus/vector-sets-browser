@@ -179,6 +179,23 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
         // Clear any previous validation errors
         setValidationError(null)
         
+        // If input is cleared, reset the current vector
+        if (!newValue.trim()) {
+            setCurrentVector(null)
+            
+            // Clear any pending embedding generation
+            if (textEmbeddingTimerRef.current) {
+                clearTimeout(textEmbeddingTimerRef.current)
+                textEmbeddingTimerRef.current = null
+            }
+            setIsGeneratingEmbedding(false)
+            
+            // Notify parent to clear search vector (triggers performZeroVectorSearch)
+            if (onEmbeddingGenerated) {
+                onEmbeddingGenerated([])
+            }
+        }
+        
         // For image-only models, validate that input is either empty or a valid vector
         if (isImageOnlyModel && newValue.trim()) {
             if (!isValidVectorWithDimensions(newValue)) {
@@ -248,6 +265,18 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
         // Also clear any vector data in the textarea
         onDisplayTextChange("")
         setCurrentVector(null)
+        
+        // Clear any pending embedding generation
+        if (textEmbeddingTimerRef.current) {
+            clearTimeout(textEmbeddingTimerRef.current)
+            textEmbeddingTimerRef.current = null
+        }
+        setIsGeneratingEmbedding(false)
+        
+        // Notify parent to clear search vector (triggers performZeroVectorSearch)
+        if (onEmbeddingGenerated) {
+            onEmbeddingGenerated([])
+        }
     }
 
     // Compute the placeholder text based on current searchType and metadata
@@ -598,7 +627,7 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
                 </div>
 
                 {/* Mini vector heatmap - moved outside the search input and full height */}
-                {(searchType === "Vector" || searchType === "Multi-vector") && (
+                {(searchType === "Vector" || searchType === "Multi-vector") && currentVector && currentVector.length > 0 && (
                     <div className="h-full flex items-stretch ml-2">
                         <MiniVectorHeatmap
                             vector={

@@ -35,9 +35,10 @@ export default function MiniVectorHeatmap({
     const { settings } = useVectorSettings(vectorSetName, metadata)
         
     // Check if we have a valid vector to display
-    const hasValidVector = vector && vector.length > 0 && vector.every(val => 
-        typeof val === 'number' && !isNaN(val) && isFinite(val)
-    )
+    const hasValidVector = vector && 
+        Array.isArray(vector) && 
+        vector.length > 0 && 
+        vector.every(val => typeof val === 'number' && !isNaN(val) && isFinite(val))
     
     // Handle the resolving animation when vector becomes available
     useEffect(() => {

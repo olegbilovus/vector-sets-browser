@@ -9,6 +9,8 @@ import { RedisConnection } from "@/lib/redis-server/RedisConnection"
 import { registerCompletedJob } from "@/lib/jobs/completedJobs"
 import { buildVectorElement, saveVectorData } from "@/lib/imports/importUtils"
 import { convertToNumericIfPossible } from "@/lib/data/numbers"
+import { generateThumbnail, isSupportedImageType } from "@/lib/thumbnails/thumbnailUtils"
+import { storeThumbnail } from "@/lib/thumbnails/thumbnailStorage"
 
 export class JobProcessor {
     private url: string
@@ -174,6 +176,53 @@ export class JobProcessor {
                 ? String(rowData[columnName])  // Ensure string output for embedding
                 : match
         });
+    }
+
+    private async generateThumbnailForImage(
+        imageUrl: string,
+        vectorSetName: string,
+        elementId: string
+    ): Promise<void> {
+        try {
+            // Fetch the image
+            const response = await fetch(imageUrl)
+            if (!response.ok) {
+                console.warn(`[JobProcessor] Could not fetch image for thumbnail: ${imageUrl}`)
+                return
+            }
+
+            // Create a blob from the response
+            const imageBlob = await response.blob()
+            
+            // Create a File object from the blob for thumbnail generation
+            const file = new File([imageBlob], elementId, { type: imageBlob.type })
+
+            // Check if the file is a supported image type
+            if (!isSupportedImageType(file)) {
+                console.warn(`[JobProcessor] Image type not supported for thumbnail generation: ${imageUrl}`)
+                return
+            }
+
+            // Generate thumbnail
+            const thumbnailDataUrl = await generateThumbnail(file, {
+                width: 150,
+                height: 150,
+                quality: 0.8,
+                format: 'jpeg'
+            })
+
+            // Store thumbnail in Redis
+            const result = await storeThumbnail(vectorSetName, elementId, thumbnailDataUrl)
+
+            if (!result.success) {
+                console.error(`[JobProcessor] Failed to store thumbnail for ${elementId}:`, result.error)
+            } else {
+                console.log(`[JobProcessor] Successfully stored thumbnail for ${elementId}`)
+            }
+        } catch (error) {
+            console.error(`[JobProcessor] Error generating thumbnail for ${imageUrl}:`, error)
+            // Don't throw - thumbnail generation is optional and shouldn't fail the import
+        }
     }
 
     private async processToJson(
@@ -440,6 +489,16 @@ export class JobProcessor {
                     } else {
                         console.log(`[JobProcessor] Adding to Redis: ${elementId}`)
                         await this.addToRedis(elementId, embedding, Object.keys(attributes).length > 0 ? attributes : undefined)
+                    }
+
+                    // Generate thumbnail for image data types
+                    if (this.metadata.fileType === 'image' || this.metadata.fileType === 'images') {
+                        // For image imports, we need to generate thumbnails
+                        // The image URL should be derived from the base URL and filename
+                        if (this.metadata.baseUrl && item.rowData.image) {
+                            const imageUrl = `${this.metadata.baseUrl}/${item.rowData.image}`
+                            await this.generateThumbnailForImage(imageUrl, this.metadata.vectorSetName, elementId)
+                        }
                     }
 
                     // Update progress

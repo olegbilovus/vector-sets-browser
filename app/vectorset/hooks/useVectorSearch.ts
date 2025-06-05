@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { VectorSetMetadata, VectorSetSearchOptions } from "@/lib/types/vectors"
 import { userSettings } from "@/lib/storage/userSettings"
 import { SearchType } from "@/components/SearchOptions/SearchTypeSelector"
+import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter"
 
 // Helper to convert VsimResult to VectorTuple array
 const convertToVectorTuple = (results: VsimResult): VectorTuple[] => {
@@ -370,6 +371,41 @@ export function useVectorSearch({
             }));
         }
     }, [searchState]);
+
+    // Listen for vector deletion events to clear search vector
+    useEffect(() => {
+        if (!vectorSetName) return;
+
+        const handleVectorDeleted = (eventData: { 
+            vectorSetName: string; 
+            element?: string; 
+            elements?: string[]; 
+            newCount: number 
+        }) => {
+            // Only clear search if the deletion is for the current vector set
+            if (eventData.vectorSetName === vectorSetName) {
+                console.log(`[useVectorSearch] Vector(s) deleted in ${vectorSetName}, clearing search vector`);
+                
+                // Clear the search query and last text embedding to trigger zero vector search
+                updateSearchState({
+                    searchQuery: "",
+                    lastTextEmbedding: undefined,
+                    lastSearchDisplayName: undefined,
+                });
+                
+                // Clear any previous errors
+                clearError();
+            }
+        };
+
+        // Subscribe to vector deletion events
+        const unsubscribe = eventBus.on(AppEvents.VECTOR_DELETED, handleVectorDeleted);
+
+        // Cleanup on unmount or when vectorSetName changes
+        return () => {
+            unsubscribe();
+        };
+    }, [vectorSetName, updateSearchState, clearError]);
 
     // Debounced search effect
     useEffect(() => {

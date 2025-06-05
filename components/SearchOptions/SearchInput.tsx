@@ -58,18 +58,21 @@ export default function SearchInput({
     // Store the current vector (for visualization)
     const [currentVector, setCurrentVector] = useState<number[] | null>(null)
     
+    // Track when we're intentionally clearing to prevent useEffect from overriding
+    const [isClearing, setIsClearing] = useState<boolean>(false)
+    
     // Add embedding loading state - separate from search loading
     const [isGeneratingEmbedding, setIsGeneratingEmbedding] = useState<boolean>(false)
     
     // Add debouncing for text embedding generation
     const textEmbeddingTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-    // Update current vector when lastTextEmbedding changes
+    // Update current vector when lastTextEmbedding changes (but not when we're clearing)
     useEffect(() => {        
-        if (lastTextEmbedding && lastTextEmbedding.length > 0) {
+        if (!isClearing && lastTextEmbedding && lastTextEmbedding.length > 0) {
             setCurrentVector(lastTextEmbedding)
         }
-    }, [lastTextEmbedding])
+    }, [lastTextEmbedding, isClearing])
     
     // Function to generate text embedding with debouncing
     const generateTextEmbedding = useCallback(async (text: string) => {
@@ -131,8 +134,22 @@ export default function SearchInput({
         
         setSearchQuery(newValue)
         
+        // If the input is empty, clear everything
+        if (!newValue.trim()) {
+            setIsClearing(true)
+            setCurrentVector(null)
+            if (onTextEmbeddingGenerated) {
+                onTextEmbeddingGenerated([])
+            }
+            // Reset clearing flag after a short delay
+            setTimeout(() => {
+                setIsClearing(false)
+            }, 100)
+            return
+        }
+        
         // Generate text embedding if we have a text embedding callback and this looks like text (not a vector)
-        if (onTextEmbeddingGenerated && newValue.trim() && supportsEmbeddings) {
+        if (onTextEmbeddingGenerated && supportsEmbeddings) {
             // Try to parse as vector first
             const vectorData = newValue.split(",").map((n) => parseFloat(n.trim()))
             const isVector = !vectorData.some(isNaN) && vectorData.length > 1
@@ -142,6 +159,7 @@ export default function SearchInput({
                 generateTextEmbedding(newValue)
             } else {
                 // This is a vector, clear any previous text embedding
+                
                 setCurrentVector(null)
             }
         }
@@ -175,10 +193,22 @@ export default function SearchInput({
 
     // Clear the selected image
     const clearSelectedImage = () => {
+        // Set clearing flag to prevent useEffect from interfering
+        setIsClearing(true)
+        
         handleImageSelect("")
         // Also clear any vector data in the textarea
         setSearchQuery("")
         setCurrentVector(null)
+        // Clear the text embedding as well to fully reset the search
+        if (onTextEmbeddingGenerated) {
+            onTextEmbeddingGenerated([])
+        }
+        
+        // Reset clearing flag after a short delay
+        setTimeout(() => {
+            setIsClearing(false)
+        }, 100)
     }
 
     // Compute the placeholder text based on current searchType and metadata
@@ -486,11 +516,14 @@ export default function SearchInput({
             </div>
 
             {/* Mini vector heatmap - moved outside the search input and full height */}
-            {searchType === "Vector" && (
+            {searchType === "Vector" && currentVector && currentVector.length > 0 && (
                 <div className="h-full flex items-stretch ml-2">
                     <MiniVectorHeatmap
                         vector={
-                            lastTextEmbedding && lastTextEmbedding.length > 0
+                            isClearing
+                                ? null
+                                : lastTextEmbedding &&
+                                  lastTextEmbedding.length > 0
                                 ? lastTextEmbedding
                                 : currentVector
                         }

@@ -36,7 +36,8 @@ export class ImageDataset implements Dataset {
             textColumn: "image",
             elementTemplate: this.config.elementTemplate,
             attributeColumns: this.config.attributeColumns,
-            fileType: "images"
+            fileType: "images",
+            baseUrl: this.config.baseUrl  // Add base URL for thumbnail generation
         }
     }
 
@@ -58,6 +59,7 @@ export class ImageDataset implements Dataset {
         // Get list of images to process
         const imageList = await this.getImageList(count)
         const embeddings: number[][] = []
+        const imageFilenames: string[] = []
 
         // Process each image
         for (let i = 0; i < imageList.length; i++) {
@@ -83,6 +85,7 @@ export class ImageDataset implements Dataset {
                 // Generate embedding
                 const embedding = await getImageEmbedding(imageData, { model: "mobilenet" })
                 embeddings.push(embedding)
+                imageFilenames.push(filename)  // Store the actual filename
 
                 // Update progress
                 onProgress?.({
@@ -105,9 +108,10 @@ export class ImageDataset implements Dataset {
             { type: "image/jpeg" }
         )
 
-        // Get base config and add embeddings
+        // Get base config and add embeddings and filenames
         const config = await this.getImportConfig()
         config.rawVectors = embeddings
+        config.imageFilenames = imageFilenames  // Add the actual filenames for thumbnail generation
 
         return { file, config }
     }

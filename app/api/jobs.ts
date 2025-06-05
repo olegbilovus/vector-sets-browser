@@ -53,6 +53,8 @@ export interface ImportJobConfig {
     fileType?: 'csv' | 'image' | 'images' | 'json'
     exportType?: 'redis' | 'json'
     outputFilename?: string
+    baseUrl?: string  // Base URL for image datasets, used for thumbnail generation
+    imageFilenames?: string[]  // List of image filenames for thumbnail generation
 }
 
 export const jobs = {

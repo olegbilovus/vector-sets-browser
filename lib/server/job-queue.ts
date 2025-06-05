@@ -156,9 +156,12 @@ export class JobQueueService {
 
                 // Create a record for each image with pre-computed vector
                 records = options.rawVectors.map((vector, index) => {
+                    // Use the actual image filename if provided, otherwise use the file name
+                    const imageFilename = options?.imageFilenames?.[index] || file.name;
+                    
                     // Create a basic record for the image
                     const record: CSVRow = {
-                        image: file.name,
+                        image: imageFilename,  // Use the actual image filename
                         index: String(index),
                         // Add any attribute columns with empty values
                         ...(options?.attributeColumns?.reduce((acc, col) => {
@@ -225,6 +228,7 @@ export class JobQueueService {
                     fileType,
                     exportType,
                     outputFilename: options?.outputFilename,
+                    baseUrl: options?.baseUrl,  // Include base URL for image datasets
                 }
                 await client.hSet(getJobMetadataKey(jobId), {
                     data: JSON.stringify(metadata),
