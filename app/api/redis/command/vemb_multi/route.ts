@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     try {
         // Validate request
         const validatedRequest = await validateRequest(request, validateVembMultiRequest)
-        console.log("Received VEMB_MULTI request", validatedRequest)
+
         // Get Redis URL
         const redisUrl = await getRedisUrl()
         if (!redisUrl) {

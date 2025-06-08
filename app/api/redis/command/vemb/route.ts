@@ -9,8 +9,7 @@ export async function POST(request: Request) {
             request,
             validateVembRequest
         )
-        console.log("Received VEMB request")
-
+       
         const redisUrl = await getRedisUrl()
         if (!redisUrl) {
             return NextResponse.json(

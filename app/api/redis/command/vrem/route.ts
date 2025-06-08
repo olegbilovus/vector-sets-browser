@@ -7,7 +7,6 @@ export async function POST(request: Request) {
     try {
         // Validate request
         const validatedRequest = await validateRequest(request, validateVremRequest)
-        console.log("Received VREM request", validatedRequest.elements ? "multi" : "single")
         
         // Get Redis URL
         const redisUrl = await getRedisUrl()

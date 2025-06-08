@@ -7,7 +7,6 @@ export async function POST(request: Request) {
     try {
         // Validate request
         const validatedRequest = await validateRequest(request, validateVaddRequest)
-        console.log("Received VADD request")
         
         // Get Redis URL
         const redisUrl = await getRedisUrl()

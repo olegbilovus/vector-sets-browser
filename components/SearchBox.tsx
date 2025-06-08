@@ -287,7 +287,7 @@ export default function SearchBox({
                     {/* Redis Command Box */}
                     {searchOptions.showRedisCommand && executedCommand && (
                         <div className="flex gap-2 items-center w-full">
-                            <div className="flex-1">
+                            <div className="flex-1 overflow-hidden">
                                 <RedisCommandBox
                                     vectorSetName={vectorSetName}
                                     dim={dim}

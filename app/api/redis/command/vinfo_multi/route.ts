@@ -7,8 +7,7 @@ export async function POST(request: Request) {
     try {
         // Validate request
         const validatedRequest = await validateRequest(request, validateVinfoMultiRequest)
-        console.log("Received VINFO_MULTI request")
-
+       
         // Get Redis URL
         const redisUrl = await getRedisUrl()
         if (!redisUrl) {

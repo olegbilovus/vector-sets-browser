@@ -104,7 +104,7 @@ const SearchTimeIndicator: React.FC<SearchTimeIndicatorProps> = ({
     }
     return (
         <div
-            className={`-ml-1 pr-1 flex space-x-1 items-center rounded-lg text-xs border ${borderColor}`}
+            className={`pr-1 flex space-x-1 items-center rounded-lg text-xs border ${borderColor}`}
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -116,13 +116,13 @@ const SearchTimeIndicator: React.FC<SearchTimeIndicatorProps> = ({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`text-gray-500 ${colorClass} rounded-full`}
+                className={`text-gray-500 ${colorClass} rounded-full shrink-0`}
             >
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
             </svg>
-            <div>
-                VSIM Latency: {timeValue} <span className="text-muted-foreground">{timeUnit}</span>
+            <div className="">
+                VSIM: {timeValue} <span className="text-muted-foreground">{timeUnit}</span>
             </div>
         </div>
     )

@@ -12,8 +12,7 @@ export async function POST(request: Request) {
             request,
             validateVrandMemberRequest
         )
-        console.log("Received VRANDMEMBER request")
-
+     
         const redisUrl = await getRedisUrl()
         if (!redisUrl) {
             return NextResponse.json(

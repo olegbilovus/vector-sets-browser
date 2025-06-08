@@ -75,18 +75,17 @@ const ResultsHeader = React.memo(function ResultsHeader({
     updateAttributeColumnVisibility
 }: ResultsHeaderProps) {
     return (
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mb-4">
-            <div className="flex items-center gap-2 w-full">
+        <div className="flex flex-col sm:flex-row gap-2 items-center mb-2">
+            <div className="flex items-center gap-2 w-full overflow-hidden">
                 {results.length > 0 ? (
                     <div className="flex items-center gap-2">
-                        <div>
-                            {(searchTime || isSearching) && (
-                                <SearchTimeIndicator
-                                    searchTime={searchTime ? parseFloat(searchTime) : undefined}
-                                    isSearching={isSearching}
-                                />
-                            )}
-                        </div>
+                                                
+                        {(searchTime || isSearching) && (
+                            <SearchTimeIndicator
+                                searchTime={searchTime ? parseFloat(searchTime) : undefined}
+                                isSearching={isSearching}
+                            />
+                        )}
                         <div className="grow"></div>
                         <div className="flex text-gray-500 text-sm items-center space-x-2 whitespace-nowrap">
                             {searchQuery ? (

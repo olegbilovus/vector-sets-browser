@@ -146,8 +146,8 @@ export default function RedisCommandBox({
         <div className="flex gap-2 items-center w-full bg-gray-100 rounded-md">
             {/* Animated border beam effect */}
 
-            <div 
-                className="text-muted-foreground p-1 font-mono overflow-x-scroll text-sm grow cursor-pointer"
+            <div
+                className="text-muted-foreground w-full p-1 font-mono text-xs cursor-pointer whitespace-nowrap text-ellipsis overflow-hidden"
                 onClick={isTyping ? skipAnimation : undefined}
                 title={isTyping ? "Click to skip animation" : undefined}
             >
@@ -171,7 +171,7 @@ export default function RedisCommandBox({
 
                     // Render structured command (after animation is complete)
                     return (
-                        <div className="text-muted-foreground font-mono text-xs">
+                        <div className="text-muted-foreground font-mono text-xs whitespace-nowrap overflow-hidden text-ellipsis">
                             {commandData.prefix}
                             {showFullVector ? (
                                 <span
@@ -203,7 +203,6 @@ export default function RedisCommandBox({
                     )
                 })()}
             </div>
-            <div className="grow"></div>
             <Button
                 variant="ghost"
                 size="icon"

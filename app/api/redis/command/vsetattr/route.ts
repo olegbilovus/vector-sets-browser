@@ -6,9 +6,7 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
     try {
         // Validate request
-        console.log("Received VSETATTR request", request)
         const validatedRequest = await validateRequest(request, validateVsetattrRequest)
-        console.log("Received VSETATTR request", validatedRequest)
         
         // Get Redis URL
         const redisUrl = await getRedisUrl()

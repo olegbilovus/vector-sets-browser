@@ -19,8 +19,7 @@ export async function POST(request: Request) {
             request,
             validateVlinksRequest
         )
-        console.log("Received VLINKS request")
-
+       
         const redisUrl = await getRedisUrl()
         if (!redisUrl) {
             return NextResponse.json(
