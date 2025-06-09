@@ -43,11 +43,14 @@ export default function VectorHeatmap({
     makeDefault,
   } = useVectorSettings(vectorSetName, metadata);
 
-  const { showComparison, canCompare, handleComparisonToggle } = useVectorComparison({
+  const { showComparison, canCompare: canCompareRaw, handleComparisonToggle } = useVectorComparison({
     open,
     searchVector,
     resultVector: vector,
   });
+
+  // Ensure canCompare is always a boolean
+  const canCompare = Boolean(canCompareRaw);
 
   const { downloadVisualization } = useVectorDownload({
     showComparison,
@@ -61,6 +64,9 @@ export default function VectorHeatmap({
         setForceRender((prev) => prev + 1);
       }, 100);
       return () => clearTimeout(timer);
+    } else {
+      // Reset forceRender when dialog closes to prevent stale state
+      setForceRender(0);
     }
   }, [
     open,
@@ -82,14 +88,18 @@ export default function VectorHeatmap({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <VectorHeatmapHeader
           canCompare={canCompare}
           showComparison={showComparison}
           onComparisonToggle={handleComparisonToggle}
           onDownload={downloadVisualization}
           onMakeDefault={handleMakeDefault}
-          onClose={() => onOpenChange(false)}
+          onClose={() => {
+            // Ensure clean state when closing
+            setForceRender(0);
+            onOpenChange(false);
+          }}
           vectorSetName={vectorSetName}
           isImageBased={isImageBased}
         />

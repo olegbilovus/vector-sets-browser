@@ -8,7 +8,7 @@ import { VectorTuple } from "@/lib/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import ThumbnailDisplay from "@/components/ThumbnailDisplay/ThumbnailDisplay"
 import VectorHeatmap from "@/components/VectorHeatmap"
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 
 interface CompactResultRowProps {
     row: VectorTuple
@@ -56,6 +56,7 @@ const CompactResultRow = React.memo(function CompactResultRow({
     isZeroVectorSearch,
 }: CompactResultRowProps) {
     const [showHeatmap, setShowHeatmap] = useState(false)
+    const isClosingRef = useRef(false)
 
     // Helper to format different attribute value types
     const formatAttributeValue = (value: any): string => {
@@ -69,15 +70,37 @@ const CompactResultRow = React.memo(function CompactResultRow({
     const isSelected = selectedElements.has(element)
 
     // Handle row click to open vector heatmap
-    const handleRowClick = () => {
+    const handleRowClick = (e: React.MouseEvent) => {
         // Don't trigger if clicking on buttons or in select mode
         if (selectMode) {
             handleSelectToggle(element)
             return
         }
 
+        // Prevent opening if dialog is currently closing
+        if (isClosingRef.current) {
+            return
+        }
+
+        // Prevent event bubbling that might interfere with dialog closing
+        e.stopPropagation()
+
         // Only open heatmap if we have embeddings enabled and a vector
         if (showEmbeddings && embeddingsCache?.[element]) {
+            setShowHeatmap(true)
+        }
+    }
+
+    // Handle dialog close with debouncing to prevent race conditions
+    const handleHeatmapClose = (open: boolean) => {
+        if (!open) {
+            isClosingRef.current = true
+            setShowHeatmap(false)
+            // Reset the closing flag after a short delay
+            setTimeout(() => {
+                isClosingRef.current = false
+            }, 200)
+        } else {
             setShowHeatmap(true)
         }
     }
@@ -314,7 +337,7 @@ const CompactResultRow = React.memo(function CompactResultRow({
         <VectorHeatmap
             vector={embeddingsCache?.[element] || null}
             open={showHeatmap}
-            onOpenChange={setShowHeatmap}
+            onOpenChange={handleHeatmapClose}
             vectorSetName={vectorSetName}
             metadata={metadata}
             searchVector={searchVector}

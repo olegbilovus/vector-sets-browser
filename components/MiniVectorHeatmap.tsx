@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import VectorVisualizationRenderer from "./VectorVisualizationRenderer"
 import VectorHeatmap from "./VectorHeatmap"
 import { BarChart2 } from "lucide-react"
@@ -32,6 +32,7 @@ export default function MiniVectorHeatmap({
 }: MiniVectorHeatmapProps) {
     const [showHeatmap, setShowHeatmap] = useState(false)
     const [isResolving, setIsResolving] = useState(false)
+    const isClosingRef = useRef(false)
     const { settings } = useVectorSettings(vectorSetName, metadata)
         
     // Check if we have a valid vector to display
@@ -95,16 +96,41 @@ export default function MiniVectorHeatmap({
         )
     }
     
+    // Handle dialog close with debouncing to prevent race conditions
+    const handleHeatmapClose = (open: boolean) => {
+        if (!open) {
+            isClosingRef.current = true
+            setShowHeatmap(false)
+            // Reset the closing flag after a short delay
+            setTimeout(() => {
+                isClosingRef.current = false
+            }, 200)
+        } else {
+            setShowHeatmap(true)
+        }
+    }
+
+    // Handle click with race condition prevention
+    const handleClick = (e: React.MouseEvent) => {
+        // Prevent opening if dialog is currently closing
+        if (isClosingRef.current) {
+            return
+        }
+
+        e.stopPropagation()
+        setShowHeatmap(true)
+    }
+
     // Don't show anything if no valid vector
     if (!hasValidVector) {
         return null
-    } 
-    
+    }
+
     return (
         <>
-            <div 
+            <div
                 className={`mini-vector-heatmap cursor-pointer flex ${sizeClass} items-center justify-center rounded hover:bg-gray-100 transition-colors relative overflow-hidden`}
-                onClick={() => setShowHeatmap(true)}
+                onClick={handleClick}
                 title="View vector visualization"
             >
                 <div 
@@ -127,10 +153,10 @@ export default function MiniVectorHeatmap({
                 </div>
             </div>
             
-            <VectorHeatmap 
+            <VectorHeatmap
                 vector={vector}
                 open={showHeatmap}
-                onOpenChange={setShowHeatmap}
+                onOpenChange={handleHeatmapClose}
                 vectorSetName={vectorSetName}
                 metadata={metadata}
                 searchVector={searchVector}

@@ -74,7 +74,11 @@ export default function VectorHeatmapHeader({
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={onClose}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onClose();
+                    }}
                 >
                     <X className="h-4 w-4" />
                 </Button>
