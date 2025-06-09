@@ -1,4 +1,4 @@
-import { vectorSets } from "@/app/api/vector-sets"
+import { vectorSets } from "@/services/vector-sets"
 import {
     DEFAULT_EMBEDDING,
     DEFAULT_EMBEDDING_CONFIG,
@@ -27,8 +27,8 @@ import {
     isImageEmbedding,
     isMultiModalEmbedding,
     isTextEmbedding,
-} from "@/lib/embeddings/types/embeddingModels"
-import { vadd, vcard, vdim, vrem, vsim } from "@/lib/redis-server/api"
+} from "@/services/embeddings/types/embeddingModels"
+import { vadd, vcard, vdim, vrem, vsim } from "@/services/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import {
     AlertTriangle,

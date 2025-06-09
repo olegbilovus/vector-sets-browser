@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import { RedisConnection, getRedisUrl } from '@/lib/redis-server/RedisConnection'
+import { RedisConnection, getRedisUrl } from '@/services/redis-server/RedisConnection'
 import { validateVsimRequest, buildVsimCommand } from './command'
-import { formatResponse } from '@/lib/redis-server/utils'
+import { formatResponse } from '@/services/redis-server/utils'
 import { fetchEmbeddingsBatch } from '@/app/api/redis/command/vemb_multi/command'
 
 type SimPair = [string, number];
@@ -134,7 +134,7 @@ export async function POST(request: Request) {
                 let attributes: (string | null)[] | null = null
                 if (validationResult.value.withAttribs || fallbackUsed) {
                     console.log("VSIM fallback: fetching attributes with VGETATTR_MULTI")
-                    const { vgetattr_multi } = await import('@/lib/redis-server/api')
+                    const { vgetattr_multi } = await import('@/services/redis-server/api')
                     const attrResponse = await vgetattr_multi({
                         keyName: validationResult.value.keyName,
                         elements,

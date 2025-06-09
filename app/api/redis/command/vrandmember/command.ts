@@ -1,5 +1,5 @@
-import { validateKeyName } from "@/lib/redis-server/utils"
-import { VrandMemberRequestBody } from "@/lib/redis-server/api"
+import { validateKeyName } from "@/services/redis-server/utils"
+import { VrandMemberRequestBody } from "@/services/redis-server/api"
 
 export function validateVrandMemberRequest(body: any): {
     isValid: boolean

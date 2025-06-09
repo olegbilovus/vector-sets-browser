@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { VectorSetMetadata } from '@/lib/types/vectors'
-import { isImageEmbedding, isMultiModalEmbedding } from '@/lib/embeddings/types/embeddingModels'
+import { isImageEmbedding, isMultiModalEmbedding } from '@/services/embeddings/types/embeddingModels'
 
 export type ColorScheme = 'thermal' | 'viridis' | 'classic'
 export type ScalingMode = 'relative' | 'absolute'

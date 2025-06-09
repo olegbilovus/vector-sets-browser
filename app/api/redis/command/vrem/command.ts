@@ -1,5 +1,5 @@
-import { validateKeyName, validateElement } from '@/lib/redis-server/utils'
-import { VremRequestBody } from '@/lib/redis-server/api'
+import { validateKeyName, validateElement } from '@/services/redis-server/utils'
+import { VremRequestBody } from '@/services/redis-server/api'
 
 export function validateVremRequest(body: any): { isValid: boolean; error?: string; value?: VremRequestBody } {
     if (!validateKeyName(body.keyName)) {

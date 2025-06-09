@@ -1,7 +1,7 @@
-import { ApiError } from "@/app/api/client"
-import { vectorSets } from "@/app/api/vector-sets"
-import { embeddings } from "@/lib/embeddings/client"
-import { getExpectedDimensions } from "@/lib/embeddings/types/embeddingModels"
+import { ApiError } from "@/services/client"
+import { vectorSets } from "@/services/vector-sets"
+import { embeddings } from "@/services/embeddings/client"
+import { getExpectedDimensions } from "@/services/embeddings/types/embeddingModels"
 import {
     VectorTuple,
     vadd,
@@ -12,12 +12,12 @@ import {
     vinfo,
     vrem,
     vsim
-} from "@/lib/redis-server/api"
+} from "@/services/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 
-import { validateVector } from "@/lib/embeddings/utils/validation"
+import { validateVector } from "@/services/embeddings/utils/validation"
 import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter"
-import { thumbnailCache } from "@/lib/thumbnails/thumbnailCache"
+import { thumbnailCache } from "@/services/thumbnails/thumbnailCache"
 import { useEffect, useRef, useState, useCallback } from "react"
 import { array } from "zod"
 import { debounce } from "lodash"

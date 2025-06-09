@@ -1,10 +1,10 @@
-import { VectorSetCreateRequestBody } from "@/app/api/vector-sets"
-import { EmbeddingService } from "@/lib/embeddings/service"
-import { getExpectedDimensions } from "@/lib/embeddings/types/embeddingModels"
+import { VectorSetCreateRequestBody } from "@/services/vector-sets"
+import { EmbeddingService } from "@/services/embeddings/service"
+import { getExpectedDimensions } from "@/services/embeddings/types/embeddingModels"
 import {
     RedisConnection,
     getRedisUrl,
-} from "@/lib/redis-server/RedisConnection"
+} from "@/services/redis-server/RedisConnection"
 import { NextRequest, NextResponse } from "next/server"
 
 // POST /api/vectorset/[setname] - Create a new vector set

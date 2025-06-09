@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Database, FileSpreadsheet, Plus, UploadCloud } from "lucide-react"
 import DropZone from "./components/DropZone"
 import { VectorSetMetadata } from "@/lib/types/vectors"
-import { isTextEmbedding, isImageEmbedding, isMultiModalEmbedding } from "@/lib/embeddings/types/embeddingModels"
+import { isTextEmbedding, isImageEmbedding, isMultiModalEmbedding } from "@/services/embeddings/types/embeddingModels"
 
 interface EmptyVectorSetProps {
     onAddVector: () => void

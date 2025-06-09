@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorTuple } from "@/services/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import {
     TextEmbeddingIcon,
@@ -7,7 +7,7 @@ import {
     MultiModalEmbeddingIcon,
     getEmbeddingIcon,
 } from "@/components/EmbeddingConfig/EmbeddingIcons"
-import { getEmbeddingDataFormat, isImageEmbedding, isMultiModalEmbedding } from "@/lib/embeddings/types/embeddingModels"
+import { getEmbeddingDataFormat, isImageEmbedding, isMultiModalEmbedding } from "@/services/embeddings/types/embeddingModels"
 import MiniVectorHeatmap from "@/components/MiniVectorHeatmap"
 import ThumbnailDisplay from "@/components/ThumbnailDisplay/ThumbnailDisplay"
 import React from "react"

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
-import { getOpenAIKey } from "@/app/api/openai"
+import { getOpenAIKey } from "@/services/openai"
 
 export interface FilterQueryRequestBody {
     query: string

@@ -15,7 +15,7 @@ import {
     OPENAI_MODELS,
     OLLAMA_MODELS,
     IMAGE_MODELS,
-} from "@/lib/embeddings/types/embeddingModels"
+} from "@/services/embeddings/types/embeddingModels"
 import { DEFAULT_EMBEDDING } from "@/app/vectorset/utils/constants"
 
 // Group models by provider for the dropdown

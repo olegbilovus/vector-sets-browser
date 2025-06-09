@@ -1,8 +1,8 @@
-import { clientEmbeddingService } from "@/lib/embeddings/client/embeddingService";
-import { fileToBase64 } from "@/lib/embeddings/client/imageProcessingService";
+import { clientEmbeddingService } from "@/services/embeddings/client/embeddingService";
+import { fileToBase64 } from "@/services/embeddings/client/imageProcessingService";
 import { VectorSetMetadata } from "@/lib/types/vectors";
-import { generateThumbnail, isSupportedImageType } from "@/lib/thumbnails/thumbnailUtils";
-import { storeThumbnail } from "@/lib/thumbnails/thumbnailStorage";
+import { generateThumbnail, isSupportedImageType } from "@/services/thumbnails/thumbnailUtils";
+import { storeThumbnail } from "@/services/thumbnails/thumbnailStorage";
 import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter";
 
 // Helper function to get element ID from text content

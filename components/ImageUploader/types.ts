@@ -1,4 +1,4 @@
-import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
+import { EmbeddingConfig } from "@/services/embeddings/types/embeddingModels"
 
 // Define a type for image file info
 export interface ImageFileInfo {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { EmbeddingService } from "@/lib/embeddings/service"
-import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
+import { EmbeddingService } from "@/services/embeddings/service"
+import { EmbeddingConfig } from "@/services/embeddings/types/embeddingModels"
 
 interface BatchEmbeddingRequestBody {
     texts: string[]

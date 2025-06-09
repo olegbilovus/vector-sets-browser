@@ -5,7 +5,7 @@ import {
     getAllProviders,
     getProviderInfo,
     getProvidersByDataFormat
-} from "@/lib/embeddings/types/embeddingModels"
+} from "@/services/embeddings/types/embeddingModels"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getProviderIcon } from "./EmbeddingIcons"
 

@@ -1,13 +1,13 @@
 import React from "react"
 import { Table, TableBody } from "@/components/ui/table"
-import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorTuple } from "@/services/redis-server/api"
 import { ColumnConfig } from "@/app/vectorset/hooks/useVectorResultsSettings"
 import { FilterField, SortColumn, SortDirection } from "../types"
 import ResultsTableHeader from "./ResultsTableHeader"
 import CompactResultRow from "./CompactResultRow"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import { useThumbnailPreloader } from "@/components/ThumbnailDisplay/ThumbnailProvider"
-import { isImageEmbedding, isMultiModalEmbedding } from "@/lib/embeddings/types/embeddingModels"
+import { isImageEmbedding, isMultiModalEmbedding } from "@/services/embeddings/types/embeddingModels"
 
 export interface CompactResultsTableProps {
     filteredAndSortedResults: VectorTuple[]

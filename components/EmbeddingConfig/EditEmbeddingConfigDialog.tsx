@@ -7,8 +7,8 @@ import {
     getModelData,
     getProviderInfo,
     getProvidersByDataFormat,
-} from "@/lib/embeddings/types/embeddingModels"
-import { defaultOllamaUrl } from "@/lib/embeddings/utils"
+} from "@/services/embeddings/types/embeddingModels"
+import { defaultOllamaUrl } from "@/services/embeddings/utils"
 import { userSettings } from "@/lib/storage/userSettings"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"

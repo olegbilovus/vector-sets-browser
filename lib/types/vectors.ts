@@ -1,4 +1,4 @@
-import { EmbeddingConfig, getModelData } from "@/lib/embeddings/types/embeddingModels";
+import { EmbeddingConfig, getModelData } from "@/services/embeddings/types/embeddingModels";
 import { SearchType } from "@/components/SearchOptions/SearchTypeSelector";
 
 export interface VectorSetAdvancedConfig {

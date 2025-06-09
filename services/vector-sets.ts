@@ -1,5 +1,5 @@
 import { VectorSetMetadata } from '@/lib/types/vectors';
-import { apiClient } from './client';
+import { apiClient } from '@/services/client';
 
 // Vector set management types
 export type VectorSetMetadataResponse = VectorSetMetadata;

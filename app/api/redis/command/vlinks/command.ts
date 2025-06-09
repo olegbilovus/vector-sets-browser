@@ -1,5 +1,5 @@
-import { validateKeyName } from "@/lib/redis-server/utils"
-import { VlinksRequestBody } from "@/lib/redis-server/api"
+import { validateKeyName } from "@/services/redis-server/utils"
+import { VlinksRequestBody } from "@/services/redis-server/api"
 
 export function validateVlinksRequest(body: any): {
     isValid: boolean

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { RedisConnection, getRedisUrl } from "@/lib/redis-server/RedisConnection"
-import { validateRequest } from '@/lib/redis-server/utils'
+import { RedisConnection, getRedisUrl } from "@/services/redis-server/RedisConnection"
+import { validateRequest } from '@/services/redis-server/utils'
 import { validateVembRequest, buildVembCommand } from "./command"
 
 export async function POST(request: Request) {

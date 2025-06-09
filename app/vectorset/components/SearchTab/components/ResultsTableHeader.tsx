@@ -3,7 +3,7 @@ import { TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ArrowDownUp, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react"
 import { ColumnConfig } from "@/app/vectorset/hooks/useVectorResultsSettings"
 import { FilterField, SortColumn, SortDirection } from "../types"
-import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorTuple } from "@/services/redis-server/api"
 
 interface SortIconProps {
     column: SortColumn

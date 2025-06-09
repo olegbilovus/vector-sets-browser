@@ -1,9 +1,9 @@
 import React from "react"
-import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorTuple } from "@/services/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import ExpandedResultRow from "./ExpandedResultRow"
 import { useThumbnailPreloader } from "@/components/ThumbnailDisplay/ThumbnailProvider"
-import { isImageEmbedding, isMultiModalEmbedding } from "@/lib/embeddings/types/embeddingModels"
+import { isImageEmbedding, isMultiModalEmbedding } from "@/services/embeddings/types/embeddingModels"
 
 interface ExpandedResultsListProps {
     filteredAndSortedResults: VectorTuple[]

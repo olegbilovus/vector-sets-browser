@@ -1,4 +1,4 @@
-import { RedisConnection, getRedisUrl } from "@/lib/redis-server/RedisConnection"
+import { RedisConnection, getRedisUrl } from "@/services/redis-server/RedisConnection"
 import { EmbeddingConfig } from "../types/embeddingModels"
 
 export const EMBEDDING_CACHE_KEY = "embeddingCache"

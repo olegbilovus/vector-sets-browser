@@ -3,7 +3,7 @@ import { type VectorSetMetadata } from "@/lib/types/vectors"
 import { Filter, X, ChevronRight } from "lucide-react"
 import { useCallback, useState, useRef, useEffect } from "react"
 
-import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorTuple } from "@/services/redis-server/api"
 import RedisCommandBox from "./RedisCommandBox"
 
 // Import custom hook

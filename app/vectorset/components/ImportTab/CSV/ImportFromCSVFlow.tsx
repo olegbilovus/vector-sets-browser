@@ -1,5 +1,5 @@
-import { ApiError } from "@/app/api/client"
-import { ImportJobConfig, jobs } from "@/app/api/jobs"
+import { ApiError } from "@/services/client"
+import { ImportJobConfig, jobs } from "@/services/jobs"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"

@@ -1,5 +1,5 @@
-import { ImportJobConfig } from "@/app/api/jobs"
-import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
+import { ImportJobConfig } from "@/services/jobs"
+import { EmbeddingConfig } from "@/services/embeddings/types/embeddingModels"
 
 import {
     CSVJobMetadata,
@@ -12,7 +12,7 @@ import {
 } from "@/lib/types/jobs"
 import { parse } from "csv-parse/sync"
 import { v4 as uuidv4 } from "uuid"
-import { RedisConnection } from "@/lib/redis-server/RedisConnection"
+import { RedisConnection } from "@/services/redis-server/RedisConnection"
 
 export class JobQueueService {
     public static async updateJobProgress(

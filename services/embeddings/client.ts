@@ -1,5 +1,5 @@
-import { apiClient, ApiResponse } from "@/app/api/client"
-import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
+import { apiClient, ApiResponse } from "@/services/client"
+import { EmbeddingConfig } from "@/services/embeddings/types/embeddingModels"
 import { userSettings } from "@/lib/storage/userSettings"
 import { clientEmbeddingService } from "./client/embeddingService"
 

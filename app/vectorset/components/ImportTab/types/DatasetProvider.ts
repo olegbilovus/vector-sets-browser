@@ -1,5 +1,5 @@
-import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
-import { ImportJobConfig } from "@/app/api/jobs"
+import { EmbeddingConfig } from "@/services/embeddings/types/embeddingModels"
+import { ImportJobConfig } from "@/services/jobs"
 import { ComponentType, FC } from "react"
 
 export type DatasetType = "text" | "image"

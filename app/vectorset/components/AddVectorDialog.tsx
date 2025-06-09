@@ -4,7 +4,7 @@ import { VectorSetMetadata } from "@/lib/types/vectors"
 import {
     isImageEmbedding,
     isTextEmbedding,
-} from "@/lib/embeddings/types/embeddingModels"
+} from "@/services/embeddings/types/embeddingModels"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"

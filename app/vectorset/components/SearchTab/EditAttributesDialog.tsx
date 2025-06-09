@@ -1,6 +1,6 @@
 "use client"
 
-import { vgetattr, vsetattr } from "@/lib/redis-server/api"
+import { vgetattr, vsetattr } from "@/services/redis-server/api"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {

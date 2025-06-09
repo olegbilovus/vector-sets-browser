@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { clientEmbeddingService } from "@/lib/embeddings/client/embeddingService"
+import { clientEmbeddingService } from "@/services/embeddings/client/embeddingService"
 import {
     getModelName,
     isTextEmbedding,
     isImageEmbedding,
     isMultiModalEmbedding
-} from "@/lib/embeddings/types/embeddingModels"
+} from "@/services/embeddings/types/embeddingModels"
 import { type VectorSetMetadata } from "@/lib/types/vectors"
 import { ImageIcon, Shuffle, X } from "lucide-react"
 import { useCallback, useMemo, useState, useEffect, useRef, forwardRef } from "react"

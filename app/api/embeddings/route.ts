@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { EmbeddingService } from "@/lib/embeddings/service"
-import { EmbeddingRequestBody } from "@/lib/embeddings/types/response"
+import { EmbeddingService } from "@/services/embeddings/service"
+import { EmbeddingRequestBody } from "@/services/embeddings/types/response"
 
 const embeddingService = new EmbeddingService()
 

@@ -11,7 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { VectorTuple, vlinks } from "@/lib/redis-server/api"
+import { VectorTuple, vlinks } from "@/services/redis-server/api"
 import { VectorSetMetadata, VectorSetSearchOptions } from "@/lib/types/vectors"
 import { useCallback, useEffect, useState } from "react"
 import VectorViz3D from "./VectorViz3D"

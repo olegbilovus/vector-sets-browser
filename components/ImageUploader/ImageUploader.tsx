@@ -4,8 +4,8 @@ import ImageDropZone from "./ImageDropZone"
 import ImagePreview from "./ImagePreview"
 import MultipleImagesGrid from "./MultipleImagesGrid"
 import EmptyStateDisplay from "./EmptyStateDisplay"
-import { clientEmbeddingService } from "@/lib/embeddings/client/embeddingService"
-import { fileToBase64 } from "@/lib/embeddings/client/imageProcessingService"
+import { clientEmbeddingService } from "@/services/embeddings/client/embeddingService"
+import { fileToBase64 } from "@/services/embeddings/client/imageProcessingService"
 
 export default function ImageUploader({
     onImageSelect,

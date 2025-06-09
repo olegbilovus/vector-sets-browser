@@ -1,4 +1,4 @@
-import { ImageConfig } from "@/lib/embeddings/types/embeddingModels"
+import { ImageConfig } from "@/services/embeddings/types/embeddingModels"
 
 // Module references for lazy loading
 let tf: any = null

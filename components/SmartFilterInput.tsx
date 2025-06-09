@@ -1,4 +1,4 @@
-import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorTuple } from "@/services/redis-server/api"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertCircle, Sparkles, Terminal } from "lucide-react"
 import { useEffect, useState } from "react"

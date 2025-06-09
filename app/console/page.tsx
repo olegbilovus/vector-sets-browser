@@ -8,7 +8,7 @@ import { useRedisConnection } from "../../hooks/useRedisConnection"
 import {
     cleanupOldConnections,
     storeConnection,
-} from "@/lib/redis-server/connectionManager"
+} from "@/services/redis-server/connectionManager"
 import RedisConnectionList from "./RedisConnectionList"
 
 export default function ConsolePage() {

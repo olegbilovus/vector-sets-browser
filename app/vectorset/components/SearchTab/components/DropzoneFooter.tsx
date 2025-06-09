@@ -1,6 +1,6 @@
 import { UploadCloud, Loader2 } from "lucide-react"
 import { VectorSetMetadata } from "@/lib/types/vectors"
-import { isTextEmbedding, isImageEmbedding, isMultiModalEmbedding } from "@/lib/embeddings/types/embeddingModels"
+import { isTextEmbedding, isImageEmbedding, isMultiModalEmbedding } from "@/services/embeddings/types/embeddingModels"
 
 interface DropzoneFooterProps {
   isDragging?: boolean

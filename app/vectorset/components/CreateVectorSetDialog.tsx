@@ -1,11 +1,11 @@
-import { ApiError } from "@/app/api/client"
+import { ApiError } from "@/services/client"
 import {
     EmbeddingConfig,
     getEmbeddingDataFormat,
     getExpectedDimensions,
     getModelName,
     getProviderInfo
-} from "@/lib/embeddings/types/embeddingModels"
+} from "@/services/embeddings/types/embeddingModels"
 import {
     createVectorSetMetadata,
     VectorSetMetadata,
@@ -16,8 +16,8 @@ import {
     getEmbeddingIcon
 } from "@/components/EmbeddingConfig/EmbeddingIcons"
 import RedisCommandBox from "@/components/RedisCommandBox"
-import { vadd } from "@/lib/redis-server/api"
-import { getDefaultTextEmbeddingConfig } from "@/lib/embeddings/utils"
+import { vadd } from "@/services/redis-server/api"
+import { getDefaultTextEmbeddingConfig } from "@/services/embeddings/utils"
 import { userSettings } from "@/lib/storage/userSettings"
 import AdvancedConfigEdit from "@/app/vectorset/components/AdvancedConfigEdit"
 import { DEFAULT_EMBEDDING } from "@/app/vectorset/utils/constants"

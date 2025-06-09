@@ -1,5 +1,5 @@
-import { validateKeyName } from '@/lib/redis-server/utils'
-import { VcardRequestBody } from '@/lib/redis-server/api'
+import { validateKeyName } from '@/services/redis-server/utils'
+import { VcardRequestBody } from '@/services/redis-server/api'
 
 export function validateVcardRequest(body: any): { isValid: boolean; error?: string; value?: VcardRequestBody } {
     if (!validateKeyName(body.keyName)) {

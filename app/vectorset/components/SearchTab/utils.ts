@@ -1,6 +1,6 @@
 import { parseFieldFilters } from "@/lib/data/filter"
 import { FilterField, ParsedAttributes, SortColumn, SortDirection } from "./types"
-import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorTuple } from "@/services/redis-server/api"
 
 /**
  * Helper function to format attribute values for display

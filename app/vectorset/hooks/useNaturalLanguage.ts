@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { generateFilterQuery } from "@/app/api/openai"
+import { generateFilterQuery } from "@/services/openai"
 
 interface UseNaturalLanguageParams {
     availableAttributes: string[]

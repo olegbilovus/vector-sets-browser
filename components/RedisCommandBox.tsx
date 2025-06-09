@@ -143,8 +143,7 @@ export default function RedisCommandBox({
     if (!showRedisCommand) return null;
 
     return (
-        <div className="flex gap-2 items-center w-full bg-gray-100 rounded-md">
-            {/* Animated border beam effect */}
+        <div className="flex gap-2 p-0.5 items-center w-full bg-gray-100 rounded-md">
 
             <div
                 className="text-muted-foreground w-full p-1 font-mono text-xs cursor-pointer whitespace-nowrap text-ellipsis overflow-hidden"

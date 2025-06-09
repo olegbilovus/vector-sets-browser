@@ -3,7 +3,7 @@
 import { useVectorSearch } from "@/app/vectorset/hooks/useVectorSearch"
 import SearchBox from "@/components/SearchBox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { VectorTuple, vlinks, vsim } from "@/lib/redis-server/api"
+import { VectorTuple, vlinks, vsim } from "@/services/redis-server/api"
 import { VectorSetMetadata, VectorSetSearchOptions } from "@/lib/types/vectors"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"

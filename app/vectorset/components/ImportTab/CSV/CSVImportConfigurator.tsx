@@ -1,5 +1,5 @@
-import { ImportJobConfig, jobs } from "@/app/api/jobs"
-import { generateEmbeddingTemplate } from "@/app/api/openai"
+import { ImportJobConfig, jobs } from "@/services/jobs"
+import { generateEmbeddingTemplate } from "@/services/openai"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter"
 import { userSettings } from "@/lib/storage/userSettings"

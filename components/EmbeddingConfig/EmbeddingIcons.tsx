@@ -1,4 +1,4 @@
-import { EmbeddingDataFormat, EmbeddingProvider } from "@/lib/embeddings/types/embeddingModels"
+import { EmbeddingDataFormat, EmbeddingProvider } from "@/services/embeddings/types/embeddingModels"
 import { Binary, ImageIcon, LetterText, Mic, BrainCircuit } from "lucide-react"
 import { FC } from "react"
 

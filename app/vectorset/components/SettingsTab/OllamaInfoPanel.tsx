@@ -2,8 +2,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { defaultOllamaUrl, isOllamaAvailable } from "@/lib/embeddings/utils"
-import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
+import { defaultOllamaUrl, isOllamaAvailable } from "@/services/embeddings/utils"
+import { EmbeddingConfig } from "@/services/embeddings/types/embeddingModels"
 import {
     CheckCircle,
     XCircle,

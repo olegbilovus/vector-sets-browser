@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { VectorTuple, vgetattr_multi } from "@/lib/redis-server/api"
+import { VectorTuple, vgetattr_multi } from "@/services/redis-server/api"
 
 export default function useFilterAttributes(
     results: VectorTuple[],

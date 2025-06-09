@@ -1,4 +1,4 @@
-import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
+import { EmbeddingConfig } from "@/services/embeddings/types/embeddingModels"
 
 export type JobStatus =
     | "pending"

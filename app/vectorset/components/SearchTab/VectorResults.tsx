@@ -2,7 +2,7 @@ import {
     ColumnConfig,
     useVectorResultsSettings,
 } from "@/app/vectorset/hooks/useVectorResultsSettings"
-import { vemb_multi, vgetattr_multi } from "@/lib/redis-server/api"
+import { vemb_multi, vgetattr_multi } from "@/services/redis-server/api"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import AttributeColumnsDialog from "./components/AttributeColumnsDialog"
 import DropzoneResultsTable from "./components/DropzoneResultsTable"

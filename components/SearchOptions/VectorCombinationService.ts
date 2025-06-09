@@ -6,7 +6,7 @@ import {
     parseVectorString,
     VectorCombinationMethod,
 } from "@/lib/vector/vectorUtils"
-import { clientEmbeddingService } from "@/lib/embeddings/client/embeddingService"
+import { clientEmbeddingService } from "@/services/embeddings/client/embeddingService"
 import { VectorInput } from "./MultiVectorInputUtils"
 
 /**

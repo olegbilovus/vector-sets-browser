@@ -1,4 +1,4 @@
-import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorTuple } from "@/services/redis-server/api"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import SmartFilterInput from "../SmartFilterInput"

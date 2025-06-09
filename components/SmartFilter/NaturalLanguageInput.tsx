@@ -38,9 +38,8 @@ export default function NaturalLanguageInput({
                     value={nlQuery}
                     onChange={(e) => setNlQuery(e.target.value)}
                     placeholder="Describe what you want to filter in plain English..."
-                    className={`${error ? "border-red-500" : ""} ${
-                        generatedFilter ? "pr-20" : "pr-12"
-                    }`}
+                    className={`${error ? "border-red-500" : ""} ${generatedFilter ? "pr-20" : "pr-12"
+                        }`}
                     disabled={isProcessingNL}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -105,28 +104,28 @@ export default function NaturalLanguageInput({
             {generatedFilter && !isProcessingNL && (
                 <div className="flex items-center w-full mt-2 ">
                     <div className="text-xs font-medium">Generated filter:</div>
-                    <div className="pl-2 pr-1 bg-muted rounded-md w-full">
+                    <div className="px-1 py-0 bg-muted rounded-md w-full">
                         <div className="flex items-center gap-0 w-full">
                             <div className="text-xs font-mono text-muted-foreground">
                                 {generatedFilter}
                             </div>
                             <div className="grow"></div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="hover:text-foreground text-muted-foreground"
-                                    onClick={switchToDirectMode}
-                                >
-                                    <Edit className="h-3 w-3" />
-                                </Button>
-                                <Button
+                            <Button
                                 variant="ghost"
-                                    size="icon"
-                                    className="text-red-500"
-                                    onClick={clearFilter}
-                                >
-                                    <Trash className="h-3 w-3" />
-                                </Button>
+                                size="icon"
+                                className="hover:text-foreground text-muted-foreground"
+                                onClick={switchToDirectMode}
+                            >
+                                <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-red-500"
+                                onClick={clearFilter}
+                            >
+                                <Trash className="h-3 w-3" />
+                            </Button>
                         </div>
                     </div>
                 </div>

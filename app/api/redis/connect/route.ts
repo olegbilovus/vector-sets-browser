@@ -1,4 +1,4 @@
-import { RedisConnection } from '@/lib/redis-server/RedisConnection';
+import { RedisConnection } from '@/services/redis-server/RedisConnection';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 

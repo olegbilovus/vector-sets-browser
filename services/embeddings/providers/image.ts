@@ -1,6 +1,6 @@
 import { EmbeddingConfig, getModelData } from "../types/embeddingModels"
 import { EmbeddingProvider } from "./base"
-import { getImageEmbedding } from "@/lib/embeddings/image/imageEmbedding"
+import { getImageEmbedding } from "@/services/embeddings/image/imageEmbedding"
 
 export class ImageProvider implements EmbeddingProvider {
     async getEmbedding(input: string, config: EmbeddingConfig): Promise<number[]> {

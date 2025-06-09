@@ -1,5 +1,5 @@
-import { validateKeyName, vectorToFp32Buffer } from '@/lib/redis-server/utils'
-import { VsimRequestBody } from '@/lib/redis-server/api'
+import { validateKeyName, vectorToFp32Buffer } from '@/services/redis-server/utils'
+import { VsimRequestBody } from '@/services/redis-server/api'
 
 export function validateVsimRequest(body: any): { isValid: boolean; error?: string; value?: VsimRequestBody } {
     if (!validateKeyName(body.keyName)) {

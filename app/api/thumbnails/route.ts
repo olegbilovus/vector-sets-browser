@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { RedisConnection, getRedisUrl } from '@/lib/redis-server/RedisConnection'
-import { validateRequest, handleError } from '@/lib/redis-server/utils'
+import { RedisConnection, getRedisUrl } from '@/services/redis-server/RedisConnection'
+import { validateRequest, handleError } from '@/services/redis-server/utils'
 
 // Types
 interface ThumbnailSetRequest {

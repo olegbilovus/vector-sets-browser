@@ -2,7 +2,7 @@ import React from 'react'
 import { ImageOff } from 'lucide-react'
 import { useThumbnail } from './ThumbnailProvider'
 import { VectorSetMetadata } from '@/lib/types/vectors'
-import { isImageEmbedding, isMultiModalEmbedding } from '@/lib/embeddings/types/embeddingModels'
+import { isImageEmbedding, isMultiModalEmbedding } from '@/services/embeddings/types/embeddingModels'
 
 interface ThumbnailDisplayProps {
     vectorSetName: string

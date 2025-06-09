@@ -1,5 +1,5 @@
-import { ApiError } from "@/app/api/client"
-import { vectorSets } from "@/app/api/vector-sets"
+import { ApiError } from "@/services/client"
+import { vectorSets } from "@/services/vector-sets"
 import { useAnimationSettings } from "@/app/config/AnimationSettings"
 import CreateVectorSetModal from "@/app/vectorset/components/CreateVectorSetDialog"
 import DeleteVectorSetDialog from "@/app/vectorset/components/DeleteVectorSetDialog"
@@ -7,13 +7,13 @@ import EditEmbeddingConfigModal from "@/components/EmbeddingConfig/EditEmbedding
 import { Button } from "@/components/ui/button"
 import { useSidebarToggle } from "@/hooks/useSidebarToggle"
 import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter"
-import { vinfo_multi } from "@/lib/redis-server/api"
+import { vinfo_multi } from "@/services/redis-server/api"
 import { sanitizeRedisUrl } from "@/lib/server/redis/url"
 import {
     estimateVectorSetMemoryUsage,
     formatBytes,
 } from "@/lib/storage/vectorSetMemory"
-import { thumbnailCache } from "@/lib/thumbnails/thumbnailCache"
+import { thumbnailCache } from "@/services/thumbnails/thumbnailCache"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import { debounce } from "lodash"
 import { PanelLeft, PanelRight } from "lucide-react"

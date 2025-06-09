@@ -1,4 +1,4 @@
-import { VectorTuple } from "@/lib/redis-server/api"
+import { VectorTuple } from "@/services/redis-server/api"
 import { ColumnConfig } from "@/app/vectorset/hooks/useVectorResultsSettings"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 

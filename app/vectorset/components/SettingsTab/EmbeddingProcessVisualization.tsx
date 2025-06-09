@@ -3,7 +3,7 @@ import {
     EmbeddingDataFormat,
     getModelName,
     getProviderInfo,
-} from "@/lib/embeddings/types/embeddingModels"
+} from "@/services/embeddings/types/embeddingModels"
 import { BrainCircuit, Image, LetterText } from "lucide-react"
 import { getProviderIcon } from "@/components/EmbeddingConfig/EmbeddingIcons"
 

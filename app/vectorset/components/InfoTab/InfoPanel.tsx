@@ -1,5 +1,5 @@
 import RedisCommandBox from "@/components/RedisCommandBox"
-import { vinfo } from "@/lib/redis-server/api"
+import { vinfo } from "@/services/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"

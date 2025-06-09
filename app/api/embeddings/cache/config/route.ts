@@ -1,6 +1,6 @@
-import { RedisConnection, getRedisUrl } from "@/lib/redis-server/RedisConnection"
+import { RedisConnection, getRedisUrl } from "@/services/redis-server/RedisConnection"
 import { NextResponse } from "next/server"
-import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
+import { EmbeddingConfig } from "@/services/embeddings/types/embeddingModels"
 import { DEFAULT_EMBEDDING_CONFIG } from "@/app/vectorset/utils/constants"
 
 // Redis key for storing cache configuration

@@ -1,4 +1,4 @@
-import { EmbeddingConfig, CLIP_MODELS } from "@/lib/embeddings/types/embeddingModels"
+import { EmbeddingConfig, CLIP_MODELS } from "@/services/embeddings/types/embeddingModels"
 import { preprocessImage } from "./imageProcessingService"
 
 // Cache for models to avoid reloading
@@ -91,7 +91,7 @@ export class ClientEmbeddingService {
     ): Promise<number[]> {
         try {
             console.log("Generating embedding using CLIP...")
-            const { CLIPProvider } = await import("@/lib/embeddings/providers/clip")
+            const { CLIPProvider } = await import("@/services/embeddings/providers/clip")
             const clipProvider = new CLIPProvider()
 
             const modelPath = config.clip?.model

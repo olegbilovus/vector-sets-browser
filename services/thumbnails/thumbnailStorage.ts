@@ -2,7 +2,7 @@
  * Redis storage operations for image thumbnails
  */
 
-import { thumbnailSet, thumbnailGet, thumbnailDelete } from '@/lib/redis-server/api'
+import { thumbnailSet, thumbnailGet, thumbnailDelete } from '@/services/redis-server/api'
 import { extractBase64FromDataUrl } from './thumbnailUtils'
 
 export interface ThumbnailStorageResult {

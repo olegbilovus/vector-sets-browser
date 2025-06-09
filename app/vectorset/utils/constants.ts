@@ -1,4 +1,4 @@
-import { EmbeddingProvider } from "@/lib/embeddings/types/embeddingModels";
+import { EmbeddingProvider } from "@/services/embeddings/types/embeddingModels";
 
 /**
  * Vector Set Constants

@@ -1,7 +1,7 @@
 import {
     EmbeddingTemplateRequestBody,
     EmbeddingTemplateResponseObject,
-} from "@/app/api/openai"
+} from "@/services/openai"
 import { NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
 import { zodResponseFormat } from "openai/helpers/zod"

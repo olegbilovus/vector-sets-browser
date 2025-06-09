@@ -1,5 +1,5 @@
 import { VectorSetAdvancedConfig } from "@/lib/types/vectors"
-import { vadd_multi } from "../redis-server/api"
+import { vadd_multi } from "../../services/redis-server/api"
 
 interface VectorElement {
     element: string

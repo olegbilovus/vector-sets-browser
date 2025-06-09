@@ -2,8 +2,8 @@ import { NextResponse } from "next/server"
 import {
     RedisConnection,
     getRedisUrl,
-} from "@/lib/redis-server/RedisConnection"
-import { validateRequest } from "@/lib/redis-server/utils"
+} from "@/services/redis-server/RedisConnection"
+import { validateRequest } from "@/services/redis-server/utils"
 import { validateVrandMemberRequest, buildVrandMemberCommand } from "./command"
 
 export async function POST(request: Request) {

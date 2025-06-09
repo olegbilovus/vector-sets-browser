@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import {
     RedisConnection,
     getRedisUrl,
-} from "@/lib/redis-server/RedisConnection"
+} from "@/services/redis-server/RedisConnection"
 
 // GET /api/vectorset - List all vector sets (scanVectorSets)
 

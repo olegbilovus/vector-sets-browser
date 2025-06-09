@@ -1,5 +1,5 @@
-import { apiClient } from "@/app/api/client"
-import { ApiResponse } from "@/app/api/client"
+import { apiClient } from "@/services/client"
+import { ApiResponse } from "@/services/client"
 
 // Common vector types
 export type VectorTuple = [string, number, number[] | null, string | null] // [element, score, vector?, attributes?]

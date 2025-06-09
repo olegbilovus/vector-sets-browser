@@ -1,4 +1,4 @@
-import { Job } from "@/app/api/jobs"
+import { Job } from "@/services/jobs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"

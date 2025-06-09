@@ -3,7 +3,7 @@
  */
 
 import React, { createContext, useContext, useCallback, useEffect, useState } from 'react'
-import { thumbnailService } from '@/lib/thumbnails/thumbnailService'
+import { thumbnailService } from '@/services/thumbnails/thumbnailService'
 
 interface ThumbnailContextValue {
     getThumbnail: (vectorSetName: string, elementId: string) => Promise<string | null>

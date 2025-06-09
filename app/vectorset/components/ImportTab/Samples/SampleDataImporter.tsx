@@ -1,9 +1,9 @@
 "use client"
 
-import { jobs } from "@/app/api/jobs"
+import { jobs } from "@/services/jobs"
 import EditEmbeddingConfigModal from "@/components/EmbeddingConfig/EditEmbeddingConfigDialog"
-import { EmbeddingConfig } from "@/lib/embeddings/types/embeddingModels"
-import { vcard, vrem, vsim } from "@/lib/redis-server/api"
+import { EmbeddingConfig } from "@/services/embeddings/types/embeddingModels"
+import { vcard, vrem, vsim } from "@/services/redis-server/api"
 import { VectorSetMetadata, createVectorSetMetadata } from "@/lib/types/vectors"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"

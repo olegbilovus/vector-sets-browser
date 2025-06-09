@@ -10,7 +10,7 @@ import {
     isTextEmbedding,
     isImageEmbedding,
     isMultiModalEmbedding,
-} from "@/lib/embeddings/types/embeddingModels"
+} from "@/services/embeddings/types/embeddingModels"
 import { toast } from "sonner"
 
 interface DropzoneResultsTableProps extends CompactResultsTableProps {

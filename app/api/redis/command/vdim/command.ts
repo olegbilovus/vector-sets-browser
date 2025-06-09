@@ -1,5 +1,5 @@
-import { validateKeyName } from '@/lib/redis-server/utils'
-import { VdimRequestBody } from '@/lib/redis-server/api'
+import { validateKeyName } from '@/services/redis-server/utils'
+import { VdimRequestBody } from '@/services/redis-server/api'
 
 export function validateVdimRequest(body: any): { isValid: boolean; error?: string; value?: VdimRequestBody } {
     if (!validateKeyName(body.keyName)) {

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { type ImportLogEntry } from "@/app/api/jobs"
+import { type ImportLogEntry } from "@/services/jobs"
 
 // Helper function to format dates nicely
 const formatDate = (dateString: string): string => {

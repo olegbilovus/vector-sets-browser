@@ -5,12 +5,12 @@ import {
     CSVRow,
 } from "@/lib/types/jobs"
 import { JobQueueService } from "./job-queue"
-import { RedisConnection } from "@/lib/redis-server/RedisConnection"
+import { RedisConnection } from "@/services/redis-server/RedisConnection"
 import { registerCompletedJob } from "@/lib/jobs/completedJobs"
 import { buildVectorElement, saveVectorData } from "@/lib/imports/importUtils"
 import { convertToNumericIfPossible } from "@/lib/data/numbers"
-import { generateThumbnail, isSupportedImageType } from "@/lib/thumbnails/thumbnailUtils"
-import { storeThumbnail } from "@/lib/thumbnails/thumbnailStorage"
+import { generateThumbnail, isSupportedImageType } from "@/services/thumbnails/thumbnailUtils"
+import { storeThumbnail } from "@/services/thumbnails/thumbnailStorage"
 
 export class JobProcessor {
     private url: string

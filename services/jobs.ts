@@ -59,20 +59,20 @@ export interface ImportJobConfig {
 
 export const jobs = {
     async getJob(jobId: string): Promise<Job | null> {
-        const response = await apiClient.get<Job>(`/api/jobs?jobId=${encodeURIComponent(jobId)}`)
+        const response = await apiClient.get<Job>(`/services/jobs?jobId=${encodeURIComponent(jobId)}`)
         return response.result || null
     },
 
     async getJobsByVectorSet(vectorSetName: string): Promise<Job[]> {
         const response = await apiClient.get<Job[]>(
-            `/api/jobs?vectorSetName=${encodeURIComponent(vectorSetName)}`
+            `/services/jobs?vectorSetName=${encodeURIComponent(vectorSetName)}`
         )
         return response.result || []
     },
 
     async pauseJob(jobId: string): Promise<void> {
         await apiClient.request(
-            `/api/jobs?jobId=${encodeURIComponent(jobId)}&action=pause`,
+            `/services/jobs?jobId=${encodeURIComponent(jobId)}&action=pause`,
             {
                 method: "PATCH",
             }
@@ -81,7 +81,7 @@ export const jobs = {
 
     async resumeJob(jobId: string): Promise<void> {
         await apiClient.request(
-            `/api/jobs?jobId=${encodeURIComponent(jobId)}&action=resume`,
+            `/services/jobs?jobId=${encodeURIComponent(jobId)}&action=resume`,
             {
                 method: "PATCH",
             }
@@ -89,7 +89,7 @@ export const jobs = {
     },
 
     async cancelJob(jobId: string): Promise<void> {
-        await apiClient.delete(`/api/jobs?jobId=${encodeURIComponent(jobId)}`)
+        await apiClient.delete(`/services/jobs?jobId=${encodeURIComponent(jobId)}`)
     },
 
     async getImportLogs(
@@ -123,7 +123,7 @@ export const jobs = {
         const response = await apiClient.post<
             { jobId: string },
             CreateImportJobRequestBody
-        >(`/api/jobs`, requestBody)
+        >(`/services/jobs`, requestBody)
         return response?.result || { jobId: "" }
     },
 }
