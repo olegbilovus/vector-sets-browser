@@ -90,7 +90,6 @@ const ResultsTableHeader = React.memo(function ResultsTableHeader({
                     .filter((col) => {
                         // Hide score column when in zero vector search state
                         if (col.name === "score" && isZeroVectorSearch) {
-                            console.log("🚫 Hiding score column in header due to zero vector search")
                             return false
                         }
                         return col.visible

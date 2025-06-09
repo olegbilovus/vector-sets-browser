@@ -150,16 +150,16 @@ export default function SearchInput({
         
         // Generate text embedding if we have a text embedding callback and this looks like text (not a vector)
         if (onTextEmbeddingGenerated && supportsEmbeddings) {
-            // Try to parse as vector first
-            const vectorData = newValue.split(",").map((n) => parseFloat(n.trim()))
-            const isVector = !vectorData.some(isNaN) && vectorData.length > 1
-            
-            if (!isVector) {
-                // This is text, not a vector - generate embedding
+            // Quick check if this looks like a vector (contains commas and numbers)
+            const hasCommas = newValue.includes(',')
+            const hasOnlyNumbersAndCommas = /^[\d\s,.-]+$/.test(newValue.trim())
+            const isLikelyVector = hasCommas && hasOnlyNumbersAndCommas
+
+            if (!isLikelyVector) {
+                // This is likely text, not a vector - generate embedding
                 generateTextEmbedding(newValue)
             } else {
-                // This is a vector, clear any previous text embedding
-                
+                // This looks like a vector, clear any previous text embedding
                 setCurrentVector(null)
             }
         }

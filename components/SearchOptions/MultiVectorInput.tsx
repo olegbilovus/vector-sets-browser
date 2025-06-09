@@ -121,7 +121,6 @@ export default function MultiVectorInput({
                 )
             )
         } else if (embedding && embedding.length === 0) {
-            console.log("Clearing embedding for input", id)
             // Clear the embedding when empty array is received (input was cleared)
             setVectorInputs(prevInputs =>
                 prevInputs.map((input) =>
@@ -165,18 +164,14 @@ export default function MultiVectorInput({
                     // Only call the callback if the combined vector has changed
                     if (combinedString !== lastCombinedVectorRef.current) {
                         lastCombinedVectorRef.current = combinedString
-                        console.log("Sending combined vector to parent")
                         setCombinedVector(combined) // Store locally for visualization
                         onVectorCombinationGenerated(combined)
-                    } else {
-                        console.log("Combined vector unchanged, not sending")
                     }
                 } else {
                     // No valid combined vector - notify parent to clear search (triggers performZeroVectorSearch)
                     const emptyString = JSON.stringify([])
                     if (emptyString !== lastCombinedVectorRef.current) {
                         lastCombinedVectorRef.current = emptyString
-                        console.log("Clearing combined vector, sending empty array to parent")
                         setCombinedVector(null) // Clear locally for visualization
                         onVectorCombinationGenerated([]) // Notify parent to clear search
                     }
@@ -216,7 +211,6 @@ export default function MultiVectorInput({
                 const emptyString = JSON.stringify([])
                 if (emptyString !== lastCombinedVectorRef.current) {
                     lastCombinedVectorRef.current = emptyString
-                    console.log("Clearing combined vector, sending empty array to parent (immediate)")
                     setCombinedVector(null) // Clear locally for visualization
                     onVectorCombinationGenerated([]) // Notify parent to clear search
                 }
@@ -238,32 +232,20 @@ export default function MultiVectorInput({
             )
             
             if (combined) {
-                // Log that we're sending a valid combined vector
-                console.log(
-                    "Combined vector generated successfully:",
-                    combined.slice(0, 5),
-                    "..."
-                )
-                
                 // Store the combined vector locally and update parent
                 setCombinedVector(combined)
                 onVectorCombinationGenerated(combined)
-                
+
                 // Then explicitly trigger the search after a small delay to ensure the vector is set
                 if (triggerSearch) {
-                    console.log("Triggering search with combined vector...")
                     setTimeout(() => {
                         triggerSearch()
-                        console.log("Search triggered")
                     }, 200)
                 }
             } else {
                 setCombinedVector(null)
                 // Notify parent to clear search when no valid vectors
                 onVectorCombinationGenerated([])
-                console.log(
-                    "No valid vectors to search with. Please enter valid vector data in at least one input."
-                )
             }
         } catch (error) {
             console.error("Error when triggering search:", error)

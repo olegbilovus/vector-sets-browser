@@ -7,8 +7,7 @@ import { getEmbeddingDataFormat, isImageEmbedding, isMultiModalEmbedding } from 
 import { VectorTuple } from "@/lib/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import ThumbnailDisplay from "@/components/ThumbnailDisplay/ThumbnailDisplay"
-import VectorHeatmap from "@/components/VectorHeatmap"
-import React, { useState, useRef } from "react"
+import React, { useRef } from "react"
 
 interface CompactResultRowProps {
     row: VectorTuple
@@ -55,7 +54,6 @@ const CompactResultRow = React.memo(function CompactResultRow({
     lastSearchDisplayName,
     isZeroVectorSearch,
 }: CompactResultRowProps) {
-    const [showHeatmap, setShowHeatmap] = useState(false)
     const isClosingRef = useRef(false)
 
     // Helper to format different attribute value types
@@ -87,26 +85,11 @@ const CompactResultRow = React.memo(function CompactResultRow({
 
         // Only open heatmap if we have embeddings enabled and a vector
         if (showEmbeddings && embeddingsCache?.[element]) {
-            setShowHeatmap(true)
-        }
-    }
-
-    // Handle dialog close with debouncing to prevent race conditions
-    const handleHeatmapClose = (open: boolean) => {
-        if (!open) {
-            isClosingRef.current = true
-            setShowHeatmap(false)
-            // Reset the closing flag after a short delay
-            setTimeout(() => {
-                isClosingRef.current = false
-            }, 200)
-        } else {
-            setShowHeatmap(true)
+            onShowVectorClick(e, element)
         }
     }
 
     return (
-        <>
         <TableRow
             className={`group ${isSelected ? "bg-blue-50" : ""} ${!selectMode ? "cursor-pointer" : ""}`}
             onClick={handleRowClick}
@@ -130,7 +113,6 @@ const CompactResultRow = React.memo(function CompactResultRow({
                 .filter((col) => {
                     // Hide score column when in zero vector search state
                     if (col.name === "score" && isZeroVectorSearch) {
-                        console.log("🚫 Hiding score column in row due to zero vector search")
                         return false
                     }
                     return col.visible
@@ -333,19 +315,6 @@ const CompactResultRow = React.memo(function CompactResultRow({
                 </div>
             </TableCell>
         </TableRow>
-
-        <VectorHeatmap
-            vector={embeddingsCache?.[element] || null}
-            open={showHeatmap}
-            onOpenChange={handleHeatmapClose}
-            vectorSetName={vectorSetName}
-            metadata={metadata}
-            searchVector={searchVector}
-            elementName={element}
-            searchQuery={searchQuery}
-            lastSearchDisplayName={lastSearchDisplayName}
-        />
-        </>
     )
 })
 

@@ -11,6 +11,7 @@ import NoResults from "./components/NoResults"
 import ResultsHeader from "./components/ResultsHeader"
 import EditAttributesDialog from "./EditAttributesDialog"
 import EmptyVectorSet from "./EmptyVectorSet"
+import VectorHeatmap from "@/components/VectorHeatmap"
 import {
     AttributeCache,
     ParsedAttributes,
@@ -89,6 +90,16 @@ export default function VectorResults({
         new Set()
     )
 
+    // Add embeddings state
+    const [embeddingsCache, setEmbeddingsCache] = useState<
+        Record<string, number[] | null>
+    >({})
+    const [isLoadingEmbeddings, setIsLoadingEmbeddings] = useState(false)
+
+    // Add VectorHeatmap dialog state
+    const [vectorHeatmapOpen, setVectorHeatmapOpen] = useState(false)
+    const [selectedVectorElement, setSelectedVectorElement] = useState<string | null>(null)
+
     // Add ref to track the last results for comparison
     const lastResultsRef = useRef<typeof results>([])
     const lastKeyNameRef = useRef<string>("")
@@ -122,18 +133,19 @@ export default function VectorResults({
         return sortResults(processed, sortColumn, sortDirection)
     }, [results, filterText, sortColumn, sortDirection])
 
-    // Calculate if we're in zero vector search state
-    // When search query is empty, we're likely in zero vector search mode
-    const isZeroVectorSearch = useMemo(() => {
-        const result = !searchQuery || !searchQuery.trim()
-        console.log("🔍 Zero Vector Search Detection:", {
-            searchQuery: `"${searchQuery}"`,
-            searchQueryLength: searchQuery?.length,
-            searchQueryTrimmed: `"${searchQuery?.trim()}"`,
-            isQueryEmpty: (!searchQuery || !searchQuery.trim()),
-            result
-        })
-        return result
+    // Track zero vector search state efficiently - only update on empty/non-empty transitions
+    const [isZeroVectorSearch, setIsZeroVectorSearch] = useState(true) // Start as true (no search initially)
+    const lastSearchQueryEmptyRef = useRef(true) // Track previous empty state
+
+    // Only update zero vector search state when transitioning between empty/non-empty
+    useEffect(() => {
+        const isEmpty = !searchQuery || searchQuery.length === 0
+
+        // Only update state if the empty/non-empty status actually changed
+        if (isEmpty !== lastSearchQueryEmptyRef.current) {
+            lastSearchQueryEmptyRef.current = isEmpty
+            setIsZeroVectorSearch(isEmpty)
+        }
     }, [searchQuery])
 
     // Clear selections when the keyName (vector set) changes
@@ -390,8 +402,6 @@ export default function VectorResults({
 
     // Embeddings fetching logic - similar to attributes but for embeddings
     useEffect(() => {
-        console.log("showEmbeddings", showEmbeddings)
-        console.log("results", results)
         if (!showEmbeddings || results.length === 0) {
             return
         }
@@ -407,7 +417,6 @@ export default function VectorResults({
             )
 
         if (!elementsChanged) {
-            console.log("No need to refetch embeddings if elements haven't changed")
             return // No need to refetch if elements haven't changed
         }
 
@@ -419,7 +428,6 @@ export default function VectorResults({
             setIsLoadingEmbeddings(true)
 
             try {
-                console.log("Fetching embeddings for", elements)
                 const embeddingsResult = await vemb_multi({
                     keyName,
                     elements,
@@ -629,6 +637,22 @@ export default function VectorResults({
         [onRowClick]
     )
 
+    // Handle opening VectorHeatmap dialog
+    const handleShowVectorHeatmap = useCallback(
+        (e: React.MouseEvent, element: string) => {
+            e.stopPropagation()
+            // Only open if we have embeddings enabled and a vector for this element
+            if (showEmbeddings && embeddingsCache?.[element]) {
+                setSelectedVectorElement(element)
+                setVectorHeatmapOpen(true)
+            } else {
+                // Fallback to original behavior (copy to clipboard)
+                onShowVectorClick(e, element)
+            }
+        },
+        [showEmbeddings, embeddingsCache, onShowVectorClick]
+    )
+
     // Modify the Add Vector button click handler
     const handleAddVector = useCallback(async () => {
         if (onAddVector) {
@@ -658,11 +682,7 @@ export default function VectorResults({
     const hasResults = results.length > 0
     const isEmptyResults = results.length === 0 && !isLoading
 
-    // Add embeddings state
-    const [embeddingsCache, setEmbeddingsCache] = useState<
-        Record<string, number[] | null>
-    >({})
-    const [isLoadingEmbeddings, setIsLoadingEmbeddings] = useState(false)
+
 
     // Early returns for different states - but avoid complete component replacement during search
     if (!isLoaded) {
@@ -725,6 +745,21 @@ export default function VectorResults({
                 onToggleColumn={handleToggleColumn}
             />
 
+            {/* VectorHeatmap dialog - only render when open */}
+            {vectorHeatmapOpen && selectedVectorElement && (
+                <VectorHeatmap
+                    vector={embeddingsCache?.[selectedVectorElement] || null}
+                    open={vectorHeatmapOpen}
+                    onOpenChange={setVectorHeatmapOpen}
+                    vectorSetName={keyName}
+                    metadata={metadata}
+                    searchVector={searchVector}
+                    elementName={selectedVectorElement}
+                    searchQuery={searchQuery}
+                    lastSearchDisplayName={lastSearchDisplayName}
+                />
+            )}
+
             <ResultsHeader
                 results={results}
                 searchTime={searchTime}
@@ -776,7 +811,7 @@ export default function VectorResults({
                     handleSelectAll={handleSelectAll}
                     handleDeselectAll={handleDeselectAll}
                     handleSearchSimilar={handleSearchSimilar}
-                    onShowVectorClick={onShowVectorClick}
+                    onShowVectorClick={handleShowVectorHeatmap}
                     setEditingAttributes={setEditingAttributes}
                     onDeleteClick={onDeleteClick}
                     vectorSetName={keyName}
@@ -806,7 +841,7 @@ export default function VectorResults({
                     filteredFieldValues={filteredFieldValues}
                     handleSelectToggle={handleSelectToggle}
                     handleSearchSimilar={handleSearchSimilar}
-                    onShowVectorClick={onShowVectorClick}
+                    onShowVectorClick={handleShowVectorHeatmap}
                     setEditingAttributes={setEditingAttributes}
                     onDeleteClick={onDeleteClick}
                     metadata={metadata}
