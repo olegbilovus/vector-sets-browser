@@ -624,8 +624,8 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
                         <div className="absolute bottom-1 right-1 flex flex-row gap-2 backdrop-blur-sm bg-white/80 rounded-tl-md px-0">
                             <div className="flex-grow"></div>
                             <div className="text-xs text-gray-400 p-0.5 px-1 rounded-lg w-fit mt-1">
-                                Embedding model:{" "}
-                                <span className="font-bold">
+                                Model:{" "}
+                                <span className="">
                                     {metadata?.embedding.provider &&
                                         `${
                                             metadata?.embedding.provider
