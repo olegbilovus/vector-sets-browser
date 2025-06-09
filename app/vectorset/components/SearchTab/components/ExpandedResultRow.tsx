@@ -37,6 +37,7 @@ interface ExpandedResultRowProps {
     searchVector?: number[] | null
     searchQuery?: string | null
     lastSearchDisplayName?: string | null
+    isZeroVectorSearch?: boolean
 }
 
 export default function ExpandedResultRow({
@@ -64,6 +65,7 @@ export default function ExpandedResultRow({
     searchVector,
     searchQuery,
     lastSearchDisplayName,
+    isZeroVectorSearch,
 }: ExpandedResultRowProps) {
     // Helper to format different attribute value types
     const formatAttributeValue = (value: any): string => {
@@ -186,9 +188,12 @@ export default function ExpandedResultRow({
                         <div>
                             <div className="text-sm text-gray-500">SCORE</div>
                             <div className="font-medium">
-                                {typeof row[1] === "number"
-                                    ? row[1].toFixed(4)
-                                    : row[1]}
+                                {typeof row[1] === "number" ? (
+                                    // Hide score indicator when in zero vector search state
+                                    isZeroVectorSearch ? null : row[1].toFixed(4)
+                                ) : (
+                                    row[1]
+                                )}
                             </div>
                         </div>
                     </div>

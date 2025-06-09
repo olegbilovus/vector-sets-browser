@@ -46,6 +46,7 @@ interface ResultsTableHeaderProps {
     handleSelectAll: () => void
     handleDeselectAll: () => void
     filteredAndSortedResults: VectorTuple[]
+    isZeroVectorSearch?: boolean
 }
 
 const ResultsTableHeader = React.memo(function ResultsTableHeader({
@@ -59,6 +60,7 @@ const ResultsTableHeader = React.memo(function ResultsTableHeader({
     handleSelectAll,
     handleDeselectAll,
     filteredAndSortedResults,
+    isZeroVectorSearch,
 }: ResultsTableHeaderProps) {
     const isAllSelected = selectedElements.size === filteredAndSortedResults.length &&
         filteredAndSortedResults.length > 0
@@ -85,7 +87,14 @@ const ResultsTableHeader = React.memo(function ResultsTableHeader({
                 )}
 
                 {availableColumns
-                    .filter((col) => col.visible)
+                    .filter((col) => {
+                        // Hide score column when in zero vector search state
+                        if (col.name === "score" && isZeroVectorSearch) {
+                            console.log("🚫 Hiding score column in header due to zero vector search")
+                            return false
+                        }
+                        return col.visible
+                    })
                     .map((col) => {
                         const filter = filterFields.find((f) => f.field === col.name)
 

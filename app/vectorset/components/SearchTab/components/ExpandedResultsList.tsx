@@ -29,6 +29,7 @@ interface ExpandedResultsListProps {
     searchVector?: number[] | null
     searchQuery?: string | null
     lastSearchDisplayName?: string | null
+    isZeroVectorSearch?: boolean
 }
 
 export default function ExpandedResultsList({
@@ -54,7 +55,8 @@ export default function ExpandedResultsList({
     isLoadingEmbeddings,
     searchVector,
     searchQuery,
-    lastSearchDisplayName
+    lastSearchDisplayName,
+    isZeroVectorSearch
 }: ExpandedResultsListProps) {
     const { preload } = useThumbnailPreloader()
 
@@ -71,7 +73,7 @@ export default function ExpandedResultsList({
     return (
         <div className="space-y-4 mb-8">
             {filteredAndSortedResults.map((row, index) => (
-                <ExpandedResultRow 
+                <ExpandedResultRow
                     key={index}
                     row={row}
                     index={index}
@@ -97,6 +99,7 @@ export default function ExpandedResultsList({
                     searchVector={searchVector}
                     searchQuery={searchQuery}
                     lastSearchDisplayName={lastSearchDisplayName}
+                    isZeroVectorSearch={isZeroVectorSearch}
                 />
             ))}
         </div>

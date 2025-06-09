@@ -7,7 +7,8 @@ import { getEmbeddingDataFormat, isImageEmbedding, isMultiModalEmbedding } from 
 import { VectorTuple } from "@/lib/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import ThumbnailDisplay from "@/components/ThumbnailDisplay/ThumbnailDisplay"
-import React from "react"
+import VectorHeatmap from "@/components/VectorHeatmap"
+import React, { useState } from "react"
 
 interface CompactResultRowProps {
     row: VectorTuple
@@ -29,6 +30,7 @@ interface CompactResultRowProps {
     searchVector?: number[] | null
     searchQuery?: string | null
     lastSearchDisplayName?: string | null
+    isZeroVectorSearch?: boolean
 }
 
 const CompactResultRow = React.memo(function CompactResultRow({
@@ -51,7 +53,10 @@ const CompactResultRow = React.memo(function CompactResultRow({
     searchVector,
     searchQuery,
     lastSearchDisplayName,
+    isZeroVectorSearch,
 }: CompactResultRowProps) {
+    const [showHeatmap, setShowHeatmap] = useState(false)
+
     // Helper to format different attribute value types
     const formatAttributeValue = (value: any): string => {
         if (Array.isArray(value)) return "[...]"
@@ -63,8 +68,26 @@ const CompactResultRow = React.memo(function CompactResultRow({
     const element = row[0]
     const isSelected = selectedElements.has(element)
 
+    // Handle row click to open vector heatmap
+    const handleRowClick = () => {
+        // Don't trigger if clicking on buttons or in select mode
+        if (selectMode) {
+            handleSelectToggle(element)
+            return
+        }
+
+        // Only open heatmap if we have embeddings enabled and a vector
+        if (showEmbeddings && embeddingsCache?.[element]) {
+            setShowHeatmap(true)
+        }
+    }
+
     return (
-        <TableRow className={`group ${isSelected ? "bg-blue-50" : ""}`}>
+        <>
+        <TableRow
+            className={`group ${isSelected ? "bg-blue-50" : ""} ${!selectMode ? "cursor-pointer" : ""}`}
+            onClick={handleRowClick}
+        >
             {/* Add a checkbox cell when in select mode */}
             {selectMode && (
                 <TableCell className="w-12">
@@ -81,13 +104,23 @@ const CompactResultRow = React.memo(function CompactResultRow({
             )}
 
             {availableColumns
-                .filter((col) => col.visible)
+                .filter((col) => {
+                    // Hide score column when in zero vector search state
+                    if (col.name === "score" && isZeroVectorSearch) {
+                        console.log("🚫 Hiding score column in row due to zero vector search")
+                        return false
+                    }
+                    return col.visible
+                })
                 .map((col) => (
                     <TableCell
                         key={col.name}
                         onClick={
                             selectMode
-                                ? () => handleSelectToggle(element)
+                                ? (e) => {
+                                    e.stopPropagation()
+                                    handleSelectToggle(element)
+                                }
                                 : undefined
                         }
                         className={selectMode ? "cursor-pointer" : ""}
@@ -153,9 +186,12 @@ const CompactResultRow = React.memo(function CompactResultRow({
                                     </span>
                                 </div>
                             ) : typeof row[1] === "number" ? (
-                                <span className="text-muted-foreground border border-gray-200 rounded-full p-1 text-xs">
-                                    {row[1].toFixed(4)}
-                                </span>
+                                // Hide score indicator when in zero vector search state
+                                isZeroVectorSearch ? null : (
+                                    <span className="text-muted-foreground border border-gray-200 rounded-full p-1 text-xs">
+                                        {row[1].toFixed(4)}
+                                    </span>
+                                )
                             ) : (
                                 row[1]
                             )
@@ -176,7 +212,10 @@ const CompactResultRow = React.memo(function CompactResultRow({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleSearchSimilar(element)}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleSearchSimilar(element)
+                                }}
                                 className="h-8 w-8"
                                 title="Search similar vectors"
                             >
@@ -197,7 +236,10 @@ const CompactResultRow = React.memo(function CompactResultRow({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={(e) => onShowVectorClick(e, element)}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onShowVectorClick(e, element)
+                                }}
                                 className="h-8 w-8"
                                 title="Copy vector"
                             >
@@ -218,7 +260,10 @@ const CompactResultRow = React.memo(function CompactResultRow({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => setEditingAttributes(element)}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setEditingAttributes(element)
+                                }}
                                 className="h-8 w-8"
                                 title="Edit attributes"
                             >
@@ -239,7 +284,10 @@ const CompactResultRow = React.memo(function CompactResultRow({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={(e) => onDeleteClick(e, element)}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDeleteClick(e, element)
+                                }}
                                 className="h-8 w-8 text-red-600"
                                 title="Delete vector"
                             >
@@ -262,6 +310,19 @@ const CompactResultRow = React.memo(function CompactResultRow({
                 </div>
             </TableCell>
         </TableRow>
+
+        <VectorHeatmap
+            vector={embeddingsCache?.[element] || null}
+            open={showHeatmap}
+            onOpenChange={setShowHeatmap}
+            vectorSetName={vectorSetName}
+            metadata={metadata}
+            searchVector={searchVector}
+            elementName={element}
+            searchQuery={searchQuery}
+            lastSearchDisplayName={lastSearchDisplayName}
+        />
+        </>
     )
 })
 

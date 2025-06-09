@@ -122,6 +122,20 @@ export default function VectorResults({
         return sortResults(processed, sortColumn, sortDirection)
     }, [results, filterText, sortColumn, sortDirection])
 
+    // Calculate if we're in zero vector search state
+    // When search query is empty, we're likely in zero vector search mode
+    const isZeroVectorSearch = useMemo(() => {
+        const result = !searchQuery || !searchQuery.trim()
+        console.log("🔍 Zero Vector Search Detection:", {
+            searchQuery: `"${searchQuery}"`,
+            searchQueryLength: searchQuery?.length,
+            searchQueryTrimmed: `"${searchQuery?.trim()}"`,
+            isQueryEmpty: (!searchQuery || !searchQuery.trim()),
+            result
+        })
+        return result
+    }, [searchQuery])
+
     // Clear selections when the keyName (vector set) changes
     useEffect(() => {
         setSelectMode(false)
@@ -535,6 +549,8 @@ export default function VectorResults({
         parsedAttributeCache,
     ])
 
+
+
     // Handle dialog close with updated attributes
     const handleAttributesDialogClose = useCallback(
         (updatedAttributes?: string) => {
@@ -774,6 +790,7 @@ export default function VectorResults({
                     searchVector={searchVector}
                     searchQuery={searchQuery}
                     lastSearchDisplayName={lastSearchDisplayName}
+                    isZeroVectorSearch={isZeroVectorSearch}
                 />
             ) : (
                 <ExpandedResultsList
@@ -800,6 +817,7 @@ export default function VectorResults({
                     searchVector={searchVector}
                     searchQuery={searchQuery}
                     lastSearchDisplayName={lastSearchDisplayName}
+                    isZeroVectorSearch={isZeroVectorSearch}
                 />
             )}
         </div>

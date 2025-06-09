@@ -34,6 +34,7 @@ export interface CompactResultsTableProps {
     searchVector?: number[] | null
     searchQuery?: string | null
     lastSearchDisplayName?: string | null
+    isZeroVectorSearch?: boolean
 }
 
 const CompactResultsTable = React.memo(function CompactResultsTable({
@@ -60,7 +61,8 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
     isLoadingEmbeddings,
     searchVector,
     searchQuery,
-    lastSearchDisplayName
+    lastSearchDisplayName,
+    isZeroVectorSearch
 }: CompactResultsTableProps) {
     const { preload } = useThumbnailPreloader()
 
@@ -76,7 +78,7 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
     }, [vectorSetName, metadata, filteredAndSortedResults, preload])
     return (
         <Table>
-            <ResultsTableHeader 
+            <ResultsTableHeader
                 availableColumns={availableColumns}
                 filterFields={filterFields}
                 sortColumn={sortColumn}
@@ -87,10 +89,11 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
                 handleSelectAll={handleSelectAll}
                 handleDeselectAll={handleDeselectAll}
                 filteredAndSortedResults={filteredAndSortedResults}
+                isZeroVectorSearch={isZeroVectorSearch}
             />
             <TableBody>
                 {filteredAndSortedResults.map((row, index) => (
-                    <CompactResultRow 
+                    <CompactResultRow
                         key={`${row[0]}-${index}`}
                         row={row}
                         index={index}
@@ -111,6 +114,7 @@ const CompactResultsTable = React.memo(function CompactResultsTable({
                         searchVector={searchVector}
                         searchQuery={searchQuery}
                         lastSearchDisplayName={lastSearchDisplayName}
+                        isZeroVectorSearch={isZeroVectorSearch}
                     />
                 ))}
             </TableBody>
