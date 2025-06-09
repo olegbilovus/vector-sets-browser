@@ -12,6 +12,7 @@ import { ImageIcon, Shuffle, X } from "lucide-react"
 import { useCallback, useMemo, useState, useEffect, useRef, forwardRef } from "react"
 import MiniVectorHeatmap from "../MiniVectorHeatmap"
 import { BorderBeam } from "@stianlarsen/border-beam"
+import { useAnimationSettings } from "@/app/config/AnimationSettings"
 
 export interface VectorSearchInputProps {
     // Display text (what user sees and types)
@@ -57,7 +58,10 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
     lastTextEmbedding,
     vectorSetName
 }, ref) => {
-    
+
+    // Get animation settings
+    const { animationsDisabled } = useAnimationSettings()
+
     const supportsEmbeddings =
         metadata?.embedding.provider && metadata?.embedding.provider !== "none"
 
@@ -419,11 +423,11 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                 >
-                    {/* Animated border beam effect - only show when focused or hovered */}
-                    {(isFocused || isHovered) && (
-                        <BorderBeam 
-                            size={120} 
-                            duration={20} 
+                    {/* Animated border beam effect - only show when focused or hovered and animations are enabled */}
+                    {(isFocused || isHovered) && !animationsDisabled && (
+                        <BorderBeam
+                            size={120}
+                            duration={20}
                             borderWidth={1}
                             delay={0}
                         />
@@ -440,8 +444,8 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
                                     : "bg-gray-50 hover:bg-gray-100"
                             }`}
                             style={{
-                                width: "120px",
-                                minWidth: "120px",
+                                width: "80px",
+                                minWidth: "80px",
                                 height: "80px",
                             }}
                             onClick={!hasImage ? handleImageButtonClick : undefined}
@@ -528,8 +532,13 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
                                     } rounded-md p-2 transition-colors duration-150`}
                                 >
                                     <ImageIcon size={24} />
-                                    <span className="text-xs mt-1 text-center">
-                                        Search by image{" "}
+                                    <span
+                                        className="text-center whitespace-nowrap mt-1"
+                                        style={{ fontSize: "0.6rem" }}
+                                    >
+                                        <div>
+                                        Image Search{" "}
+                                        </div>
                                         {isDraggingOver
                                             ? "(drop now)"
                                             : "(drop here)"}

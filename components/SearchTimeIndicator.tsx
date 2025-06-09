@@ -17,7 +17,7 @@ const SearchTimeIndicator: React.FC<SearchTimeIndicatorProps> = ({
 }) => {
     if (isSearching) {
         return (
-            <div className="-ml-1 pr-1 flex space-x-1 items-center rounded-lg text-xs border border-blue-300">
+            <div className="pr-1 flex space-x-1 items-center rounded-lg text-xs border border-blue-300">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="14"
@@ -34,7 +34,7 @@ const SearchTimeIndicator: React.FC<SearchTimeIndicatorProps> = ({
                     <polyline points="12 6 12 12 16 14" />
                 </svg>
                 <div className="flex items-center gap-1">
-                    VSIM Latency: 
+                    VSIM: 
                     <svg
                         className="animate-spin h-3 w-3 text-blue-500"
                         xmlns="http://www.w3.org/2000/svg"
