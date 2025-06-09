@@ -30,6 +30,8 @@ export default function VectorVisualizationInfo({
                 return "Bar chart showing how vector values are distributed across different ranges."
             case "radial":
                 return "Circular plot with distance from center showing dimension magnitudes."
+            case "surface":
+                return "3D surface plot with height representing vector values, creating peaks and valleys."
             default:
                 return ""
         }

@@ -4,7 +4,7 @@ import { isImageEmbedding, isMultiModalEmbedding } from '@/lib/embeddings/types/
 
 export type ColorScheme = 'thermal' | 'viridis' | 'classic'
 export type ScalingMode = 'relative' | 'absolute'
-export type VisualizationType = 'heatmap' | 'distribution' | 'radial'
+export type VisualizationType = 'heatmap' | 'distribution' | 'radial' | 'surface'
 
 interface VectorSettings {
     colorScheme: ColorScheme

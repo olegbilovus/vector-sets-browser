@@ -1,6 +1,7 @@
 import VectorHeatmapRenderer from "./VectorHeatmapRenderer"
 import VectorDistributionRenderer from "./VectorDistributionRenderer"
 import VectorRadialRenderer from "./VectorRadialRenderer"
+import Vector3DSurfaceRenderer from "./Vector3DSurfaceRenderer"
 
 interface VectorVisualizationRendererProps {
     vector: number[] | null
@@ -9,7 +10,7 @@ interface VectorVisualizationRendererProps {
     showStats?: boolean
     scalingMode?: 'relative' | 'absolute'
     colorScheme?: 'thermal' | 'viridis' | 'classic'
-    visualizationType?: 'heatmap' | 'distribution' | 'radial'
+    visualizationType?: 'heatmap' | 'distribution' | 'radial' | 'surface'
     noPadding?: boolean
 }
 
@@ -40,6 +41,20 @@ export default function VectorVisualizationRenderer({
     if (visualizationType === 'radial') {
         return (
             <VectorRadialRenderer
+                vector={vector}
+                className={className}
+                size={size}
+                showStats={showStats}
+                scalingMode={scalingMode}
+                colorScheme={colorScheme}
+                noPadding={noPadding}
+            />
+        )
+    }
+
+    if (visualizationType === 'surface') {
+        return (
+            <Vector3DSurfaceRenderer
                 vector={vector}
                 className={className}
                 size={size}

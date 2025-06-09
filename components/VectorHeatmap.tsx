@@ -99,10 +99,11 @@ export default function VectorHeatmap({
           onValueChange={(value) => setVisualizationType(value as any)}
         >
           <div className="flex items-center mb-4 space-x-4">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="heatmap">🔥 Heatmap</TabsTrigger>
               <TabsTrigger value="distribution">📊 Distribution</TabsTrigger>
               <TabsTrigger value="radial">⭕ Radial</TabsTrigger>
+              <TabsTrigger value="surface">🏔️ Surface</TabsTrigger>
             </TabsList>
           </div>
 
