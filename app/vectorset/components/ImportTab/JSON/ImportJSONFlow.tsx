@@ -10,6 +10,8 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import { FileJson, Loader2, X } from "lucide-react"
 import React, { useState } from "react"
 import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter"
@@ -46,6 +48,7 @@ export default function ImportJSONFlow({
     const [importStarted, setImportStarted] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [jsonPreview, setJsonPreview] = useState<any | null>(null)
+    const [storeEmbeddingText, setStoreEmbeddingText] = useState<boolean>(true) // Default to true
 
     const handleClose = () => {
         if (isImporting) return
@@ -156,6 +159,7 @@ export default function ImportJSONFlow({
                 fileType: "json",
                 exportType: "redis",
                 metadata: metadata,
+                storeEmbeddingText: storeEmbeddingText,
             }
 
             await jobs.createImportJob(vectorSetName, selectedFile, importJobConfig)
@@ -281,6 +285,23 @@ export default function ImportJSONFlow({
                                                 2
                                             )}
                                             language="json"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Store Embedding Text Option */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <Label htmlFor="store-embedding-text-json">Store Embedded Text as Attribute</Label>
+                                            <p className="text-sm text-muted-foreground">
+                                                Save the text used for embedding as an attribute named &quot;embeddingText&quot;
+                                            </p>
+                                        </div>
+                                        <Switch
+                                            id="store-embedding-text-json"
+                                            checked={storeEmbeddingText}
+                                            onCheckedChange={setStoreEmbeddingText}
                                         />
                                     </div>
                                 </div>

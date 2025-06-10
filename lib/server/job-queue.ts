@@ -229,6 +229,7 @@ export class JobQueueService {
                     exportType,
                     outputFilename: options?.outputFilename,
                     baseUrl: options?.baseUrl,  // Include base URL for image datasets
+                    storeEmbeddingText: options?.storeEmbeddingText,  // Include store embedding text option
                 }
                 await client.hSet(getJobMetadataKey(jobId), {
                     data: JSON.stringify(metadata),

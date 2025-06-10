@@ -35,6 +35,7 @@ interface CSVImportConfiguratorProps {
         elementTemplate: string;
         vectorTemplate: string;
         selectedAttributes: string[];
+        storeEmbeddingText: boolean;
     }) => void
     onValidityChange?: (isValid: boolean) => void
     hideImportButton?: boolean
@@ -109,6 +110,7 @@ export default function CSVImportConfigurator({
     const elementTemplateRef = useRef<HTMLTextAreaElement>(null)
     const vectorTemplateRef = useRef<HTMLTextAreaElement>(null)
     const [isGeneratingTemplates, setIsGeneratingTemplates] = useState(false)
+    const [storeEmbeddingText, setStoreEmbeddingText] = useState<boolean>(true) // Default to true
     const [suggestedElementTemplate, setSuggestedElementTemplate] =
         useState<string>("")
     const [suggestedVectorTemplate, setSuggestedVectorTemplate] =
@@ -310,6 +312,7 @@ export default function CSVImportConfigurator({
                 elementTemplate,
                 vectorTemplate,
                 selectedAttributes: selectedAttributeColumns,
+                storeEmbeddingText,
             })
             return
         }
@@ -470,9 +473,10 @@ export default function CSVImportConfigurator({
                 elementTemplate,
                 vectorTemplate,
                 selectedAttributes: selectedAttributeColumns,
+                storeEmbeddingText,
             })
         }
-    }, [elementTemplate, vectorTemplate, metadata?.embedding, selectedAttributeColumns])
+    }, [elementTemplate, vectorTemplate, metadata?.embedding, selectedAttributeColumns, storeEmbeddingText])
 
     return (
         <div className="space-y-4 w-full">
@@ -665,6 +669,23 @@ export default function CSVImportConfigurator({
                                                 )}
                                             </div>
                                         )}
+                                    </div>
+
+                                    {/* Store Embedding Text Option */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <Label>Store Embedded Text as Attribute</Label>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Save the text used for embedding as an attribute named &quot;embeddingText&quot;
+                                                </p>
+                                            </div>
+                                            <Switch
+                                                id="store-embedding-text"
+                                                checked={storeEmbeddingText}
+                                                onCheckedChange={setStoreEmbeddingText}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

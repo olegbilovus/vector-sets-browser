@@ -29,6 +29,7 @@ interface ConfigData {
     elementTemplate: string
     vectorTemplate: string
     selectedAttributes: string[]
+    storeEmbeddingText: boolean
 }
 
 export default function ImportFromCSVFlow({
@@ -80,6 +81,7 @@ export default function ImportFromCSVFlow({
                     : undefined,
             metadata: metadata || undefined,
             exportType: "redis",
+            storeEmbeddingText: configuredData.storeEmbeddingText,
         }
 
         try {

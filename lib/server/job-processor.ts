@@ -471,14 +471,22 @@ export class JobProcessor {
                                 // Replace spaces with hyphens in attribute names for query compatibility
                                 const attributeName = column.replace(/\s+/g, '-').toLowerCase() // Also convert to lowercase for consistency
                                 // For attributes, we want to preserve numeric types
-                                attributes[attributeName] = typeof value === 'number' 
-                                    ? value 
+                                attributes[attributeName] = typeof value === 'number'
+                                    ? value
                                     : convertToNumericIfPossible(String(value))
                             }
                         })
                         console.log(
                             `[JobProcessor] Extracted attributes with normalized names:`,
                             attributes
+                        )
+                    }
+
+                    // Store embedded text as attribute if enabled
+                    if (this.metadata?.storeEmbeddingText && textToEmbed) {
+                        attributes['embeddingText'] = textToEmbed
+                        console.log(
+                            `[JobProcessor] Storing embedded text as attribute for element: ${elementId}`
                         )
                     }
 

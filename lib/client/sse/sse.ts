@@ -42,7 +42,7 @@ function startPolling() {
     pollingInterval = setInterval(() => {
         console.log("Polling for job updates...")
         // Poll for job updates
-        fetch(`/services/jobs/completed?since=${lastPollTime}`)
+        fetch(`/api/jobs/completed?since=${lastPollTime}`)
             .then((response) => response.json())
             .then((data) => {
                 if (data.success && data.result.length > 0) {
@@ -66,7 +66,7 @@ function startPolling() {
             })
 
         // Poll for active jobs
-        fetch("/services/jobs")
+        fetch("/api/jobs")
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {

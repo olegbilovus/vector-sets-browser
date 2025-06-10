@@ -35,6 +35,7 @@ export interface CSVJobMetadata {
     exportType?: 'redis' | 'json'
     outputFilename?: string
     baseUrl?: string  // Base URL for image datasets, used for thumbnail generation
+    storeEmbeddingText?: boolean  // Whether to store the embedded text as an attribute
 }
 
 export interface CSVRow {

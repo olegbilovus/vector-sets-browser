@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
+import { Switch } from "@/components/ui/switch"
 import { AlertCircle, Edit2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Dataset } from "../types/DatasetProvider"
@@ -49,6 +50,7 @@ export function SampleDataImporter({
     const [currentEmbeddingConfig, setCurrentEmbeddingConfig] = useState<EmbeddingConfig | null>(
         dataset.recommendedEmbedding || null
     )
+    const [storeEmbeddingText, setStoreEmbeddingText] = useState<boolean>(true) // Default to true
 
     // Initialize the current embedding config from dataset's recommended embedding
     useEffect(() => {
@@ -109,6 +111,9 @@ export function SampleDataImporter({
             if (metadata) {
                 config.metadata = metadata
             }
+
+            // Add store embedding text option
+            config.storeEmbeddingText = storeEmbeddingText
 
             // Create the import job
             await jobs.createImportJob(vectorSetName, file, config)
@@ -252,6 +257,23 @@ export function SampleDataImporter({
                                     </p>
                                 </div>
                             )}
+
+                            {/* Store Embedding Text Option */}
+                            <div className="space-y-2 mt-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <Label htmlFor="store-embedding-text-sample">Store Embedded Text as Attribute</Label>
+                                        <p className="text-sm text-muted-foreground">
+                                            Save the text used for embedding as an attribute named &quot;embeddingText&quot;
+                                        </p>
+                                    </div>
+                                    <Switch
+                                        id="store-embedding-text-sample"
+                                        checked={storeEmbeddingText}
+                                        onCheckedChange={setStoreEmbeddingText}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
