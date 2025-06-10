@@ -77,6 +77,18 @@ export async function POST(request: Request) {
 
         // Check if the Redis operation failed
         if (!redisResult.success) {
+            // Check if this is a filter syntax error
+            if (redisResult.error && redisResult.error.includes("syntax error in FILTER")) {
+                // Return filter syntax errors with a special status and flag
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: redisResult.error,
+                        isFilterSyntaxError: true
+                    },
+                    { status: 422 } // Unprocessable Entity for validation errors
+                )
+            }
             return formatResponse(redisResult)
         }
 

@@ -188,7 +188,12 @@ export function useVectorSearch({
                 })
 
                 if (!vsimResponse || !vsimResponse.success) {
-                    handleError(vsimResponse?.error || "Zero vector search failed")
+                    // Handle filter syntax errors specifically
+                    if (vsimResponse?.isFilterSyntaxError) {
+                        handleError(vsimResponse.error || "Invalid filter syntax")
+                    } else {
+                        handleError(vsimResponse?.error || "Zero vector search failed")
+                    }
                     return
                 }
 
@@ -453,20 +458,38 @@ export function useVectorSearch({
     // Helper function to handle search errors
     const handleSearchError = useCallback(
         (error: unknown) => {
-            console.error("Search error:", error)
-
             // Extract the error message, ensuring we get the actual Redis error
             let errorMessage = "Search failed"
+            let isFilterError = false
+
             if (error instanceof ApiError) {
                 // Try to get the detailed error message
                 errorMessage = error.message
 
-                // Log the full error data to help debug
-                console.error("Full API error data:", error.data)
+                // Check if this is a filter syntax error
+                isFilterError = error.data?.isFilterSyntaxError === true
+
+                // Only log non-filter errors to avoid cluttering logs with user input validation errors
+                if (!isFilterError) {
+                    console.error("Search error:", error)
+                    console.error("Full API error data:", error.data)
+                }
             } else if (error instanceof Error) {
                 errorMessage = error.message
+                isFilterError = errorMessage.includes("syntax error in FILTER")
+
+                // Only log non-filter errors
+                if (!isFilterError) {
+                    console.error("Search error:", error)
+                }
             } else {
                 errorMessage = String(error)
+                isFilterError = errorMessage.includes("syntax error in FILTER")
+
+                // Only log non-filter errors
+                if (!isFilterError) {
+                    console.error("Search error:", error)
+                }
             }
 
             // Set the error state instead of using onStatusChange
@@ -588,6 +611,17 @@ export function useVectorSearch({
                 vectorFormat: internalSearchState.vectorFormat,
             })
 
+            // Check if the search was successful
+            if (!vsimResponse || !vsimResponse.success) {
+                // Handle filter syntax errors specifically
+                if (vsimResponse?.isFilterSyntaxError) {
+                    handleError(vsimResponse.error || "Invalid filter syntax")
+                } else {
+                    handleError(vsimResponse?.error || "Vector search failed")
+                }
+                return
+            }
+
             // Use the execution time from the server response
             if (vsimResponse.executionTimeMs) {
                 const durationInSeconds = (
@@ -649,6 +683,17 @@ export function useVectorSearch({
                 noThread: internalSearchState.noThread,
                 vectorFormat: internalSearchState.vectorFormat,
             })
+
+            // Check if the search was successful
+            if (!vsimResponse || !vsimResponse.success) {
+                // Handle filter syntax errors specifically
+                if (vsimResponse?.isFilterSyntaxError) {
+                    handleError(vsimResponse.error || "Invalid filter syntax")
+                } else {
+                    handleError(vsimResponse?.error || "Element search failed")
+                }
+                return
+            }
 
             // Use the execution time from the server response
             if (vsimResponse.executionTimeMs) {
@@ -742,6 +787,17 @@ export function useVectorSearch({
                     noThread: internalSearchState.noThread,
                     vectorFormat: internalSearchState.vectorFormat,
                 })
+
+                // Check if the search was successful
+                if (!vsimResponse || !vsimResponse.success) {
+                    // Handle filter syntax errors specifically
+                    if (vsimResponse?.isFilterSyntaxError) {
+                        handleError(vsimResponse.error || "Invalid filter syntax")
+                    } else {
+                        handleError(vsimResponse?.error || "Image search failed")
+                    }
+                    return
+                }
 
                 // Use the execution time from the server response
                 if (vsimResponse.executionTimeMs) {

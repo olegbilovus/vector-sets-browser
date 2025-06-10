@@ -8,6 +8,7 @@ export interface ApiResponse<T = unknown> {
     error?: string
     executionTimeMs?: number
     executedCommand?: string
+    isFilterSyntaxError?: boolean
 }
 
 export class ApiError extends Error {
@@ -59,7 +60,10 @@ export const apiClient = {
             }
 
             if (!response.ok) {
-                console.error("API error response:", responseData);
+                // Don't log filter syntax errors as API errors since they're user input validation
+                if (!responseData.isFilterSyntaxError) {
+                    console.error("API error response:", responseData);
+                }
                 throw new ApiError(
                     responseData.error || `HTTP error ${response.status}`,
                     response.status,

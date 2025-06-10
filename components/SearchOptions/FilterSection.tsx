@@ -1,6 +1,4 @@
 import { VectorTuple } from "@/services/redis-server/api"
-import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
 import SmartFilterInput from "../SmartFilterInput"
 
 interface FilterSectionProps {
@@ -38,12 +36,6 @@ export default function FilterSection({
                 />
             </div>
             
-            {/* Display search error */}
-            {error && error.includes("syntax error in FILTER") && (
-                <div className="text-red-500 text-sm mt-2 w-full">
-                    {error}
-                </div>
-            )}
         </div>
     )
 } 

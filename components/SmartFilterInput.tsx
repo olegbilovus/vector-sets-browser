@@ -174,16 +174,6 @@ export default function SmartFilterInput({
                         className={className}
                     />
                 )}
-
-                {/* Error for direct mode */}
-                {activeTab === "direct" && propError && (
-                    <div className="flex items-center gap-2 mt-2 text-destructive text-xs">
-                        <AlertCircle className="h-3.5 w-3.5" />
-                        <span>
-                            Invalid filter syntax. Please check your expression.
-                        </span>
-                    </div>
-                )}
             </Tabs>
         </div>
     )

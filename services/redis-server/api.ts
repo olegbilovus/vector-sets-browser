@@ -242,7 +242,23 @@ export async function vsim(
             request
         )
     } catch (error) {
-        console.error("Error in vsim:", error)
+        // Don't log filter syntax errors since they're user input validation
+        if (error instanceof Error && !error.message.includes("syntax error in FILTER")) {
+            console.error("Error in vsim:", error)
+        }
+
+        // Check if this is an ApiError with filter syntax error data
+        if (error instanceof Error && error.name === 'ApiError') {
+            const apiError = error as any
+            if (apiError.data?.isFilterSyntaxError) {
+                return {
+                    success: false,
+                    error: apiError.message,
+                    isFilterSyntaxError: true
+                }
+            }
+        }
+
         return {
             success: false,
             error: String(error),
