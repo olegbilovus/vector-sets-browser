@@ -3,6 +3,7 @@ import { BorderBeam } from "@stianlarsen/border-beam"
 import { Copy } from "lucide-react"
 import { useState } from "react"
 import { useTypingAnimation } from "@/hooks/useTypingAnimation"
+import { toast } from "sonner"
 
 interface RedisCommandBoxProps {
     vectorSetName: string
@@ -22,6 +23,26 @@ export default function RedisCommandBox({
     showRedisCommand,
 }: RedisCommandBoxProps) {
     const [showFullVector, setShowFullVector] = useState(false);
+
+    // Function to copy command text to clipboard
+    const copyCommandToClipboard = async () => {
+        try {
+            const command = getRedisCommand(true)
+            const textToCopy = typeof command === "string"
+                ? command
+                : executedCommand || ""
+
+            if (textToCopy) {
+                await navigator.clipboard.writeText(textToCopy)
+                toast.success("Command copied to clipboard")
+            } else {
+                toast.error("No command to copy")
+            }
+        } catch (error) {
+            console.error("Failed to copy command:", error)
+            toast.error("Failed to copy command to clipboard")
+        }
+    }
 
     // Helper function to get and format the Redis command
     const getRedisCommand = (forClipboard: boolean = false) => {
@@ -146,9 +167,9 @@ export default function RedisCommandBox({
         <div className="flex gap-2 p-0.5 items-center w-full bg-gray-100 rounded-md">
 
             <div
-                className="text-muted-foreground w-full p-1 font-mono text-xs cursor-pointer whitespace-nowrap text-ellipsis overflow-hidden"
-                onClick={isTyping ? skipAnimation : undefined}
-                title={isTyping ? "Click to skip animation" : undefined}
+                className="text-muted-foreground hover:text-black w-full p-1 font-mono text-xs cursor-pointer whitespace-nowrap text-ellipsis overflow-hidden transition-colors duration-200"
+                onClick={isTyping ? skipAnimation : copyCommandToClipboard}
+                title={isTyping ? "Click to skip animation" : "Click to copy command"}
             >
                 {(() => {
                     if (!commandData) {
@@ -170,12 +191,19 @@ export default function RedisCommandBox({
 
                     // Render structured command (after animation is complete)
                     return (
-                        <div className="text-muted-foreground font-mono text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                        <div
+                            className="text-muted-foreground hover:text-black font-mono text-xs whitespace-nowrap overflow-hidden text-ellipsis transition-colors duration-200 cursor-pointer"
+                            onClick={copyCommandToClipboard}
+                            title="Click to copy command"
+                        >
                             {commandData.prefix}
                             {showFullVector ? (
                                 <span
                                     className="inline-flex border border-gray-300 p-0.5 items-center rounded mx-1 cursor-pointer hover:bg-gray-100"
-                                    onClick={() => setShowFullVector(false)}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        setShowFullVector(false)
+                                    }}
                                     title="Click to collapse vector values"
                                 >
                                     {commandData.vectors}
@@ -191,7 +219,10 @@ export default function RedisCommandBox({
                                     </span>
                                     <span
                                         className="text-black rounded-r cursor-pointer hover:bg-gray-200 px-1"
-                                        onClick={() => setShowFullVector(true)}
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            setShowFullVector(true)
+                                        }}
                                     >
                                         ...
                                     </span>
@@ -206,14 +237,7 @@ export default function RedisCommandBox({
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 text-gray-500 mr-2"
-                onClick={() => {
-                    const command = getRedisCommand(true)
-                    navigator.clipboard.writeText(
-                        typeof command === "string"
-                            ? command
-                            : executedCommand || ""
-                    )
-                }}
+                onClick={copyCommandToClipboard}
             >
                 <Copy className="h-4 w-4" />
             </Button>

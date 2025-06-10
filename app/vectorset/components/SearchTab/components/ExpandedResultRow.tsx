@@ -106,9 +106,8 @@ export default function ExpandedResultRow({
 
     return (
         <div
-            className={`bg-[white] rounded-lg border p-4 hover:shadow-md group ${
-                selectedElements.has(row[0]) ? "border-blue-400 bg-blue-50" : ""
-            }`}
+            className={`bg-[white] rounded-lg border p-4 hover:shadow-md group ${selectedElements.has(row[0]) ? "border-blue-400 bg-blue-50" : ""
+                }`}
             onClick={selectMode ? () => handleSelectToggle(row[0]) : undefined}
         >
             <div className="flex items-start justify-between w-full">
@@ -128,17 +127,17 @@ export default function ExpandedResultRow({
                     {/* Show thumbnail alongside vector visualization if both are enabled */}
                     {vectorSetName && showEmbeddings && metadata?.embedding && (isImageEmbedding(metadata.embedding) || isMultiModalEmbedding(metadata.embedding)) && (
                         <div>
-                        <div className="text-sm text-gray-500">
-                            THUMBNAIL
-                        </div><ThumbnailDisplay
-                            vectorSetName={vectorSetName}
-                            elementId={row[0]}
-                            size="large"
-                            showFallback={false}
-                            className="flex-shrink-0"
-                            metadata={metadata}
+                            <div className="text-sm text-gray-500">
+                                THUMBNAIL
+                            </div><ThumbnailDisplay
+                                vectorSetName={vectorSetName}
+                                elementId={row[0]}
+                                size="large"
+                                showFallback={false}
+                                className="flex-shrink-0"
+                                metadata={metadata}
                             />
-                            </div>
+                        </div>
                     )}
                     {/* Vector heatmap or thumbnail (when vector viz is off) or embedding icon */}
                     <div className=" rounded-lg text-gray-600">
@@ -197,57 +196,14 @@ export default function ExpandedResultRow({
                             </div>
                         </div>
                     </div>
-                </div>
-                {!selectMode && (
-                    <div className="flex flex-col items-end space-y--1 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                            variant="ghost"
-                            onClick={() => handleSearchSimilar(row[0])}
-                            className="p-2 hover:bg-gray-100 rounded-full flex items-center gap-2 text-gray-500"
-                            title="Search similar vectors"
-                        >
-                            <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                />
-                            </svg>
-                            Find Similar
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            onClick={(e) => onShowVectorClick(e, row[0])}
-                            className="p-2 hover:bg-gray-100 rounded-full text-gray-500 flex items-center gap-2"
-                            title="Copy vector"
-                        >
-                            <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                                />
-                            </svg>
-                            Copy Vector
-                        </Button>
-                        {!showAttributes && (
+
+                    {!selectMode && (
+                        <div className="flex flex-col items-end space-y--1 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
                                 variant="ghost"
-                                onClick={() => setEditingAttributes(row[0])}
-                                className="p-2 hover:bg-gray-100 rounded-full text-gray-500 flex items-center gap-2"
-                                title="Edit attributes"
+                                onClick={() => handleSearchSimilar(row[0])}
+                                className="p-2 hover:bg-gray-100 rounded-full flex items-center gap-2 text-gray-500"
+                                title="Search similar vectors"
                             >
                                 <svg
                                     className="w-5 h-5"
@@ -259,35 +215,79 @@ export default function ExpandedResultRow({
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth={2}
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                                     />
                                 </svg>
-                                Edit Attributes
+                                Find Similar
                             </Button>
-                        )}
-                        <Button
-                            variant="ghost"
-                            onClick={(e) => onDeleteClick(e, row[0])}
-                            className="p-2 hover:bg-gray-100 rounded-full text-red-600 flex items-center gap-2"
-                            title="Delete vector"
-                        >
-                            <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                            <Button
+                                variant="ghost"
+                                onClick={(e) => onShowVectorClick(e, row[0])}
+                                className="p-2 hover:bg-gray-100 rounded-full text-gray-500 flex items-center gap-2"
+                                title="Copy vector"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                />
-                            </svg>
-                            Delete
-                        </Button>
-                    </div>
-                )}
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                    />
+                                </svg>
+                                Copy Vector
+                            </Button>
+                            {!showAttributes && (
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setEditingAttributes(row[0])}
+                                    className="p-2 hover:bg-gray-100 rounded-full text-gray-500 flex items-center gap-2"
+                                    title="Edit attributes"
+                                >
+                                    <svg
+                                        className="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                        />
+                                    </svg>
+                                    Edit Attributes
+                                </Button>
+                            )}
+                            <Button
+                                variant="ghost"
+                                onClick={(e) => onDeleteClick(e, row[0])}
+                                className="p-2 hover:bg-gray-100 rounded-full text-red-600 flex items-center gap-2"
+                                title="Delete vector"
+                            >
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                </svg>
+                                Delete
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </div>
             {showOnlyFilteredAttributes &&
                 filteredFields.map((field) => (
@@ -304,7 +304,7 @@ export default function ExpandedResultRow({
                 <div className="w-full pl-10">
                     <div className="text-sm text-gray-500">ATTRIBUTES</div>
                     {isLoadingAttributes &&
-                    attributeCache[row[0]] === undefined ? (
+                        attributeCache[row[0]] === undefined ? (
                         <div className="text-sm text-gray-500">Loading...</div>
                     ) : attributeCache[row[0]] ? (
                         <div className="flex gap-4 flex-wrap bg-gray-50 rounded-md p-2 w-full items-center">
