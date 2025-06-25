@@ -498,11 +498,21 @@ export default function VectorSettings({
                     ) : (
                         <div className="flex items-center gap-4 p-4">
                             <div className="grow">
-                                {metadata?.embedding?.provider === "none" ? (
-                                    <div className="flex justify-between items-center w-full">
+                                <div className="flex justify-between items-center w-full">
+                                    <div className="flex flex-col">
                                         <div className="font-bold text-red-600">
-                                            Embedding is disabled
+                                            {metadata?.embedding?.provider === "none"
+                                                ? "Embedding is disabled"
+                                                : "No Embedding Configuration"}
                                         </div>
+                                        <div className="text-sm text-gray-600 mt-1">
+                                            {metadata?.embedding?.provider === "none"
+                                                ? "Enable to use VSIM search and VADD operations"
+                                                : "This vector set was created outside of the browser and doesn't have an embedding configuration. Enable embedding to use VSIM search and VADD operations in the web interface."}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm text-gray-600">Enable vector Embedding Model</span>
                                         <Switch
                                             id="enable-embedding"
                                             checked={false}
@@ -511,21 +521,7 @@ export default function VectorSettings({
                                             }}
                                         />
                                     </div>
-                                ) : (
-                                    <div className="text-sm bg-yellow-50 border border-yellow-200 rounded p-4 w-full">
-                                        <p className="font-medium text-yellow-800">
-                                            No Embedding Configuration
-                                        </p>
-                                        <p className="text-yellow-700">
-                                            This vector set was created outside
-                                            of the browser and doesn{`'`}t have
-                                            an embedding configuration. Enable
-                                            embedding above to use VSIM search
-                                            and VADD operations in the web
-                                            interface.
-                                        </p>
-                                    </div>
-                                )}
+                                </div>
                             </div>
                         </div>
                     )}
