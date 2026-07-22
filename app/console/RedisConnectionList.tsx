@@ -22,12 +22,29 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 import { toast } from "sonner"
 
 interface RedisConnection {
+    // Stable identity for this saved entry. Deliberately NOT derived from the
+    // host/port: several entries may point at the same server under different
+    // names, and deriving it gave them all the same React key.
     id: string
     name: string
     host: string
     port: number
     password?: string
     lastConnected: string | null
+}
+
+// The URL is what we connect with and what `currentUrl` is compared against,
+// so it is derived on demand rather than stored alongside the entry.
+function connectionUrl(conn: Pick<RedisConnection, "host" | "port" | "password">) {
+    return conn.password
+        ? `redis://:${encodeURIComponent(conn.password)}@${conn.host}:${conn.port}`
+        : `redis://${conn.host}:${conn.port}`
+}
+
+function newConnectionId() {
+    return typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `conn-${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
 interface RedisConnectionListProps {
@@ -92,13 +109,14 @@ const RedisConnectionList = forwardRef<
                 try {
                     const connections = JSON.parse(saved)
                     // Convert old format to new format if necessary
+                    const seen = new Set<string>()
                     const formattedConnections = connections
                         .map((conn: string | RedisConnection) => {
                             if (typeof conn === "string") {
                                 try {
                                     const parsedUrl = new URL(conn)
                                     return {
-                                        id: conn,
+                                        id: newConnectionId(),
                                         name:
                                             parsedUrl.pathname
                                                 .split("/")
@@ -111,10 +129,21 @@ const RedisConnectionList = forwardRef<
                                     return null
                                 }
                             }
+                            // Entries saved before ids were unique used the URL,
+                            // so anything missing or already claimed is reissued.
+                            if (!conn.id || seen.has(conn.id)) {
+                                return { ...conn, id: newConnectionId() }
+                            }
+                            seen.add(conn.id)
                             return conn
                         })
                         .filter(Boolean)
                     setRecentConnections(formattedConnections)
+                    // Persist the reissued ids so the migration runs only once.
+                    userSettings.set(
+                        "recentRedisConnections",
+                        JSON.stringify(formattedConnections)
+                    )
                 } catch (e) {
                     console.error("Error loading connections:", e)
                     setDefaultConnection()
@@ -127,7 +156,7 @@ const RedisConnectionList = forwardRef<
         const setDefaultConnection = () => {
             const defaultConnections = [
                 {
-                    id: "redis://localhost:6379",
+                    id: newConnectionId(),
                     name: "Local Redis",
                     host: "localhost",
                     port: 6379,
@@ -160,14 +189,11 @@ const RedisConnectionList = forwardRef<
                 setConnectionError(null)
                 setIsConnectingLocal(true)
 
-                // Construct URL with password if provided
-                const url = newConnection.password
-                    ? `redis://:${encodeURIComponent(newConnection.password)}@${newConnection.host}:${newConnection.port}`
-                    : `redis://${newConnection.host}:${newConnection.port}`
+                const url = connectionUrl(newConnection)
 
                 const connection: RedisConnection = {
                     ...newConnection,
-                    id: url,
+                    id: newConnectionId(),
                     lastConnected: new Date().toISOString(),
                 }
 
@@ -234,10 +260,7 @@ const RedisConnectionList = forwardRef<
 
         const handleConnect = async (connection: RedisConnection) => {
             try {
-                // Construct URL with password if provided
-                const url = connection.password
-                    ? `redis://:${encodeURIComponent(connection.password)}@${connection.host}:${connection.port}`
-                    : `redis://${connection.host}:${connection.port}`
+                const url = connectionUrl(connection)
 
                 // Try to connect with retries
                 let attempts = 0
@@ -304,13 +327,10 @@ const RedisConnectionList = forwardRef<
         const saveEdit = () => {
             if (!editingConnection) return
 
+            // The id stays put — editing the host/port retargets the same entry
+            // rather than creating a new identity.
             const updatedConnections = recentConnections.map((conn) =>
-                conn.id === editingConnection.id
-                    ? {
-                        ...editingConnection,
-                        id: `redis://${editingConnection.host}:${editingConnection.port}`,
-                    }
-                    : conn
+                conn.id === editingConnection.id ? { ...editingConnection } : conn
             )
             saveConnections(updatedConnections)
             setEditingConnection(null)
@@ -540,7 +560,7 @@ const RedisConnectionList = forwardRef<
                                     {recentConnections.map((connection) => (
                                         <TableRow
                                             key={connection.id}
-                                            className={`group hover:bg-gray-50 border-b transition-colors ${currentUrl === connection.id
+                                            className={`group hover:bg-gray-50 border-b transition-colors ${currentUrl === connectionUrl(connection)
                                                 ? "bg-gray-200 border-l-4 border-l-red-500"
                                                 : ""
                                                 }`}
