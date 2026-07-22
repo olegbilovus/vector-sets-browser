@@ -22,11 +22,20 @@ export async function GET() {
                 const vectorSets = new Set<string>()
 
                 do {
+                    // COUNT is a hint for how many keys Redis examines per
+                    // call, not how many it returns. Without it Redis defaults
+                    // to 10, so a keyspace with a few hundred thousand keys
+                    // needs tens of thousands of round trips — on a remote
+                    // server that is tens of seconds. Vector sets are rare
+                    // relative to total keys, so scanning in large batches
+                    // costs one cheap server-side pass and far fewer hops.
                     const [nextCursor, keys] = (await client.sendCommand([
                         "SCAN",
                         cursor,
                         "TYPE",
                         "vectorset",
+                        "COUNT",
+                        "1000",
                     ])) as [string, string[]]
 
                     keys.forEach((key) => vectorSets.add(key))
