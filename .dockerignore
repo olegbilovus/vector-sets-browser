@@ -8,4 +8,6 @@ dist
 .vscode
 .next
 .cursor
+.claude
+.github
 .DS_Store

@@ -1,7 +1,7 @@
 import { JobProcessor } from "@/lib/server/job-processor"
 import { JobQueueService } from "@/lib/server/job-queue"
 import { NextRequest, NextResponse } from "next/server"
-import { CreateImportJobRequestBody } from "../jobs"
+import { CreateImportJobRequestBody } from "@/services/jobs"
 import { RedisConnection, getRedisUrl } from "@/services/redis-server/RedisConnection"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 
