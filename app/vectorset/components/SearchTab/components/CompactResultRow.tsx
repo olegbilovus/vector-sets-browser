@@ -34,7 +34,6 @@ interface CompactResultRowProps {
 
 const CompactResultRow = React.memo(function CompactResultRow({
     row,
-    index,
     availableColumns,
     parsedAttributeCache,
     selectMode,

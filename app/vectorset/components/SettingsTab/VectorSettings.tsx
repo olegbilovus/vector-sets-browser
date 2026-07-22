@@ -19,23 +19,15 @@ import { Switch } from "@/components/ui/switch"
 import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter"
 import {
     EmbeddingConfig,
-    EmbeddingDataFormat,
     getEmbeddingDataFormat,
     getExpectedDimensions,
     getModelName,
     getProviderInfo,
-    isImageEmbedding,
-    isMultiModalEmbedding,
-    isTextEmbedding,
 } from "@/services/embeddings/types/embeddingModels"
 import { vadd, vcard, vdim, vrem, vsim } from "@/services/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 import {
     AlertTriangle,
-    BrainCircuit,
-    Cpu,
-    Image,
-    LetterText,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 import EmbeddingProcessVisualization from "./EmbeddingProcessVisualization"
@@ -47,59 +39,12 @@ interface VectorSettingsProps {
     onMetadataUpdate?: (metadata: VectorSetMetadata) => void
 }
 
-// Add this component for supported data type badges
-function DataTypeBadges({ config }: { config: EmbeddingConfig }) {
-    const supportsText = isTextEmbedding(config)
-    const supportsImage = isImageEmbedding(config)
-    const isMultiModal = isMultiModalEmbedding(config)
-
-    return (
-        <div className="flex items-center gap-2 my-2">
-            <div className="text-sm text-slate-600 mr-1">Supports:</div>
-            {supportsText && (
-                <div
-                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                        isMultiModal
-                            ? "bg-indigo-100 text-indigo-800"
-                            : "bg-blue-100 text-blue-800"
-                    }`}
-                >
-                    <LetterText className="h-3 w-3" />
-                    <span>Text</span>
-                </div>
-            )}
-            {supportsImage && (
-                <div
-                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                        isMultiModal
-                            ? "bg-indigo-100 text-indigo-800"
-                            : "bg-purple-100 text-purple-800"
-                    }`}
-                >
-                    <Image className="h-3 w-3" />
-                    <span>Image</span>
-                </div>
-            )}
-            {isMultiModal && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                    <BrainCircuit className="h-3 w-3" />
-                    <span>Multi-modal</span>
-                </div>
-            )}
-        </div>
-    )
-}
-
 export default function VectorSettings({
     vectorSetName,
     metadata,
     onMetadataUpdate,
 }: VectorSettingsProps) {
     const [isEditConfigModalOpen, setIsEditConfigModalOpen] = useState(false)
-    const [isAdvancedConfigPanelOpen, setIsAdvancedConfigPanelOpen] =
-        useState(false)
-    const [workingMetadata, setWorkingMetadata] =
-        useState<VectorSetMetadata | null>(null)
     const [isWarningDialogOpen, setIsWarningDialogOpen] = useState(false)
     const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false)
     const [pendingEmbeddingConfig, setPendingEmbeddingConfig] =
@@ -308,43 +253,6 @@ export default function VectorSettings({
         }
     }
 
-    const handleSaveAdvancedConfig = async () => {
-        try {
-            if (!vectorSetName || !workingMetadata) {
-                throw new Error("No vector set or metadata selected")
-            }
-
-            const updatedMetadata: VectorSetMetadata = {
-                ...workingMetadata,
-                lastUpdated: new Date().toISOString(),
-                embedding: workingMetadata.embedding || {
-                    provider: DEFAULT_EMBEDDING.PROVIDER,
-                    none: {
-                        model: DEFAULT_EMBEDDING.MODEL,
-                        dimensions:
-                            workingMetadata.dimensions ||
-                            DEFAULT_EMBEDDING.DIMENSIONS,
-                    },
-                },
-            }
-
-            await vectorSets.setMetadata({
-                name: vectorSetName,
-                metadata: updatedMetadata,
-            })
-
-            // Notify parent of metadata update
-            onMetadataUpdate?.(updatedMetadata)
-
-            console.log("Advanced config saved successfully")
-            setIsAdvancedConfigPanelOpen(false)
-        } catch (error) {
-            console.error(
-                "[VectorSettings] Error saving advanced config:",
-                error
-            )
-        }
-    }
 
     const handleEnableEmbedding = (checked: boolean) => {
         if (checked) {

@@ -40,7 +40,7 @@ export default function VectorComparisonView({
                         </div>
                         {(lastSearchDisplayName || searchQuery) && (
                             <div className="text-black font-semibold text-ellipsis line-clamp-1">
-                                "{lastSearchDisplayName || searchQuery}"
+                                &quot;{lastSearchDisplayName || searchQuery}&quot;
                             </div>
                         )}
                     </h3>

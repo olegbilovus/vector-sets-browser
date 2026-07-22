@@ -35,10 +35,6 @@ function ThumbnailDisplayCore({
     onError,
     metadata
 }: ThumbnailDisplayProps) {
-    // Early return if this vector set doesn't support images
-    if (metadata && !isImageEmbedding(metadata.embedding) && !isMultiModalEmbedding(metadata.embedding)) {
-        return null
-    }
     const { thumbnail, isLoading, error } = useThumbnail(vectorSetName, elementId)
 
     // Call onError callback when there's an actual error (not just missing thumbnail)
@@ -47,6 +43,13 @@ function ThumbnailDisplayCore({
             onError(error)
         }
     }, [error, onError])
+
+    // Bail out if this vector set doesn't support images. This has to come
+    // after the hooks above — metadata can arrive asynchronously, so returning
+    // first would change the hook order between renders.
+    if (metadata && !isImageEmbedding(metadata.embedding) && !isMultiModalEmbedding(metadata.embedding)) {
+        return null
+    }
 
     const baseClasses = `${sizeClasses[size]} rounded overflow-hidden flex items-center justify-center ${className}`
 
@@ -75,6 +78,9 @@ function ThumbnailDisplayCore({
     // Success state - show thumbnail
     return (
         <div className={`${baseClasses} bg-gray-100`}>
+            {/* Thumbnails are data: URLs served from the client-side cache,
+                which next/image cannot optimize. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
                 src={thumbnail}
                 alt={`Thumbnail for ${elementId}`}

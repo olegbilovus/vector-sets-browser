@@ -23,7 +23,6 @@ export default function MultipleImagesGrid({
                     key={img.id}
                     src={img.previewUrl}
                     alt={img.fileName}
-                    fileName={img.fileName}
                     onRemove={() => onRemoveImage(img.id)}
                 />
             ))}

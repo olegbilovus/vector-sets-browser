@@ -90,7 +90,7 @@ export default function VectorVisualizationInfo({
                     {getDescription()}
                     {canCompare && !showComparison && (
                         <span className="text-blue-700 font-medium ml-2">
-                            • Use "Compare Side by Side" to compare vectors
+                            • Use &quot;Compare Side by Side&quot; to compare vectors
                         </span>
                     )}
                 </p>

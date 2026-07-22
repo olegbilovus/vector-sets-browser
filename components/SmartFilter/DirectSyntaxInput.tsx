@@ -25,7 +25,8 @@ interface DirectSyntaxInputProps {
     availableAttributes: string[]
     isLoadingAttributes: boolean
     selectedIndex: number
-    setSelectedIndex: (index: number) => void
+    // A real useState setter — the keyboard handlers use the updater form.
+    setSelectedIndex: React.Dispatch<React.SetStateAction<number>>
     handleSelect: (attribute: string) => void
     className?: string
 }
@@ -40,7 +41,6 @@ export default function DirectSyntaxInput({
     setCurrentInput,
     showDropdown,
     setShowDropdown,
-    cursorPosition,
     setCursorPosition,
     availableAttributes,
     isLoadingAttributes,

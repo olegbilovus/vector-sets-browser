@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select"
 import { VectorTuple, vlinks } from "@/services/redis-server/api"
 import { VectorSetMetadata, VectorSetSearchOptions } from "@/lib/types/vectors"
+import { type SearchType } from "@/components/SearchOptions/SearchTypeSelector"
 import { useCallback, useEffect, useState } from "react"
 import VectorViz3D from "./VectorViz3D"
 import HNSWVizPure from "./vizualizer/HNSW2dViz"

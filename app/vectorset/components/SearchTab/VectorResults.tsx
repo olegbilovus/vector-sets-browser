@@ -169,7 +169,7 @@ export default function VectorResults({
 
     // Handle "Select All" action
     const handleSelectAll = useCallback(() => {
-        setSelectedElements((prev) => {
+        setSelectedElements(() => {
             const allElements = filteredAndSortedResults.map((row) => row[0])
             return new Set(allElements)
         })
@@ -679,7 +679,6 @@ export default function VectorResults({
     const vectorSetIsEmpty = useMemo(() => isEmptyVectorSet(results), [results])
 
     // Create a stable search state that only changes when results actually change
-    const hasResults = results.length > 0
     const isEmptyResults = results.length === 0 && !isLoading
 
 

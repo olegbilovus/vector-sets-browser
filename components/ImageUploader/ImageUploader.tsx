@@ -25,7 +25,7 @@ export default function ImageUploader({
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [isProcessingEmbedding, setIsProcessingEmbedding] = useState(false)
-    const [imageData, setImageData] = useState<string | null>(null)
+    const [, setImageData] = useState<string | null>(null)
     const [imageFiles, setImageFiles] = useState<ImageFileInfo[]>([])
     const [isCompact, setIsCompact] = useState(false)
 

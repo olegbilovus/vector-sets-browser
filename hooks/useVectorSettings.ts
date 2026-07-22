@@ -31,13 +31,13 @@ const VECTORSET_STORAGE_PREFIX = 'vector-visualization-settings-'
 const DEFAULT_SETTINGS_KEY = 'vector-visualization-default-settings'
 
 // Helper function to determine if a vectorset is image/multimodal based
-function isImageBasedVectorSet(metadata: VectorSetMetadata | null): boolean {
+function isImageBasedVectorSet(metadata?: VectorSetMetadata | null): boolean {
     if (!metadata?.embedding) return false
     return isImageEmbedding(metadata.embedding) || isMultiModalEmbedding(metadata.embedding)
 }
 
 // Helper function to get default settings based on vectorset type
-function getDefaultSettings(metadata: VectorSetMetadata | null): VectorSettings {
+function getDefaultSettings(metadata?: VectorSetMetadata | null): VectorSettings {
     return isImageBasedVectorSet(metadata) ? DEFAULT_IMAGE_SETTINGS : DEFAULT_TEXT_SETTINGS
 }
 
@@ -182,7 +182,7 @@ export function useVectorSettings(vectorSetName?: string | null, metadata?: Vect
             const typeKey = isImageBased ? 'image' : 'text'
             
             // Clear custom defaults for this type
-            let customDefaults = {}
+            let customDefaults: Partial<Record<'image' | 'text', VectorSettings>> = {}
             try {
                 const existing = localStorage.getItem(DEFAULT_SETTINGS_KEY)
                 if (existing) {

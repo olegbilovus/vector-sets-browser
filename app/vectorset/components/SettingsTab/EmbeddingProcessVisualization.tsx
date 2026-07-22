@@ -2,9 +2,8 @@ import {
     EmbeddingConfig,
     EmbeddingDataFormat,
     getModelName,
-    getProviderInfo,
 } from "@/services/embeddings/types/embeddingModels"
-import { BrainCircuit, Image, LetterText } from "lucide-react"
+import { Image as ImageIcon, LetterText } from "lucide-react"
 import { getProviderIcon } from "@/components/EmbeddingConfig/EmbeddingIcons"
 
 interface EmbeddingProcessVisualizationProps {
@@ -32,7 +31,6 @@ export default function EmbeddingProcessVisualization({
     }
 
     const getModelDisplayName = (config: EmbeddingConfig) => {
-        const providerInfo = getProviderInfo(config.provider)
         const modelName = getModelName(config)
         return `${modelName}`
     }
@@ -52,14 +50,14 @@ export default function EmbeddingProcessVisualization({
                     )}
                     {dataFormat === "image" && (
                         <div className="p-2 bg-white rounded-md border border-slate-200 w-24 h-24 flex items-center justify-center">
-                            <Image className="h-10 w-10 text-purple-500" />
+                            <ImageIcon className="h-10 w-10 text-purple-500" />
                         </div>
                     )}
                     {dataFormat === "text-and-image" && (
                         <div className="p-2 bg-white rounded-md border border-slate-200 w-24 h-24 flex flex-col items-center justify-center">
                             <LetterText className="h-6 w-6 text-blue-500" />
                             <div className="text-xs font-semibold">+</div>
-                            <Image className="h-6 w-6 text-purple-500" />
+                            <ImageIcon className="h-6 w-6 text-purple-500" />
                         </div>
                     )}
                     <div className="text-xs font-medium mt-1 text-slate-600 text-center max-w-20 whitespace-nowrap">

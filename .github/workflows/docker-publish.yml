@@ -13,13 +13,9 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # Lint and typecheck are reported but do not gate the image: the repository
-  # carries a backlog of pre-existing violations, and neither affects the
-  # compiled output. Drop `continue-on-error` once that backlog is cleared.
   quality:
     name: Lint & typecheck
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 

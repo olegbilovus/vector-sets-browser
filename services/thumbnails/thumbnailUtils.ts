@@ -84,7 +84,7 @@ export async function generateThumbnail(
                 const originalOnLoad = img.onload
                 img.onload = () => {
                     clearTimeout(loadTimeout)
-                    originalOnLoad?.()
+                    originalOnLoad?.call(img, new Event("load"))
                 }
 
                 // Clear timeout on error

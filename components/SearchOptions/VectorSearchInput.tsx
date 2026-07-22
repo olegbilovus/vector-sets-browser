@@ -119,14 +119,6 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
         return hasValidFormat && hasCorrectDims
     }, [dim])
     
-    // Function to check if vector has correct dimensions
-    const hasCorrectDimensions = useCallback((text: string) => {
-        if (!text.trim() || !dim) return true // Empty is valid, or no dimension requirement
-        
-        const vectorData = text.split(",").map((n) => parseFloat(n.trim()))
-        return vectorData.length === dim
-    }, [dim])
-    
     // Function to generate text embedding with debouncing
     const generateTextEmbedding = useCallback(async (text: string) => {
         if (!metadata?.embedding || metadata.embedding.provider === "none") {
@@ -547,6 +539,8 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
                             ) : (
                                 // Image preview state
                                 <div className="h-full w-full relative">
+                                    {/* data: URL from FileReader; not optimizable. */}
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={imagePreviewUrl || ""}
                                         alt="Preview"
@@ -662,5 +656,7 @@ const VectorSearchInput = forwardRef<HTMLTextAreaElement, VectorSearchInputProps
         </div>
     )
 })
+
+VectorSearchInput.displayName = "VectorSearchInput"
 
 export default VectorSearchInput 

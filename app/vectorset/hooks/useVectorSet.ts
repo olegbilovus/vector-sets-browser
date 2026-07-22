@@ -8,10 +8,8 @@ import {
     vcard,
     vdim,
     vemb,
-    vgetattr,
     vinfo,
     vrem,
-    vsim
 } from "@/services/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 
@@ -19,8 +17,6 @@ import { validateVector } from "@/services/embeddings/utils/validation"
 import eventBus, { AppEvents } from "@/lib/client/events/eventEmitter"
 import { thumbnailCache } from "@/services/thumbnails/thumbnailCache"
 import { useEffect, useRef, useState, useCallback } from "react"
-import { array } from "zod"
-import { debounce } from "lodash"
 
 interface UseVectorSetReturn {
     vectorSetName: string | null
@@ -226,7 +222,7 @@ const useVectorSet = (): UseVectorSetReturn => {
             // and it is the default vector, then we should delete the Placeholder (Vector)
             // after adding the new vector.
             const vectorCountResponse = await vcard({ keyName: vectorSetName })
-            let vectorCount = vectorCountResponse.success ? vectorCountResponse.result : 0
+            const vectorCount = vectorCountResponse.success ? vectorCountResponse.result : 0
 
             // Use original vector
             const result = await vadd({

@@ -104,7 +104,7 @@ export class EmbeddingService {
 
         // Pass the API key to the provider if it's OpenAI
         if (config.provider === PROVIDERS.OPENAI && provider instanceof OpenAIProvider) {
-            provider.setApiKey(apiKey);
+            provider.setApiKey(apiKey || null);
         }
 
         // Check cache first if caching is enabled

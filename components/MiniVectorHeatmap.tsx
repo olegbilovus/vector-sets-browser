@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import VectorVisualizationRenderer from "./VectorVisualizationRenderer"
 import VectorHeatmap from "./VectorHeatmap"
-import { BarChart2 } from "lucide-react"
 import { useVectorSettings } from "@/hooks/useVectorSettings"
 import { VectorSetMetadata } from "@/lib/types/vectors"
 

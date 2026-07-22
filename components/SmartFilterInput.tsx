@@ -1,6 +1,6 @@
 import { VectorTuple } from "@/services/redis-server/api"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AlertCircle, Sparkles, Terminal } from "lucide-react"
+import { Sparkles, Terminal } from "lucide-react"
 import { useEffect, useState } from "react"
 
 // Import custom hooks
@@ -58,7 +58,6 @@ export default function SmartFilterInput({
         error,
         setError,
         processNaturalLanguage,
-        clearNlQuery,
     } = useNaturalLanguage({
         availableAttributes,
         onChange,

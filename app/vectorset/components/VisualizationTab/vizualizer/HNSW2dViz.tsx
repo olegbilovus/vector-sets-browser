@@ -66,11 +66,8 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
         isDarkMode,
         showLines,
         isCardPinned,
-        loadColorScheme,
         saveColorScheme,
-        loadLineVisibility,
         saveLineVisibility,
-        loadCardPinState,
         saveCardPinState,
         toggleDarkMode,
         toggleLineVisibility,
@@ -85,7 +82,6 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
         renderer,
         fitCameraToNodes,
         updateGuideLineColors,
-        handleZoom: originalHandleZoom,
         updateSceneBackground,
     } = useThreeScene()
 

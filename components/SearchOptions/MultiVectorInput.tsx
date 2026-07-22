@@ -35,7 +35,6 @@ interface MultiVectorInputProps {
     metadata: VectorSetMetadata | null
     dim: number | null
     onVectorCombinationGenerated: (combinedVector: number[]) => void
-    triggerSearch?: () => void // Optional function to explicitly trigger search
     vectorSetName?: string | null
 }
 
@@ -43,7 +42,6 @@ export default function MultiVectorInput({
     metadata,
     dim,
     onVectorCombinationGenerated,
-    triggerSearch,
     vectorSetName = null,
 }: MultiVectorInputProps) {
     // Initialize with two vector inputs by default
@@ -219,38 +217,6 @@ export default function MultiVectorInput({
             console.error("Error in immediate vector combination:", error)
         }
     }, [vectorInputs, metadata, normalizeVector, combinationMethod, onVectorCombinationGenerated])
-    
-    // Manually trigger vector combination and search
-    const handleSearchClick = async () => {
-        console.log("Search button clicked, generating combined vector...")
-        try {
-            const combined = await VectorCombinationService.combineVectors(
-                vectorInputs,
-                metadata,
-                normalizeVector,
-                combinationMethod
-            )
-            
-            if (combined) {
-                // Store the combined vector locally and update parent
-                setCombinedVector(combined)
-                onVectorCombinationGenerated(combined)
-
-                // Then explicitly trigger the search after a small delay to ensure the vector is set
-                if (triggerSearch) {
-                    setTimeout(() => {
-                        triggerSearch()
-                    }, 200)
-                }
-            } else {
-                setCombinedVector(null)
-                // Notify parent to clear search when no valid vectors
-                onVectorCombinationGenerated([])
-            }
-        } catch (error) {
-            console.error("Error when triggering search:", error)
-        }
-    }
     
     // Effect to combine vectors when inputs change
     useEffect(() => {

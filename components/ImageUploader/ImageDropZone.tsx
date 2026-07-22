@@ -16,7 +16,6 @@ export default function ImageDropZone({
     onFileSelect,
     isLoading,
     isProcessingEmbedding,
-    previewUrl,
     allowMultiple,
     isCompact = false,
     children,

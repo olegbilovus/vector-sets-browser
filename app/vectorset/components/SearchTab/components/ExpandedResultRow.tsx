@@ -1,12 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { VectorTuple } from "@/services/redis-server/api"
 import { VectorSetMetadata } from "@/lib/types/vectors"
-import {
-    TextEmbeddingIcon,
-    ImageEmbeddingIcon,
-    MultiModalEmbeddingIcon,
-    getEmbeddingIcon,
-} from "@/components/EmbeddingConfig/EmbeddingIcons"
+import { getEmbeddingIcon } from "@/components/EmbeddingConfig/EmbeddingIcons"
 import { getEmbeddingDataFormat, isImageEmbedding, isMultiModalEmbedding } from "@/services/embeddings/types/embeddingModels"
 import MiniVectorHeatmap from "@/components/MiniVectorHeatmap"
 import ThumbnailDisplay from "@/components/ThumbnailDisplay/ThumbnailDisplay"
@@ -42,7 +37,6 @@ interface ExpandedResultRowProps {
 
 export default function ExpandedResultRow({
     row,
-    index,
     selectMode,
     selectedElements,
     showAttributes,
@@ -73,35 +67,6 @@ export default function ExpandedResultRow({
         if (typeof value === "boolean") return value ? "true" : "false"
         if (value === null || value === undefined) return ""
         return String(value)
-    }
-
-    // Helper to determine the vector type icon
-    const getVectorTypeIcon = (element: string) => {
-        const attributes = parsedAttributeCache[element]
-
-        // Check for content_type or type attribute that indicates image
-        if (
-            attributes?.content_type?.includes("image") ||
-            attributes?.type === "image" ||
-            attributes?.vector_type === "image" ||
-            (typeof attributes?.filename === "string" &&
-                /\.(jpe?g|png|gif|webp|bmp)$/i.test(attributes.filename))
-        ) {
-            return <ImageEmbeddingIcon />
-        }
-
-        // Check for multi-modal content
-        if (
-            attributes?.content_type?.includes("multimodal") ||
-            attributes?.type === "text-and-image" ||
-            attributes?.vector_type === "text-and-image" ||
-            attributes?.has_image === true
-        ) {
-            return <MultiModalEmbeddingIcon />
-        }
-
-        // Default to text
-        return <TextEmbeddingIcon />
     }
 
     return (

@@ -1,4 +1,4 @@
-import { VectorSetMetadata } from "../types/vectorSetMetaData"
+import { VectorSetMetadata } from "@/lib/types/vectors"
 
 interface VectorSetHeaderProps {
     vectorSetName: string
