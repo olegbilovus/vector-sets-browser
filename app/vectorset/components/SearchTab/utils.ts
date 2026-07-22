@@ -1,5 +1,5 @@
 import { parseFieldFilters } from "@/lib/data/filter"
-import { FilterField, ParsedAttributes, SortColumn, SortDirection } from "./types"
+import { FilterField, SortColumn, SortDirection } from "./types"
 import { VectorTuple } from "@/services/redis-server/api"
 
 /**

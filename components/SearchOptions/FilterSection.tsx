@@ -13,8 +13,6 @@ interface FilterSectionProps {
 }
 
 export default function FilterSection({
-    showFilters,
-    setShowFilters,
     localFilter,
     handleFilterChange,
     results,

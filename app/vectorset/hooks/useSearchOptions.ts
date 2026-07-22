@@ -29,11 +29,8 @@ export default function useSearchOptions({
     setForceLinearScan,
     noThread,
     setNoThread,
-    searchExplorationFactor,
     setSearchExplorationFactor,
-    filterExplorationFactor,
     setFilterExplorationFactor,
-    vectorFormat,
     setVectorFormat,
 }: UseSearchOptionsParams) {
     // UI State

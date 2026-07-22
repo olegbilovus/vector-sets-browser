@@ -332,6 +332,14 @@ export interface ThumbnailGetResponse {
     size?: number
 }
 
+// GET /api/thumbnails returns its payload under `data`, not the `result` key
+// the rest of the API uses, so this endpoint gets its own response shape.
+export interface ThumbnailGetApiResponse {
+    success: boolean
+    data?: ThumbnailGetResponse
+    error?: string
+}
+
 export interface ThumbnailDeleteRequest {
     vectorSetName: string
     elementId: string
@@ -364,7 +372,7 @@ export async function thumbnailSet(
 export async function thumbnailGet(
     vectorSetName: string,
     elementId: string
-): Promise<ApiResponse<ThumbnailGetResponse>> {
+): Promise<ThumbnailGetApiResponse> {
     try {
         // Use direct fetch to handle 404s gracefully without console errors
         const url = `/api/thumbnails?vectorSetName=${encodeURIComponent(vectorSetName)}&elementId=${encodeURIComponent(elementId)}`
@@ -382,7 +390,7 @@ export async function thumbnailGet(
         let responseData
         try {
             responseData = await response.json()
-        } catch (parseError) {
+        } catch {
             return { success: false, error: 'Failed to parse response' }
         }
 

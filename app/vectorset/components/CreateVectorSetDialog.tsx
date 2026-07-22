@@ -59,7 +59,7 @@ export default function CreateVectorSetModal({
             model: "clip-vit-base-patch32",
         },
     })
-    const [isOllamaAvailable, setIsOllamaAvailable] = useState(false)
+    const [, setIsOllamaAvailable] = useState(false)
     const [isConfigInitialized, setIsConfigInitialized] = useState(false)
 
     // UI state

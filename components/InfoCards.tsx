@@ -7,7 +7,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { Code, Image, Mic } from "lucide-react"
+import { Code, Image as ImageIcon, Mic } from "lucide-react"
 
 export function InfoCards() {
     return (
@@ -40,7 +40,7 @@ export function InfoCards() {
             <Card>
                 <CardHeader className="flex flex-row items-center gap-4">
                     <div className="rounded-lg bg-primary/10 p-2">
-                        <Image className="h-6 w-6 text-primary" />
+                        <ImageIcon className="h-6 w-6 text-primary" />
                     </div>
                     <div>
                         <CardTitle>Image Embeddings</CardTitle>

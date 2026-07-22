@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { BorderBeam } from "@stianlarsen/border-beam"
 import { Copy } from "lucide-react"
 import { useState } from "react"
 import { useTypingAnimation } from "@/hooks/useTypingAnimation"
@@ -15,8 +14,6 @@ interface RedisCommandBoxProps {
 }
 
 export default function RedisCommandBox({
-    vectorSetName,
-    dim,
     executedCommand,
     searchQuery,
     searchFilter,

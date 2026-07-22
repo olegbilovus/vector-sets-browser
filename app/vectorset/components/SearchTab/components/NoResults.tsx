@@ -18,7 +18,6 @@ export default function NoResults({
     isSearching,
     isLoading,
     isLoaded,
-    searchType,
     searchTime
 }: NoResultsProps) {
     if (!isLoaded || isLoading || isSearching) {

@@ -78,7 +78,7 @@ export default function InfoPanel({
     const handleSaveAdvancedConfig = () => {
         if (workingMetadata && onMetadataUpdate) {
             onMetadataUpdate(workingMetadata)
-            eventBus.emit(AppEvents.VectorSetMetadataUpdated, {
+            eventBus.emit(AppEvents.METADATA_UPDATED, {
                 vectorSetName,
                 metadata: workingMetadata,
             })

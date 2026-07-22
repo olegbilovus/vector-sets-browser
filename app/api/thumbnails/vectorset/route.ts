@@ -55,10 +55,13 @@ export async function DELETE(request: Request) {
             }, { status: 500 })
         }
 
+        // ApiResponse leaves result optional even when success is true.
+        const deletedCount = redisResult.result?.deletedCount ?? 0
+
         return NextResponse.json({
             success: true,
-            deletedCount: redisResult.result.deletedCount,
-            message: `Deleted ${redisResult.result.deletedCount} thumbnails for vector set '${validatedRequest.vectorSetName}'`
+            deletedCount,
+            message: `Deleted ${deletedCount} thumbnails for vector set '${validatedRequest.vectorSetName}'`
         })
 
     } catch (error) {

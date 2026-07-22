@@ -267,7 +267,6 @@ export default function VectorHeatmapRenderer({
     const renderVectorStats = () => {
         if (!vector || vector.length === 0 || !showStats) return null
 
-        const scalingParams = getScalingParams(vector)
 
         return (
             <>

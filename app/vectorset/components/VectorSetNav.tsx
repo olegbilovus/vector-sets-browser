@@ -57,41 +57,15 @@ function useVectorSetEvents(
     useEffect(() => {
         if (!isConnected) return
 
-        const handleVectorAdded = async (data: {
-            vectorSetName: string
-            element: string
-            newCount: number
-        }) => {
-            onUpdate()
-        }
-
-        const handleVectorDeleted = async (data: {
-            vectorSetName: string
-            element?: string
-            elements?: string[]
-            newCount: number
-        }) => {
-            onUpdate()
-        }
-
-        const handleVectorsImported = async (data: {
-            vectorSetName: string
-        }) => {
-            onUpdate()
-        }
-
-        const handleDimensionsChanged = async (data: {
-            vectorSetName: string
-            dimensions: number
-        }) => {
-            onUpdate()
-        }
+        // Every one of these events just means "the list is stale"; none of
+        // them need the payload.
+        const handleChange = () => onUpdate()
 
         const unsubscribes = [
-            eventBus.on(AppEvents.VECTOR_ADDED, handleVectorAdded),
-            eventBus.on(AppEvents.VECTOR_DELETED, handleVectorDeleted),
-            eventBus.on(AppEvents.VECTORS_IMPORTED, handleVectorsImported),
-            eventBus.on(AppEvents.VECTORSET_DIMENSIONS_CHANGED, handleDimensionsChanged),
+            eventBus.on(AppEvents.VECTOR_ADDED, handleChange),
+            eventBus.on(AppEvents.VECTOR_DELETED, handleChange),
+            eventBus.on(AppEvents.VECTORS_IMPORTED, handleChange),
+            eventBus.on(AppEvents.VECTORSET_DIMENSIONS_CHANGED, handleChange),
         ]
 
         return () => {

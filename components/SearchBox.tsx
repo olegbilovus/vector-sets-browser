@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { type VectorSetMetadata } from "@/lib/types/vectors"
 import { Filter, X, ChevronRight } from "lucide-react"
-import { useCallback, useState, useRef, useEffect } from "react"
+import { useRef, useEffect } from "react"
 
 import { VectorTuple } from "@/services/redis-server/api"
 import RedisCommandBox from "./RedisCommandBox"
@@ -20,22 +20,6 @@ import {
 import MultiVectorInput from "./SearchOptions/MultiVectorInput"
 import VectorSearchInput from "./SearchOptions/VectorSearchInput"
 import { SearchType } from "./SearchOptions/SearchTypeSelector"
-import { BorderBeam } from "@stianlarsen/border-beam"
-
-const searchTypes = [
-    {
-        value: "Vector",
-        label: "Text or Vector",
-    },
-    {
-        value: "Image",
-        label: "Image",
-    },
-    {
-        value: "Element",
-        label: "Element",
-    },
-] as const
 
 interface SearchBoxProps {
     vectorSetName: string
@@ -153,15 +137,6 @@ export default function SearchBox({
         }
     }
 
-    // Determine if we should show the image uploader - always show for Vector searches
-    const showImageUploader = searchType === "Vector"
-
-    // Always show text input
-    const showTextInput = true
-
-    // Show shuffle button for Vector searches
-    const showShuffleButton = searchType === "Vector"
-
     return (
         <section className="mb-2">
             <div className="bg-[white] rounded shadow-md p-2">
@@ -223,7 +198,6 @@ export default function SearchBox({
                             onVectorCombinationGenerated={
                                 handleEmbeddingGenerated
                             }
-                            triggerSearch={handleSingleVectorEmbedding}
                             vectorSetName={vectorSetName}
                         />
                     ) : (
@@ -304,7 +278,12 @@ export default function SearchBox({
                                     variant="default"
                                     size="sm"
                                     className="flex items-center gap-1"
-                                    onClick={handleSingleVectorEmbedding}
+                                    onClick={() =>
+                                        lastTextEmbedding &&
+                                        handleSingleVectorEmbedding(
+                                            lastTextEmbedding
+                                        )
+                                    }
                                     title="Run command"
                                 >
                                     <span className="text-xs">Run</span>

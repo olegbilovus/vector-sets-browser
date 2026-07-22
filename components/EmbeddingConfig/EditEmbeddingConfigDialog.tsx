@@ -185,7 +185,7 @@ export default function EditEmbeddingConfigModal({
         setError(null)
 
         try {
-            let newConfig: EmbeddingConfig = {
+            const newConfig: EmbeddingConfig = {
                 provider,
             }
             if (provider === "openai") {

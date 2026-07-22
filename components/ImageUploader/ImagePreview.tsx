@@ -19,6 +19,9 @@ export default function ImagePreview({
         return (
             <div className="relative w-full h-full flex justify-center items-center">
                 <div className="relative w-full h-full">
+                    {/* src is a blob:/data: URL for a file the user just picked;
+                        next/image cannot optimize either scheme. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={src}
                         alt={alt}
@@ -41,6 +44,7 @@ export default function ImagePreview({
     return (
         <div className="relative w-full h-full flex justify-center items-center">
             <div className="relative max-w-full max-h-64">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={src}
                     alt={alt}

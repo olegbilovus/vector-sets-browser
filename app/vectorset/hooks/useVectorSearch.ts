@@ -467,7 +467,9 @@ export function useVectorSearch({
                 errorMessage = error.message
 
                 // Check if this is a filter syntax error
-                isFilterError = error.data?.isFilterSyntaxError === true
+                isFilterError =
+                    (error.data as { isFilterSyntaxError?: boolean } | undefined)
+                        ?.isFilterSyntaxError === true
 
                 // Only log non-filter errors to avoid cluttering logs with user input validation errors
                 if (!isFilterError) {

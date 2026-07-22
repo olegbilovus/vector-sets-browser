@@ -21,7 +21,7 @@ export default function VectorRadialRenderer({
     vector,
     className = "",
     size = 300,
-    showStats = false,
+    showStats: _showStats = false,
     scalingMode = 'relative',
     colorScheme = 'thermal',
     noPadding = false
@@ -144,7 +144,7 @@ export default function VectorRadialRenderer({
         ctx.fill()
 
         // Draw vector dimensions as points around the circle
-        displayDimensions.forEach(({ value, index }, displayIndex) => {
+        displayDimensions.forEach(({ value }, displayIndex) => {
             const angle = (displayIndex / totalDisplayCount) * 2 * Math.PI - Math.PI / 2
             
             // Use same improved radial calculation as in drawing

@@ -151,7 +151,7 @@ export class JobProcessor {
         }
 
         // If this was the second vector added (count was 1), try to remove the default vector
-        if (countResult.success && countResult.result === 1) {
+        if (countResult.success && Number(countResult.result) === 1) {
             console.log("[JobProcessor] Attempting to remove Placeholder (Vector)")
             try {
                 await RedisConnection.withClient(
@@ -391,7 +391,8 @@ export class JobProcessor {
 
                 try {
                     let elementId: string
-                    let textToEmbed: string
+                    // Only assigned on the no-precomputed-vector path below.
+                    let textToEmbed = ""
                     let embedding: number[] | undefined
 
                     // Handle pre-computed vectors from JSON or image files
