@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
         // Process results
         // Each result will be either 1 (success) or 0 (element exists)
-        const results = response.result as number[]
+        const results = response.result as unknown as number[]
         
         return NextResponse.json({
             success: true,

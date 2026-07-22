@@ -8,6 +8,35 @@ type SimPair = [string, number];
 type SimPairWithEmb = [string, number, number[] | null];
 type SimPairWithAttribs = [string, number, number[] | null, string | null];
 
+// node-redis v4 returns VSIM WITHSCORES as a flat array — [element, score, ...]
+// or [element, score, attributes, ...] with WITHATTRIBS. v5+ decodes it into
+// { element: score } / { element: [score, attributes] }. Normalise both into
+// [element, score, attributes] triples.
+function normalizeVsimReply(
+    raw: unknown,
+    withAttribs: boolean
+): Array<[string, number, string | null]> {
+    if (raw && !Array.isArray(raw) && typeof raw === 'object') {
+        return Object.entries(raw as Record<string, unknown>).map(([element, v]) =>
+            Array.isArray(v)
+                ? [element, Number(v[0]), (v[1] as string | null) ?? null]
+                : [element, Number(v), null]
+        )
+    }
+
+    const arr = (raw as unknown[]) || []
+    const step = withAttribs ? 3 : 2
+    const out: Array<[string, number, string | null]> = []
+    for (let i = 0; i + step - 1 < arr.length; i += step) {
+        out.push([
+            String(arr[i]),
+            parseFloat(String(arr[i + 1])),
+            withAttribs ? ((arr[i + 2] as string | null) ?? null) : null,
+        ])
+    }
+    return out
+}
+
 export async function POST(request: Request) {
     try {
         const body = await request.json()
@@ -98,24 +127,15 @@ export async function POST(request: Request) {
         if (useWithAttribs) {
             // WITHATTRIBS returns: element, score, attributes, element, score, attributes, ...
             // The format is: [elem1, score1, attr1, elem2, score2, attr2, ...]
-            const resultArray = redisResult.result as any[]
-            const pairsWithAttribs: SimPairWithAttribs[] = []
-            
-            // Parse every 3 items: element, score, attributes
-            for (let i = 0; i < resultArray.length; i += 3) {
-                if (i + 2 < resultArray.length) {
-                    const element = resultArray[i] as string
-                    const score = parseFloat(resultArray[i + 1] as string)
-                    const attributes = resultArray[i + 2] // Can be null or string
-                    
-                    pairsWithAttribs.push([
-                        element, 
-                        score, 
-                        null, // embedding will be filled later if needed
-                        attributes
-                    ])
-                }
-            }
+            const pairsWithAttribs: SimPairWithAttribs[] = normalizeVsimReply(
+                redisResult.result,
+                true
+            ).map(([element, score, attributes]): SimPairWithAttribs => [
+                element,
+                score,
+                null, // embedding will be filled later if needed
+                attributes,
+            ])
 
             finalResult = pairsWithAttribs
 
@@ -132,11 +152,10 @@ export async function POST(request: Request) {
             }
         } else {
             // Original method: pairs of [element, score]
-            const pairs: SimPair[] = []
-            const resultArray = redisResult.result as string[]
-            for (let i = 0; i < resultArray.length; i += 2) {
-                pairs.push([resultArray[i], parseFloat(resultArray[i + 1])])
-            }
+            const pairs: SimPair[] = normalizeVsimReply(
+                redisResult.result,
+                false
+            ).map(([element, score]): SimPair => [element, score])
 
             // If attributes are requested but WITHATTRIBS wasn't used, fetch them separately
             if (validationResult.value.withAttribs || validationResult.value.withEmbeddings) {

@@ -16,12 +16,12 @@ export function CallToAction() {
                         Try Redis Vector Sets today and see how easy it is
                         to add vector search to your applications.
                     </p>
-                    <Link href="/console" legacyBehavior>
-                        <Button size="lg" className="mt-4">
+                    <Button size="lg" className="mt-4" asChild>
+                        <Link href="/console">
                             Get Started
                             <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </Link>
+                        </Link>
+                    </Button>
                 </div>
             </div>
         </section>

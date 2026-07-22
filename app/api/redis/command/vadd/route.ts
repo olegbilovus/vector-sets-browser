@@ -40,7 +40,7 @@ export async function POST(request: Request) {
         }
 
         // Redis VADD returns 1 for success, 0 for failure (element exists)
-        const success = redisResult.result === 1
+        const success = Number(redisResult.result) === 1
         console.log("Redis VADD result", redisResult.result)
         return formatResponse({
             success,

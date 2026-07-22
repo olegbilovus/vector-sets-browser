@@ -64,11 +64,23 @@ export async function POST(request: Request) {
                     const processedResult: ProcessedResult = []
 
                     for (let i = 0; i < result.length; i++) {
-                        const levelLinks = result[i]
-                        if (!Array.isArray(levelLinks)) {
+                        // node-redis v4 gives each level as a flat
+                        // [element, score, ...] array; v5+ decodes it into an
+                        // { element: score } object. Flatten objects back to
+                        // pairs so the loop below handles both.
+                        const rawLevel = result[i]
+                        const levelLinks: unknown[] = Array.isArray(rawLevel)
+                            ? rawLevel
+                            : rawLevel && typeof rawLevel === "object"
+                              ? Object.entries(
+                                    rawLevel as Record<string, unknown>
+                                ).flat()
+                              : []
+
+                        if (!Array.isArray(rawLevel) && levelLinks.length === 0) {
                             console.warn(
                                 `Invalid level links at index ${i}:`,
-                                levelLinks
+                                rawLevel
                             )
                             continue
                         }

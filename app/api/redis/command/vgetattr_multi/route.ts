@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
         // Process results
         // Each result will be either a JSON string or null
-        const results = redisResult.result as (string | null)[]
+        const results = redisResult.result as unknown as (string | null)[]
         
         return NextResponse.json({
             success: true,
