@@ -38,21 +38,18 @@ export function HeroSection() {
                     The Speed you need, the API you love.
                 </p>
                 <div className="flex flex-col gap-4 sm:flex-row">
-                    <Link href="/console" legacyBehavior>
-                        <Button size="lg">
+                    <Button size="lg" asChild>
+                        <Link href="/console">
                             Get Started
                             <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </Link>
-                    <Link
-                        href="https://github.com/redis/redis-vector-sets"
-                        legacyBehavior
-                    >
-                        <Button variant="outline" size="lg">
+                        </Link>
+                    </Button>
+                    <Button variant="outline" size="lg" asChild>
+                        <Link href="https://github.com/redis/redis-vector-sets">
                             <GithubIcon className="mr-2 h-4 w-4" />
                             View on GitHub
-                        </Button>
-                    </Link>
+                        </Link>
+                    </Button>
                 </div>
             </div>
         </section>

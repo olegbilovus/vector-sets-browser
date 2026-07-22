@@ -38,7 +38,7 @@ export default function TopNav() {
                     {navItems
                         .filter(({ visible }) => visible)
                         .map(({ href, paths, label }) => (
-                            <Link key={href} href={href} legacyBehavior>
+                            <Link key={href} href={href}>
                                 <div
                                     className={`font-mono hover:text-red-500 py-2 cursor-pointer border-b-2 ${paths.some((path) => pathname === path)
                                         ? "border-red-500 text-red-600"
