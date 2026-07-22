@@ -108,7 +108,9 @@ export class JobQueueService {
                 skip_empty_lines: true,
                 delimiter,
                 from_line: Math.max(1, skipRows + (hasHeader ? 1 : 0)),
-            }) as CSVRow[]
+                // csv-parse types the sync return as string[][] unless `columns`
+                // is a literal true; here it varies at runtime with hasHeader.
+            }) as unknown as CSVRow[]
 
             // Determine column names from the first record
             availableColumns = records.length > 0 ? Object.keys(records[0]) : []

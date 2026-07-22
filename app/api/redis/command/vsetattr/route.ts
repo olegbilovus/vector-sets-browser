@@ -40,7 +40,7 @@ export async function POST(request: Request) {
         }
 
         // VSETATTR returns 1 if the attributes were set, 0 if the element doesn't exist
-        const success = redisResult.result === 1
+        const success = Number(redisResult.result) === 1
         return formatResponse({
             success,
             result: redisResult.result,

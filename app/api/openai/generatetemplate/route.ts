@@ -35,8 +35,10 @@ export async function POST(request: NextRequest) {
             userPrompt += `\n${row}`
         }
 
-        // Call OpenAI API with structured output
-        const completion = await openai.beta.chat.completions.parse({
+        // Call OpenAI API with structured output.
+        // `beta.chat.completions.parse` graduated to `chat.completions.parse`
+        // in the v5 SDK; the request/response shape is unchanged.
+        const completion = await openai.chat.completions.parse({
             model: "gpt-4o-2024-08-06",
             messages: [
                 {

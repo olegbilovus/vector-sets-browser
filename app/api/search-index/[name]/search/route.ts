@@ -78,7 +78,7 @@ export async function POST(request: NextRequest, { params }: any) {
         .join(" ")
 
     const response = await RedisConnection.withClient(redisUrl, async (client) => {
-        return (await client.sendCommand(command)) as unknown[]
+        return await client.sendCommand(command)
     })
 
     if (!response.success) {
@@ -91,20 +91,45 @@ export async function POST(request: NextRequest, { params }: any) {
         )
     }
 
-    const raw = response.result as unknown[]
-    const total = Number(raw?.[0]) || 0
     const metric = (body.distanceMetric || "").toUpperCase()
 
+    // node-redis v4 returns the raw RESP2 array [total, id, [k, v, ...], ...];
+    // v5+ decodes it into { total_results, results: [{ id, extra_attributes }] }.
+    // Normalise both into [id, fields] pairs before extracting hits.
+    const raw = response.result as
+        | unknown[]
+        | { total_results?: number; results?: unknown[] }
+
+    let total = 0
+    const entries: Array<[string, Record<string, unknown>]> = []
+
+    if (Array.isArray(raw)) {
+        total = Number(raw[0]) || 0
+        for (let i = 1; i + 1 < raw.length; i += 2) {
+            const fieldArr = (raw[i + 1] as unknown[]) || []
+            const obj: Record<string, unknown> = {}
+            for (let j = 0; j + 1 < fieldArr.length; j += 2) {
+                obj[String(fieldArr[j])] = fieldArr[j + 1]
+            }
+            entries.push([String(raw[i]), obj])
+        }
+    } else {
+        total = Number(raw?.total_results) || 0
+        for (const r of raw?.results || []) {
+            const row = r as { id?: unknown; extra_attributes?: unknown }
+            entries.push([
+                String(row?.id ?? ""),
+                (row?.extra_attributes as Record<string, unknown>) || {},
+            ])
+        }
+    }
+
     const hits: SearchIndexHit[] = []
-    for (let i = 1; i + 1 < raw.length; i += 2) {
-        const id = String(raw[i])
-        const fieldArr = (raw[i + 1] as unknown[]) || []
+    for (const [id, attrs] of entries) {
         const fields: Record<string, string> = {}
         let score = 0
         let vector: number[] | undefined
-        for (let j = 0; j + 1 < fieldArr.length; j += 2) {
-            const key = String(fieldArr[j])
-            const val = fieldArr[j + 1]
+        for (const [key, val] of Object.entries(attrs)) {
             if (key === SCORE_ALIAS) {
                 score = Number(val) || 0
             } else if (wantVector && key === body.vectorField) {

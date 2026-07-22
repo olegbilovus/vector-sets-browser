@@ -57,7 +57,7 @@ export async function POST(request: Request) {
                 }
             }
 
-            const result = redisResult as string[]
+            const result = redisResult as unknown as string[]
             const info: Record<string, any> = {}
 
             for (let i = 0; i < result.length; i += 2) {

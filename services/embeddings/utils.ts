@@ -33,7 +33,7 @@ export async function isOllamaAvailable(): Promise<boolean> {
 export async function getDefaultTextEmbeddingConfig(): Promise<EmbeddingConfig> {
   // Try to use CLIP first
   try {
-    const { pipeline } = await import('@xenova/transformers')
+    const { pipeline } = await import('@huggingface/transformers')
     // Just check if we can initialize the pipeline
     await pipeline('feature-extraction', 'Xenova/clip-vit-base-patch32')
     return {

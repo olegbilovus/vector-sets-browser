@@ -1,6 +1,6 @@
 import { EmbeddingConfig, getModelData, CLIP_MODELS } from "../types/embeddingModels"
 import { EmbeddingProvider } from "./base"
-import { AutoProcessor, AutoTokenizer, CLIPTextModelWithProjection, CLIPVisionModelWithProjection, RawImage, pipeline, env } from '@xenova/transformers'
+import { AutoProcessor, AutoTokenizer, CLIPTextModelWithProjection, CLIPVisionModelWithProjection, RawImage, pipeline, env } from '@huggingface/transformers'
 
 // We don't serve models from /models, so skip the local probe that would
 // otherwise 404 four times before falling back to the remote CDN.
@@ -19,7 +19,7 @@ export class CLIPProvider implements EmbeddingProvider {
     private async getFeatureEmbedding(input: string, modelPath: string): Promise<number[]> {
         let pipe = this.featurePipelines.get(modelPath)
         if (!pipe) {
-            pipe = await pipeline('feature-extraction', modelPath, { quantized: true })
+            pipe = await pipeline('feature-extraction', modelPath, { dtype: 'q8' })
             this.featurePipelines.set(modelPath, pipe)
         }
         const output = await pipe(input, { pooling: 'mean', normalize: true })
@@ -32,7 +32,7 @@ export class CLIPProvider implements EmbeddingProvider {
             if (!this.imageProcessor || !this.visionModel) {
                 this.imageProcessor = await AutoProcessor.from_pretrained(modelPath)
                 this.visionModel = await CLIPVisionModelWithProjection.from_pretrained(modelPath, {
-                    quantized: true
+                    dtype: 'q8'
                 })
             }
 
@@ -109,7 +109,7 @@ export class CLIPProvider implements EmbeddingProvider {
                 if (!this.textModel || !this.tokenizer) {
                     this.tokenizer = await AutoTokenizer.from_pretrained(modelPath)
                     this.textModel = await CLIPTextModelWithProjection.from_pretrained(modelPath, {
-                        quantized: true
+                        dtype: 'q8'
                     })
                 }
 

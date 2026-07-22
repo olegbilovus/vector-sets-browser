@@ -96,7 +96,7 @@ export async function POST(request: Request) {
         if (validatedRequest.elements) {
             // For multi-element removal, we get an array of results from EXEC
             // Each result is 1 for success or 0 for failure
-            const results = redisResult.result as number[]
+            const results = redisResult.result as unknown as number[]
             const successCount = results.reduce((sum, result) => sum + (result === 1 ? 1 : 0), 0)
             
             return formatResponse({
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
             })
         } else {
             // Single element removal
-            const success = redisResult.result === 1
+            const success = Number(redisResult.result) === 1
             return formatResponse({
                 success,
                 result: redisResult.result,

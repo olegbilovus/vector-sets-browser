@@ -10,20 +10,27 @@ function pairsToObj(arr: unknown[]): Record<string, unknown> {
     return o
 }
 
+// node-redis v4 hands back the raw flat array; v5+ decodes FT.INFO into a keyed
+// object (and nests index_definition / attributes as objects too). Accept both
+// so the parser is independent of the client's reply decoding.
+function asObj(v: unknown): Record<string, unknown> {
+    if (Array.isArray(v)) return pairsToObj(v)
+    if (v && typeof v === "object") return v as Record<string, unknown>
+    return {}
+}
+
 function toNumber(v: unknown): number {
     const n = Number(v)
     return Number.isFinite(n) ? n : 0
 }
 
 // Parse the raw FT.INFO reply into a typed FtIndexInfo.
-export function parseFtInfo(name: string, raw: unknown[]): FtIndexInfo {
-    const info = pairsToObj(raw)
+export function parseFtInfo(name: string, raw: unknown): FtIndexInfo {
+    const info = asObj(raw)
 
-    // index_definition: [ key_type, JSON, prefixes, [ ... ], ... ]
-    const defArr = Array.isArray(info["index_definition"])
-        ? (info["index_definition"] as unknown[])
-        : []
-    const def = pairsToObj(defArr)
+    // index_definition: [ key_type, JSON, prefixes, [ ... ], ... ] on v4,
+    // { key_type, prefixes, ... } on v5+
+    const def = asObj(info["index_definition"])
     const keyType = String(def["key_type"] ?? "HASH")
     const prefixes = Array.isArray(def["prefixes"])
         ? (def["prefixes"] as unknown[]).map(String)
@@ -36,7 +43,7 @@ export function parseFtInfo(name: string, raw: unknown[]): FtIndexInfo {
         ? (info["attributes"] as unknown[])
         : []
     const fields: FtField[] = attrsRaw.map((a) => {
-        const ao = pairsToObj(a as unknown[])
+        const ao = asObj(a)
         const field: FtField = {
             identifier: String(ao["identifier"] ?? ""),
             attribute: String(ao["attribute"] ?? ""),

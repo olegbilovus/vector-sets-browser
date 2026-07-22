@@ -41,7 +41,7 @@ export async function POST(request: Request) {
 
         // Process VINFO result
         // VINFO returns an array of alternating keys and values
-        const result = redisResult.result as string[]
+        const result = redisResult.result as unknown as string[]
         const info: Record<string, any> = {}
 
         for (let i = 0; i < result.length; i += 2) {
