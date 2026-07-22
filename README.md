@@ -24,7 +24,13 @@ cd vector-sets-browser
 
 ## Running with Docker
 
-You can run this project using the provided Dockerfile. This allows you to avoid building the project manually. To do so, follow these steps:
+Pre-built images are published to the GitHub Container Registry on every push to `main`:
+
+```bash
+docker run -p 3000:3000 ghcr.io/olegbilovus/vector-sets-browser:latest
+```
+
+Or build it yourself using the provided Dockerfile:
 
 1. Build the Docker image:
    ```bash

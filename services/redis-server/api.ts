@@ -9,6 +9,7 @@ export type VectorTupleLevels = VectorTupleLevel[]
 // VINFO command
 export interface VinfoRequestBody {
     keyName: string
+    returnCommandOnly?: boolean
 }
 
 export type VinfoResult = {
@@ -56,6 +57,7 @@ export async function vinfo_multi(
 // VDIM command
 export interface VdimRequestBody {
     keyName: string
+    returnCommandOnly?: boolean
 }
 
 export type VdimResult = number
@@ -76,6 +78,7 @@ export async function vdim(
 // VCARD command
 export interface VcardRequestBody {
     keyName: string
+    returnCommandOnly?: boolean
 }
 
 export type VcardResult = number
@@ -98,6 +101,7 @@ export interface VremRequestBody {
     keyName: string
     element?: string
     elements?: string[]
+    returnCommandOnly?: boolean
 }
 
 export type VremResult = boolean
@@ -174,6 +178,7 @@ export interface VaddMultiRequestBody {
     reduceDimensions?: number
     useCAS?: boolean
     ef?: number
+    returnCommandOnly?: boolean
 }
 
 export type VaddMultiResult = boolean[]
@@ -197,6 +202,7 @@ export interface VlinksRequestBody {
     element: string
     count?: number
     withEmbeddings?: boolean
+    returnCommandOnly?: boolean
 }
 
 export type VlinksResult = VectorTupleLevels
@@ -293,6 +299,7 @@ export interface VsetAttrRequestBody {
     keyName: string
     element: string
     attributes: string // JSON string
+    returnCommandOnly?: boolean
 }
 
 export type VsetAttrResult = boolean
