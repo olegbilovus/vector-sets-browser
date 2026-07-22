@@ -29,9 +29,10 @@ export interface ForceEdge {
 }
 
 export interface SimilarityItem {
-    element: string
+    element: string // unique node identity (never displayed if `label` is set)
     similarity: number
     vector: number[]
+    label?: string // optional human-readable display name; falls back to `element`
 }
 
 export interface FetchNeighborsResponse {

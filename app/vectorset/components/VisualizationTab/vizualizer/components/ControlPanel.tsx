@@ -125,7 +125,8 @@ export function ControlPanel({
                                             Selected:
                                         </span>
                                         <span className="pl-1">
-                                            {selectedNode.userData.element}
+                                            {selectedNode.userData.label ||
+                                                selectedNode.userData.element}
                                         </span>
                                     </div>
 

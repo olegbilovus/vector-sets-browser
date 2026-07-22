@@ -14,6 +14,7 @@ import VectorSearchTab from "./components/SearchTab/VectorSearchTab"
 import VectorSetHeader from "./components/VectorSetHeader"
 import VectorSetNav from "./components/VectorSetNav"
 import VectorSettings from "./components/SettingsTab/VectorSettings"
+import SearchIndexView from "./components/SearchIndexTab/SearchIndexView"
 
 // Memoize the header component to prevent unnecessary re-renders
 const MemoizedVectorSetHeader = React.memo(VectorSetHeader);
@@ -57,6 +58,8 @@ function VectorSetPageContent() {
     const [redisName, setRedisName] = useState<string | null>(null)
     const [isAddVectorModalOpen, setIsAddVectorModalOpen] = useState(false)
     const [activeTab, setActiveTab] = useState("search")
+    // Selected RediSearch (FT) index, mutually exclusive with a vector set
+    const [selectedSearchIndex, setSelectedSearchIndex] = useState<string | null>(null)
     // Keep track of search state per vector set
     const [isVectorSetChanging, setIsVectorSetChanging] = useState(false)
     // Add state to track if we should auto-open sample data dialog
@@ -178,9 +181,15 @@ function VectorSetPageContent() {
     }, [connectionId, router, handleConnect])
 
     const handleVectorSetChange = (newVectorSet: string | null) => {
+        if (newVectorSet) setSelectedSearchIndex(null)
         setIsVectorSetChanging(true)
         setVectorSetName(newVectorSet)
         setTimeout(() => setIsVectorSetChanging(false), 100)
+    }
+
+    const handleSearchIndexSelect = (name: string | null) => {
+        setSelectedSearchIndex(name)
+        if (name) setVectorSetName(null)
     }
 
     // Memoize loading and connection states to prevent unnecessary rerenders
@@ -254,9 +263,28 @@ function VectorSetPageContent() {
                 onConnect={handleConnect}
                 isConnected={isConnected}
                 onBack={handleDisconnect}
+                selectedSearchIndex={selectedSearchIndex}
+                onSearchIndexSelect={handleSearchIndexSelect}
             />
 
             <div className="flex-1 p-4 overflow-y-auto flex flex-col">
+                {selectedSearchIndex ? (
+                    <>
+                        <div className="mb-4 border-b border-gray-500 py-2">
+                            <h1
+                                className="text-xl font-semibold truncate"
+                                title={selectedSearchIndex}
+                            >
+                                {selectedSearchIndex}
+                            </h1>
+                            <p className="text-xs text-gray-500">
+                                RediSearch index
+                            </p>
+                        </div>
+                        <SearchIndexView indexName={selectedSearchIndex} />
+                    </>
+                ) : (
+                    <>
                 {vectorSetName ? (
                     <div className="mb-4 border-b border-gray-500">
                         <MemoizedVectorSetHeader
@@ -326,6 +354,8 @@ function VectorSetPageContent() {
                 ) : (
                     <div>
                     </div>
+                )}
+                    </>
                 )}
 
                 {isAddVectorModalOpen && (

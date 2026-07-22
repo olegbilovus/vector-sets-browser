@@ -1,5 +1,6 @@
 import { ApiError } from "@/services/client"
 import { vectorSets } from "@/services/vector-sets"
+import { searchIndexes } from "@/services/search-indexes"
 import { useAnimationSettings } from "@/app/config/AnimationSettings"
 import CreateVectorSetModal from "@/app/vectorset/components/CreateVectorSetDialog"
 import DeleteVectorSetDialog from "@/app/vectorset/components/DeleteVectorSetDialog"
@@ -29,6 +30,8 @@ interface VectorSetNavProps {
     onConnect: (url: string) => Promise<boolean>
     onBack: () => void
     isConnected: boolean
+    selectedSearchIndex?: string | null
+    onSearchIndexSelect?: (name: string | null) => void
 }
 
 interface VectorSetInfo {
@@ -104,6 +107,8 @@ export default function VectorSetNav({
     onVectorSetSelect,
     onBack,
     isConnected,
+    selectedSearchIndex,
+    onSearchIndexSelect,
 }: VectorSetNavProps) {
     const { isCollapsed, toggleSidebar } = useSidebarToggle()
     const { animationsDisabled } = useAnimationSettings()
@@ -122,8 +127,28 @@ export default function VectorSetNav({
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [vectorSetToDelete, setVectorSetToDelete] = useState<string | null>(null)
     const [isInitialLoad, setIsInitialLoad] = useState(true)
+    const [searchIndexState, setSearchIndexState] = useState<{
+        list: string[]
+        available: boolean
+        loading: boolean
+    }>({ list: [], available: false, loading: false })
 
     const refreshingRef = useRef(false)
+
+    const loadSearchIndexes = useCallback(async () => {
+        if (!isConnected) return
+        setSearchIndexState((prev) => ({ ...prev, loading: true }))
+        try {
+            const res = await searchIndexes.list()
+            setSearchIndexState({
+                list: res.indexes,
+                available: res.available,
+                loading: false,
+            })
+        } catch {
+            setSearchIndexState({ list: [], available: false, loading: false })
+        }
+    }, [isConnected])
 
     const loadVectorSets = useCallback(async () => {
         if (!isConnected || refreshingRef.current) {
@@ -248,6 +273,7 @@ export default function VectorSetNav({
     useEffect(() => {
         if (isConnected && redisUrl) {
             loadVectorSets()
+            loadSearchIndexes()
             setIsInitialLoad(true)
         } else {
             setVectorSetState(prev => ({
@@ -257,9 +283,10 @@ export default function VectorSetNav({
                 loading: false,
                 error: null
             }))
+            setSearchIndexState({ list: [], available: false, loading: false })
             setIsInitialLoad(true)
         }
-    }, [redisUrl, isConnected, loadVectorSets])
+    }, [redisUrl, isConnected, loadVectorSets, loadSearchIndexes])
 
     useEffect(() => {
         if (isInitialLoad && vectorSetState.list.length > 0 && !selectedVectorSet) {
@@ -415,8 +442,11 @@ export default function VectorSetNav({
                             <div className="flex gap-1">
                                 <Button
                                     variant="ghost"
-                                    onClick={() => loadVectorSets()}
-                                    title="Refresh Vector Sets"
+                                    onClick={() => {
+                                        loadVectorSets()
+                                        loadSearchIndexes()
+                                    }}
+                                    title="Refresh"
                                     className="p-1"
                                 >
                                     <svg
@@ -603,6 +633,50 @@ export default function VectorSetNav({
                             </div>
                         )
                     })}
+
+                    {!isCollapsed && searchIndexState.list.length > 0 && (
+                        <div className="mt-6">
+                            <h2 className="text-sm font-semibold uppercase text-gray-600 mb-2">
+                                Search Indexes
+                            </h2>
+                            {searchIndexState.list.map((idxName, index) => {
+                                const isSelected =
+                                    selectedSearchIndex === idxName
+                                return (
+                                    <div
+                                        key={idxName}
+                                        className={`group list-item relative ${
+                                            isSelected
+                                                ? "list-item-selected"
+                                                : index % 2 === 0
+                                                    ? "list-item-alt"
+                                                    : "list-item-default"
+                                        }`}
+                                    >
+                                        <div
+                                            onClick={() =>
+                                                onSearchIndexSelect?.(idxName)
+                                            }
+                                            className="list-item-content truncate"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span
+                                                    className="truncate overflow-hidden whitespace-nowrap min-w-0"
+                                                    title={idxName}
+                                                >
+                                                    {idxName}
+                                                </span>
+                                            </div>
+                                            <div className="flex w-full justify-between text-xs">
+                                                <span>RediSearch index</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
+
                     <div className="grow"></div>
                     {vectorSetState.loading && (
                         <div className={`text-sm text-gray-500 ${isCollapsed ? "text-center" : ""}`}>

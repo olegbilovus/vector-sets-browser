@@ -1,13 +1,31 @@
 import { EmbeddingConfig, getModelData, CLIP_MODELS } from "../types/embeddingModels"
 import { EmbeddingProvider } from "./base"
-import { AutoProcessor, AutoTokenizer, CLIPTextModelWithProjection, CLIPVisionModelWithProjection, RawImage } from '@xenova/transformers'
+import { AutoProcessor, AutoTokenizer, CLIPTextModelWithProjection, CLIPVisionModelWithProjection, RawImage, pipeline, env } from '@xenova/transformers'
+
+// We don't serve models from /models, so skip the local probe that would
+// otherwise 404 four times before falling back to the remote CDN.
+env.allowLocalModels = false
 
 export class CLIPProvider implements EmbeddingProvider {
     private imageProcessor: any = null
     private visionModel: any = null
     private textModel: any = null
     private tokenizer: any = null
-    
+    // Cached feature-extraction pipelines, keyed by model path
+    private featurePipelines: Map<string, any> = new Map()
+
+    // Mean-pooled text embedding for plain feature-extraction models (e.g. gte-base).
+    // COSINE-comparable with the vectors ingested by the snow-mcp-java ETL.
+    private async getFeatureEmbedding(input: string, modelPath: string): Promise<number[]> {
+        let pipe = this.featurePipelines.get(modelPath)
+        if (!pipe) {
+            pipe = await pipeline('feature-extraction', modelPath, { quantized: true })
+            this.featurePipelines.set(modelPath, pipe)
+        }
+        const output = await pipe(input, { pooling: 'mean', normalize: true })
+        return Array.from(output.data as Float32Array)
+    }
+
     async getImageEmbedding(imageData: string, modelPath: string): Promise<number[]> {
         try {
             // Initialize the image models if not already done
@@ -60,12 +78,14 @@ export class CLIPProvider implements EmbeddingProvider {
 
         try {
             let modelPath: string = 'Xenova/clip-vit-base-patch32'
-            
+            let isFeatureExtraction = false
+
             if (config.clip.model) {
                 const model = CLIP_MODELS.find(model => model.id === config.clip?.model)
                 if (model?.modelPath) {
                     modelPath = model.modelPath
                 }
+                isFeatureExtraction = model?.additionalInfo?.featureExtraction === true
             }
 
             if (!modelPath) {
@@ -74,9 +94,15 @@ export class CLIPProvider implements EmbeddingProvider {
 
             // Determine if input is base64 image data or text
             const isBase64Image = input.startsWith('data:image')
-            
+
             let embedding: number[]
-            if (isBase64Image) {
+            if (isFeatureExtraction) {
+                // Plain text embedding model (e.g. gte-base) — not CLIP.
+                if (isBase64Image) {
+                    throw new Error(`Model ${config.clip.model} does not support image input`)
+                }
+                embedding = await this.getFeatureEmbedding(input, modelPath)
+            } else if (isBase64Image) {
                 embedding = await this.getImageEmbedding(input, modelPath)
             } else {
                 // Initialize the text model and tokenizer if not already done

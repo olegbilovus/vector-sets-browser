@@ -401,25 +401,38 @@ export default function EditEmbeddingConfigModal({
                     </>
                 )
 
-            case "clip":
+            case "clip": {
                 const clipModel = getModelData({
                     provider: "clip",
                     clip: { model: clipConfig.model },
                 })
                 return (
-                    <div className="text-xs">
-                        <p>
-                            No Configuration is necessary for CLIP model. This
-                            model creates {clipModel?.dimensions}-dimensional
-                            vectors.
+                    <>
+                        <div className="space-y-2">
+                            <Label htmlFor="clipModel" className="font-medium">
+                                Choose a Model
+                            </Label>
+                            <ModelSelector
+                                provider="clip"
+                                value={clipConfig.model}
+                                onChange={(value) =>
+                                    setClipConfig({
+                                        ...clipConfig,
+                                        model: value,
+                                    })
+                                }
+                            />
+                        </div>
+                        <p className="text-xs text-gray-500">
+                            Runs locally in your browser — no API key. The model
+                            is downloaded once on first use, then cached.
+                            {clipModel?.dimensions
+                                ? ` Produces ${clipModel.dimensions}-dimensional vectors.`
+                                : ""}
                         </p>
-                        <p className="mt-2">
-                            Multi-modal models can understand both text and
-                            images in the same vector space, enabling
-                            cross-modal similarity search.
-                        </p>
-                    </div>
+                    </>
                 )
+            }
 
             default:
                 return (
