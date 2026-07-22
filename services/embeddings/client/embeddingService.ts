@@ -5,6 +5,8 @@ import { preprocessImage } from "./imageProcessingService"
 const modelCache: Record<string, any> = {}
 let mobilenetModule: any = null
 let isModelLoading = false
+// Reused CLIP/Transformers.js provider so pipelines/models stay cached in-browser
+let clipProviderInstance: any = null
 
 // Embedding cache to avoid regenerating the same embeddings
 interface EmbeddingCacheEntry {
@@ -60,6 +62,10 @@ export class ClientEmbeddingService {
             } else {
                 throw new Error(`Unsupported provider for image embedding: ${config.provider}`)
             }
+        } else if (config.provider === "clip") {
+            // Transformers.js text models (e.g. gte-base) run in the browser —
+            // avoids the server /api/embeddings path (and its native `sharp` load).
+            embedding = await this.generateClipTextEmbedding(inputData, config)
         } else {
             // Handle text embedding (via API)
             embedding = await this.generateTextEmbedding(inputData, config)
@@ -104,6 +110,26 @@ export class ClientEmbeddingService {
             )
         } catch (error) {
             console.error("Error generating CLIP embedding:", error)
+            throw error
+        }
+    }
+
+    /**
+     * Generate a text embedding with a Transformers.js (CLIP-family) model in the browser.
+     * Handles both CLIP text encoders and mean-pooled feature-extraction models (gte-base).
+     */
+    private async generateClipTextEmbedding(
+        text: string,
+        config: EmbeddingConfig
+    ): Promise<number[]> {
+        try {
+            if (!clipProviderInstance) {
+                const { CLIPProvider } = await import("@/services/embeddings/providers/clip")
+                clipProviderInstance = new CLIPProvider()
+            }
+            return await clipProviderInstance.getEmbedding(text, config)
+        } catch (error) {
+            console.error("Error generating CLIP text embedding:", error)
             throw error
         }
     }

@@ -200,7 +200,7 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
     )
 
     // Function to create a node mesh
-    const createNodeMesh = (element: string, vector?: number[]) => {
+    const createNodeMesh = (element: string, vector?: number[], label?: string) => {
         const geometry = new THREE.SphereGeometry(NODE_SIZE.DEFAULT, 32, 32)
         const material = new THREE.MeshBasicMaterial({
             color: isDarkMode ? COLORS_REDIS_DARK.NODE.DEFAULT : COLORS_REDIS_LIGHT.NODE.DEFAULT,
@@ -210,6 +210,7 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
             isNode: true,
             element,
             vector,
+            label,
             expanded: false,
             displayState: "default",
         }
@@ -243,8 +244,8 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
             scene.add(highlight)
             hoverHighlightRef.current = highlight
 
-            // Update hover label text
-            const elementName = mesh.userData.element
+            // Update hover label text (prefer a human-readable label if provided)
+            const elementName = mesh.userData.label || mesh.userData.element
             
             // Truncate long text but handle multi-line content properly
             // Check if the element name contains newlines
@@ -405,7 +406,7 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
 
             if (!existingNode) {
                 // Create new node
-                const newMesh = createNodeMesh(item.element, item.vector)
+                const newMesh = createNodeMesh(item.element, item.vector, item.label)
                 newMesh.userData.similarity = item.similarity
                 scene.add(newMesh)
                 const newNode = addNode(newMesh)
@@ -654,7 +655,8 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
             // Creating initial node with complete similarity item data
             const initialMesh = createNodeMesh(
                 initialElement.element,
-                vector
+                vector,
+                initialElement.label
             )
             initialMesh.userData.similarity = initialElement.similarity
             scene.add(initialMesh)
@@ -827,7 +829,7 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
                         continue
                     }
 
-                    const neighbor = createNodeMesh(item.element, item.vector)
+                    const neighbor = createNodeMesh(item.element, item.vector, item.label)
                     if (neighbor && scene) {
                         neighbor.userData.similarity = item.similarity
                         scene.add(neighbor)
@@ -989,7 +991,8 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
         // Create initial node with complete similarity item data
         const initialMesh = createNodeMesh(
             initialElement.element,
-            initialElement.vector
+            initialElement.vector,
+            initialElement.label
         )
         initialMesh.userData.similarity = initialElement.similarity
         scene.add(initialMesh)

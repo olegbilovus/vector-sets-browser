@@ -43,10 +43,11 @@ export const PROVIDER_INFO: Record<EmbeddingProvider, ProviderInfo> = {
     },
     "clip": {
         id: "clip",
-        displayName: "Transformers.js",
-        description: "Multi-modal models that handle both text and images",
+        displayName: "Transformers.js (local)",
+        description:
+            "Runs locally in your browser — no API key. Text models (e.g. GTE) and multi-modal CLIP models.",
         isBuiltIn: true,
-        dataFormats: ["text-and-image"],
+        dataFormats: ["text", "text-and-image"],
     },
     "none": {
         id: "none",
@@ -118,7 +119,8 @@ export const IMAGE_MODELS: ModelData[] = [
     }
 ]
 
-// CLIP Models
+// CLIP Models (Transformers.js). Also hosts text-only feature-extraction
+// models flagged with additionalInfo.featureExtraction (mean-pooled).
 export const CLIP_MODELS: ModelData[] = [
     {
         id: "clip-vit-base-patch32",
@@ -130,6 +132,17 @@ export const CLIP_MODELS: ModelData[] = [
         modelPath: "Xenova/clip-vit-base-patch32",
         isDefault: true,
         size: "Base"
+    },
+    {
+        id: "gte-base",
+        name: "GTE Base (thenlper)",
+        provider: "clip",
+        dimensions: 768,
+        dataFormat: "text",
+        description: "General Text Embeddings base — mean-pooled feature extraction. Matches the snow-mcp-java RAG (thenlper/gte-base).",
+        modelPath: "Xenova/gte-base",
+        size: "Base",
+        additionalInfo: { featureExtraction: true }
     }
 ]
 
