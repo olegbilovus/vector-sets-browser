@@ -9,6 +9,7 @@ import {
     getJobMetadataKey,
     getJobQueueKey,
     getJobStatusKey,
+    JOB_INDEX_KEY,
 } from "@/lib/types/jobs"
 import { parse } from "csv-parse/sync"
 import { v4 as uuidv4 } from "uuid"
@@ -248,6 +249,9 @@ export class JobQueueService {
                     data: JSON.stringify(initialProgress),
                 })
 
+                // Register the job so listing never has to scan the keyspace.
+                await client.sAdd(JOB_INDEX_KEY, jobId)
+
                 // Add records to job queue
                 const queueKey = getJobQueueKey(jobId)
                 for (let i = 0; i < records.length; i++) {
@@ -390,6 +394,7 @@ export class JobQueueService {
                 getJobMetadataKey(jobId),
             ]
             await client.del(keys)
+            await client.sRem(JOB_INDEX_KEY, jobId)
             return true
         })
         if (!result.success) {

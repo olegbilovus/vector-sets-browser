@@ -52,3 +52,7 @@ export interface JobQueueItem {
 export const getJobQueueKey = (jobId: string) => `job:${jobId}:queue`
 export const getJobStatusKey = (jobId: string) => `job:${jobId}:status`
 export const getJobMetadataKey = (jobId: string) => `job:${jobId}:metadata`
+
+// Set of known job ids. Listing jobs used to walk the whole keyspace, which
+// the UI does every few seconds; this makes it a single O(1) read.
+export const JOB_INDEX_KEY = "job:index"

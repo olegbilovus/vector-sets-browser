@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { CreateImportJobRequestBody } from "@/services/jobs"
 import { RedisConnection, getRedisUrl } from "@/services/redis-server/RedisConnection"
 import { VectorSetMetadata } from "@/lib/types/vectors"
+import { JOB_INDEX_KEY } from "@/lib/types/jobs"
 
 // Map to store active job processors
 const activeProcessors = new Map<string, JobProcessor>()
@@ -61,23 +62,29 @@ export async function GET(req: NextRequest) {
         const result = await RedisConnection.withClient(
             redisUrl,
             async (client) => {
-                console.log("Listing jobs from Redis")
-                const keys = await client.keys("job:*:status")
-                console.log("Found job status keys:", keys)
+                // Read the job ids from their index set. This used to be
+                // KEYS "job:*:status", which is O(keyspace) and blocks Redis —
+                // and the UI polls this endpoint every few seconds.
+                const jobIds = await client.sMembers(JOB_INDEX_KEY)
                 const jobs = []
-                
-                for (const key of keys) {
-                    const jobId = key.split(":")[1]
-                    
-                    // Skip if the key format is invalid
-                    if (!jobId) continue;
-                    
+
+                for (const jobId of jobIds) {
+                    if (!jobId) continue
+
                     const [status, metadata] = await Promise.all([
                         JobQueueService.getJobProgress(redisUrl, jobId),
                         JobQueueService.getJobMetadata(redisUrl, jobId),
                     ])
                     
-                    if (status && metadata) {
+                    if (!status || !metadata) {
+                        // The job's keys are gone (expired, or removed without
+                        // cleanupJob). Drop the id so the index self-heals
+                        // instead of growing stale entries forever.
+                        await client.sRem(JOB_INDEX_KEY, jobId)
+                        continue
+                    }
+
+                    {
                         // If vectorSetName is provided, only include jobs for that vector set
                         if (
                             vectorSetName &&
