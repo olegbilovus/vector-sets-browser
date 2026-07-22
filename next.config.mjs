@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // Indicate that these packages should not be bundled by webpack
-    serverExternalPackages:  ['sharp', 'onnxruntime-node'],
+    // Indicate that these packages should not be bundled by webpack.
+    // All three are native addons — bundling them turns a clean "not installed"
+    // into a webpack module-resolution failure with an unreadable stack.
+    serverExternalPackages:  ['sharp', 'onnxruntime-node', 'canvas'],
 
     // Emit a self-contained server bundle so the Docker runtime stage only
     // needs the traced subset of node_modules instead of the whole tree.

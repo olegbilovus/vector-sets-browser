@@ -45,6 +45,12 @@ export interface HNSWVizPureProps {
     maxNodes?: number
     initialNodes?: number
     vectorSetName: string
+    /**
+     * Fill the parent element instead of imposing the default
+     * `calc(100vh - 400px)` height. That constant assumes the VectorSet page's
+     * layout; hosts with more chrome above the graph collapse it to a sliver.
+     */
+    fitParent?: boolean
     getNeighbors: (
         element: string,
         count: number,

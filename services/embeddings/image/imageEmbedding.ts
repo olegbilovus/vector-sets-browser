@@ -12,14 +12,22 @@ let tfInitialized = false
 // Check if code is running in browser environment
 const isBrowser = typeof window !== "undefined"
 
-// Initialize canvas in non-browser environments
+// Initialize canvas in non-browser environments.
+// `canvas` is an optional native addon used only by server-side TensorFlow.js
+// image embedding. It ships prebuilt binaries for a limited set of Node
+// versions, so on a newer runtime it may be present in node_modules without a
+// compiled binary. Everything except server-side image embedding works without
+// it, so a failure here is a warning, not an error.
 async function initializeCanvas() {
     if (!isBrowser) {
         try {
             // Dynamic import for node-canvas in server environment
             await import('canvas')
-        } catch (error) {
-            console.error("[TensorFlow.js] Failed to load canvas package:", error)
+        } catch {
+            console.warn(
+                "[TensorFlow.js] Optional 'canvas' package unavailable — " +
+                "server-side image embedding is disabled. Everything else is unaffected."
+            )
         }
     }
 }

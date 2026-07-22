@@ -638,6 +638,7 @@ export default function SearchIndexView({ indexName }: SearchIndexViewProps) {
                                                 initialNodes={Number(count) || 10}
                                                 vectorSetName={indexName}
                                                 getNeighbors={getNeighbors}
+                                                fitParent
                                             />
                                         ) : (
                                             <div className="text-sm text-gray-500 p-4">
