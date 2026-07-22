@@ -194,9 +194,16 @@ export default function VectorDistributionRenderer({
             const x = margin.left + index * barWidth
             const y = margin.top + chartHeight - barHeight
 
-            // Color based on bin count (relative to max)
-            const intensity = bin.count / maxCount
-            const color = getColor(intensity)
+            // Color by the bin's value, not its count. Keying color to
+            // count/maxCount double-encodes what the bar height already shows,
+            // and near-Gaussian embeddings put every bin but the mode close to
+            // 0 — which is pure black on the thermal ramp, rendering the whole
+            // histogram unreadable.
+            const binCenter = (bin.start + bin.end) / 2
+            const valuePosition = stats.range > 0
+                ? (binCenter - stats.min) / stats.range
+                : 0.5
+            const color = getColor(valuePosition)
             
             ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`
             

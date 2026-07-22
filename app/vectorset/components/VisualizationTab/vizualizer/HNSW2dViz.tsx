@@ -34,6 +34,7 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
     initialNodes = 20,
     vectorSetName,
     getNeighbors,
+    fitParent = false,
 }) => {
     // Refs for hover and selection effects
     const hoverHighlightRef = useRef<THREE.Mesh | null>(null)
@@ -1094,11 +1095,15 @@ const HNSWVizPure: React.FC<HNSWVizPureProps> = ({
 
     return (
         <div
-            className="relative w-full"
-            style={{
-                minHeight: "calc(100vh - 400px)",
-                maxHeight: "calc(100vh - 400px)",
-            }}
+            className={`relative w-full${fitParent ? " h-full" : ""}`}
+            style={
+                fitParent
+                    ? undefined
+                    : {
+                          minHeight: "calc(100vh - 400px)",
+                          maxHeight: "calc(100vh - 400px)",
+                      }
+            }
         >
             <canvas
                 ref={canvasRef}
