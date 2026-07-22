@@ -57,13 +57,18 @@ export async function POST(request: Request) {
                 }
             }
 
-            const result = redisResult as unknown as string[]
+            // v4 returns alternating [key, value, ...]; v5+ a keyed object.
+            const raw = redisResult as unknown
+            const pairs: Array<[string, unknown]> = Array.isArray(raw)
+                ? Array.from({ length: Math.floor(raw.length / 2) }, (_, i) => [
+                      String(raw[i * 2]),
+                      raw[i * 2 + 1],
+                  ])
+                : Object.entries((raw as Record<string, unknown>) || {})
+
             const info: Record<string, any> = {}
 
-            for (let i = 0; i < result.length; i += 2) {
-                const key = result[i]
-                const value = result[i + 1]
-
+            for (const [key, value] of pairs) {
                 if (key && value !== undefined) {
                     // Convert numeric strings to numbers
                     if (typeof value === 'string' && !isNaN(Number(value))) {

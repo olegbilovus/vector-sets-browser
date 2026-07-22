@@ -39,15 +39,19 @@ export async function POST(request: Request) {
             return formatResponse(redisResult)
         }
 
-        // Process VINFO result
-        // VINFO returns an array of alternating keys and values
-        const result = redisResult.result as unknown as string[]
+        // Process VINFO result.
+        // node-redis v4 returns alternating [key, value, ...]; v5+ decodes the
+        // reply into a keyed object. Normalise to pairs before converting.
+        const raw = redisResult.result as unknown
+        const pairs: Array<[string, unknown]> = Array.isArray(raw)
+            ? Array.from({ length: Math.floor(raw.length / 2) }, (_, i) => [
+                  String(raw[i * 2]),
+                  raw[i * 2 + 1],
+              ])
+            : Object.entries((raw as Record<string, unknown>) || {})
+
         const info: Record<string, any> = {}
-
-        for (let i = 0; i < result.length; i += 2) {
-            const key = result[i]
-            const value = result[i + 1]
-
+        for (const [key, value] of pairs) {
             if (key && value !== undefined) {
                 // Convert numeric strings to numbers
                 if (typeof value === 'string' && !isNaN(Number(value))) {
