@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo, useCallback } from "react"
-import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { OrbitControls, Html } from "@react-three/drei"
+import { Canvas, useThree } from "@react-three/fiber"
+import { OrbitControls } from "@react-three/drei"
 import * as THREE from "three"
 
 interface Vector3DSurfaceRendererProps {
@@ -60,7 +60,7 @@ function SurfaceMesh({
 
     // Normalize value for height mapping (always 0 to 1, with min value at floor)
     const normalizeValue = useCallback((value: number) => {
-        const { min, max, range } = scalingParams
+        const { min, range } = scalingParams
         if (range === 0) return 0
 
         if (scalingMode === 'absolute') {
@@ -329,11 +329,24 @@ export default function Vector3DSurfaceRenderer({
     showStats = false,
     scalingMode = 'relative',
     colorScheme = 'thermal',
-    noPadding = false
+    noPadding: _noPadding = false
 }: Vector3DSurfaceRendererProps) {
     const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null)
     const [currentHeightScale, setCurrentHeightScale] = useState<number>(2.0)
     const isMiniMode = size < 150 // Disable hover for mini displays
+
+    const handleHover = useCallback((info: HoverInfo | null) => {
+        if (!isMiniMode) {
+            setHoverInfo(info)
+        }
+    }, [isMiniMode])
+
+    const handleHeightScaleChange = useCallback((scale: number) => {
+        setCurrentHeightScale(scale)
+    }, [])
+
+    // The guards below return early, so every hook has to be declared above
+    // them — otherwise the hook order changes once vector data arrives.
 
     // Don't render if no vector data
     if (!vector || vector.length === 0) {
@@ -358,16 +371,6 @@ export default function Vector3DSurfaceRenderer({
             </div>
         )
     }
-
-    const handleHover = useCallback((info: HoverInfo | null) => {
-        if (!isMiniMode) {
-            setHoverInfo(info)
-        }
-    }, [isMiniMode])
-
-    const handleHeightScaleChange = useCallback((scale: number) => {
-        setCurrentHeightScale(scale)
-    }, [])
 
     return (
         <div className={`relative ${className}`} style={{ width: size, height: size }}>
